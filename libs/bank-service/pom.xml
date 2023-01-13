@@ -4,14 +4,14 @@
         <groupId>org.acme.libs</groupId>
         <artifactId>libs</artifactId>
         <version>1.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.acme.libs.bank-service</groupId>
     <artifactId>bank-service</artifactId>
     <name>bank-service</name>
-    <version>SNAPSHOT 0.0.1</version>
+    <version>SNAPSHOT-0.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
