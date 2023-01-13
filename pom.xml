@@ -19,6 +19,8 @@
     <modules>
         <module>apps</module>
         <module>libs</module>
+        <module>client</module>
+
     </modules>
 
     <build>

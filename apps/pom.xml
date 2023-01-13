@@ -26,5 +26,16 @@
                 <module>payment</module>
             </modules>
         </profile>
+        <profile>
+            <id>account</id>
+            <activation>
+                <file>
+                    <exists>account/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>account</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

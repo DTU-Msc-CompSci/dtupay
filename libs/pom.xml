@@ -16,5 +16,6 @@
 
     <modules>
         <module>bank-service</module>
+        <module>messaging-utilities-3.3</module>
     </modules>
 </project>
