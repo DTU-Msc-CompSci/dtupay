@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.acme.libs</groupId>
         <artifactId>libs</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -27,7 +27,6 @@
                 <version>2.22.2</version>
                 <configuration></configuration>
             </plugin>
-
         <!-- Add dependency for WSDL Bank Service -->
             <plugin>
                 <groupId>com.sun.xml.ws</groupId>

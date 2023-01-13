@@ -7,24 +7,24 @@
     <parent>
         <groupId>org.acme</groupId>
         <artifactId>root</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
     </parent>
 
-    <groupId>org.acme.apps</groupId>
     <artifactId>apps</artifactId>
     <packaging>pom</packaging>
+    <version>1.0.0</version>
 
     <profiles>
-<!--        <profile>-->
-<!--            <id>app1</id>-->
-<!--            <activation>-->
-<!--                <file>-->
-<!--                    <exists>app1/pom.xml</exists>-->
-<!--                </file>-->
-<!--            </activation>-->
-<!--            <modules>-->
-<!--                <module>app1</module>-->
-<!--            </modules>-->
-<!--        </profile>-->
+        <profile>
+            <id>payment</id>
+            <activation>
+                <file>
+                    <exists>payment/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>payment</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
