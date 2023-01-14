@@ -1,10 +1,12 @@
 package org.acme;
 
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.NoArgsConstructor;
+import lombok.Data;
 
 //TODO This xml thing
-@Value
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class BankId {
     String bankAccountId;

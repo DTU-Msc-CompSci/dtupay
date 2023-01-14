@@ -22,7 +22,7 @@ public class CustomerAPI {
 
     public Response requestToken(DTUPayUser user, int amount) { //Customer requests token
         TokenRequest tokenRequest = new TokenRequest(user, amount);
-        return baseUrl.path("token")
+        return baseUrl.path("customer/token")
                 .request()
                 .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
     }

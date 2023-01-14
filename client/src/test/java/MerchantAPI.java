@@ -16,14 +16,14 @@ public class MerchantAPI {
     }
 
     public Response postMerchant(DTUPayUser user) {
-        return baseUrl.path("customer")
+        return baseUrl.path("merchant")
                 .request()
                 .post(Entity.entity(user, MediaType.APPLICATION_JSON));
     }
 
     public Response postTransaction(DTUPayUser user, Token token, int amount) {
         Transaction transaction = new Transaction(user, token, amount);
-        return baseUrl.path("transaction")
+        return baseUrl.path("merchant/transaction")
                 .request()
                 .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
     }
