@@ -1,7 +1,6 @@
 package org.acme;
 
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+
 import messaging.Event;
 import org.crac.Core;
 
@@ -9,6 +8,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/customer")
 public class CustomerResource {

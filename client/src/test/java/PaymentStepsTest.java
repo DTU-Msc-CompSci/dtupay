@@ -31,13 +31,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John0");
-        customer.setLastName("Doe0");
-        customer.setCprNumber("123456-8900");
+        customer.setFirstName("John01");
+        customer.setLastName("Doe01");
+        customer.setCprNumber("123456-89001");
 
-        merchant.setFirstName("Jane0");
-        merchant.setLastName("Doe0");
-        merchant.setCprNumber("123456-8910");
+        merchant.setFirstName("Jane01");
+        merchant.setLastName("Doe01");
+        merchant.setCprNumber("123456-89101");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
