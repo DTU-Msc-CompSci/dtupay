@@ -1,13 +1,15 @@
 package org.acme;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-//TODO This xml thing
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BankId {
-    String bankAccountId;
+
+public class TokenRequest {
+
+    DTUPayUser user;
+    int amount;
 }

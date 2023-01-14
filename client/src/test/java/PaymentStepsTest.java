@@ -18,6 +18,8 @@ import org.jboss.resteasy.spi.NotImplementedYetException;
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.Assert.assertTrue;
+
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
     User customer = new User();
@@ -38,17 +40,18 @@ public class PaymentStepsTest {
     private DTUPayUser registeredMerchant;
 
     private DTUPayUser dtuPayUser;
+    private CustomerAPI customerAPI = new CustomerAPI();
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John34543");
-        customer.setLastName("Doe43454");
-        customer.setCprNumber("12344535456-78902");
+        customer.setFirstName("John01");
+        customer.setLastName("Doe01");
+        customer.setCprNumber("123456-89001");
 
-        merchant.setFirstName("Jane445332");
-        merchant.setLastName("Doe245433");
-        merchant.setCprNumber("12344544356-78912");
+        merchant.setFirstName("Jane01");
+        merchant.setLastName("Doe01");
+        merchant.setCprNumber("123456-89101");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
@@ -82,7 +85,21 @@ public class PaymentStepsTest {
     }
     @Given("^a customer registered with DTU Pay$")
     public void aCustomerRegisteredWithDTUPay() {
-        assertNotNull(registeredCustomer.getUniqueId());
+        dtuPayCustomer.setBankId(new BankId(customerBankId));
+        dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
+        Response response = customerAPI.postCustomer(dtuPayCustomer);
+
+        var responseCode = response;
+        assertTrue(201 == response.getStatus());
+        // TODO: Clean up the test accounts
+//        Event event = new Event("CustomerAccountCreated", new Object[] {  });
+//        var response = publishedEvent.join();
+       // var customer =  customerService.getCustomer(dtuPayCustomer.getBankId());
+        //assertEquals(dtuPayCustomer, customer);
+
+//        assertEquals(response.getType() ,"CustomerAccountCreated");
+
+        //assertEquals(event,publishedEvent.join());
     }
     @Given("^a merchant registered with DTU Pay$")
     public void aMerchantRegisteredWithDTUPay() {

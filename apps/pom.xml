@@ -37,5 +37,16 @@
                 <module>account</module>
             </modules>
         </profile>
+        <profile>
+            <id>core</id>
+            <activation>
+                <file>
+                    <exists>core/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>core</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

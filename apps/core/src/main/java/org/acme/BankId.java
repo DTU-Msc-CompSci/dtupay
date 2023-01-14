@@ -6,8 +6,8 @@ import lombok.Data;
 
 //TODO This xml thing
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class BankId {
     String bankAccountId;
 }
