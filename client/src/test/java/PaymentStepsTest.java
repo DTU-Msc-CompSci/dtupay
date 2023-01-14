@@ -6,8 +6,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
