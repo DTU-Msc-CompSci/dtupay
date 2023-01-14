@@ -31,22 +31,24 @@ public class AccountService {
                 map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
     }
 
-    public void addCustomer(DTUPayUser user) {
+    public String addCustomer(DTUPayUser user) {
         //TODO Query external BankService
 
         user.setUniqueId(generateUniqueId());
 
         customers.add(user);
         System.out.println("DTU Pay User added to service");
+        return user.getUniqueId();
     }
 
-    public void addMerchant(DTUPayUser user) {
+    public String addMerchant(DTUPayUser user) {
         //TODO Query external BankService
 
         user.setUniqueId(generateUniqueId());
 
         merchants.add(user);
         System.out.println("DTU Pay User added to service");
+        return user.getUniqueId();
     }
 
     public String generateUniqueId() {
