@@ -102,16 +102,17 @@ public class TransactionService {
     public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {
         // Right now bankId == DTUPayID but this should change when we add registration service
         //TODO fetch the bank id from a registration service
-        var customerBankAccountID = transaction.getCid();
-        var merchantBankAccountID = transaction.getMid();
+
+       // var customerBankAccountID = transaction.getCustomerId();
+       // var merchantBankAccountID = transaction.getMerchantId();
         try {
-            bankService.transferMoneyFromTo(customerBankAccountID,merchantBankAccountID,  BigDecimal.valueOf((transaction.getAmount())), "Empty description returns an error!! So, this description is fine for now");
-            transactions.add(transaction);
-
-        } catch (BankServiceException_Exception e) {
-            throw new RuntimeException(e);
+            bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+            queue.publish(transactionCompletedEvent);
+        }catch (BankServiceException_Exception e){
+            // error event
         }
-
+       //     transactions.add(transaction);
 
     }
 

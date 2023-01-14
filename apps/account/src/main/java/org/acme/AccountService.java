@@ -25,6 +25,12 @@ public class AccountService {
                 map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
     }
 
+    public Optional<String> getMerchant(String uniqueId) {
+
+        return merchants.stream().filter( (user) -> user.getUniqueId().equals(uniqueId)).
+                map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
+    }
+
     public void addCustomer(DTUPayUser user) {
         //TODO Query external BankService
 
