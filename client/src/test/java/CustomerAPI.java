@@ -14,10 +14,11 @@ public class CustomerAPI {
         this.baseUrl = client.target("http://localhost:8282/");
     }
 
-    public Response postCustomer(DTUPayUser user) {
+    public DTUPayUser postCustomer(DTUPayUser user) {
         return baseUrl.path("customer")
                 .request()
-                .post(Entity.entity(user,MediaType.APPLICATION_JSON));
+                .post(Entity.entity(user,MediaType.APPLICATION_JSON), DTUPayUser.class);
+
     }
 
     public Response requestToken(DTUPayUser user, int amount) { //Customer requests token

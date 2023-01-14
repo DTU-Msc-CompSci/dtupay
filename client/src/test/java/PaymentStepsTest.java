@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.cucumber.java.en.When;
+import jakarta.ws.rs.core.Response;
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
@@ -45,13 +46,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John01");
-        customer.setLastName("Doe01");
-        customer.setCprNumber("123456-89001");
+        customer.setFirstName("John02");
+        customer.setLastName("Doe02");
+        customer.setCprNumber("123456-89002");
 
-        merchant.setFirstName("Jane01");
-        merchant.setLastName("Doe01");
-        merchant.setCprNumber("123456-89101");
+        merchant.setFirstName("Jane02");
+        merchant.setLastName("Doe02");
+        merchant.setCprNumber("123456-89102");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
@@ -65,7 +66,7 @@ public class PaymentStepsTest {
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
 
-        registeredCustomer = customerService.registerCustomer(dtuPayCustomer);
+//        registeredCustomer = customerService.registerCustomer(dtuPayCustomer);
         registeredMerchant = merchantService.registerMerchant(dtuPayMerchant);
 
 
@@ -87,19 +88,8 @@ public class PaymentStepsTest {
     public void aCustomerRegisteredWithDTUPay() {
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
-        Response response = customerAPI.postCustomer(dtuPayCustomer);
-
-        var responseCode = response;
-        assertTrue(201 == response.getStatus());
-        // TODO: Clean up the test accounts
-//        Event event = new Event("CustomerAccountCreated", new Object[] {  });
-//        var response = publishedEvent.join();
-       // var customer =  customerService.getCustomer(dtuPayCustomer.getBankId());
-        //assertEquals(dtuPayCustomer, customer);
-
-//        assertEquals(response.getType() ,"CustomerAccountCreated");
-
-        //assertEquals(event,publishedEvent.join());
+        registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
+        assertNotNull(registeredCustomer.getUniqueId());
     }
     @Given("^a merchant registered with DTU Pay$")
     public void aMerchantRegisteredWithDTUPay() {

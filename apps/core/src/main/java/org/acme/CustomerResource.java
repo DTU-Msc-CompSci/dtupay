@@ -20,10 +20,8 @@ public class CustomerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response postCustomer(DTUPayUser user) {
-        service.registerCustomer(user);
-
-        return Response.status(201).build();
+    public DTUPayUser postCustomer(DTUPayUser user) {
+        return service.registerCustomer(user);
     }
 
     @POST
