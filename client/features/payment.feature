@@ -19,8 +19,8 @@ Feature: Payment
 
 	Scenario: Successful Payment Baseline
 		Given a customer registered with DTU Pay
-#		Given a merchant registered with DTU Pay
-#		When the merchant requests a transaction
+		Given a merchant registered with DTU Pay
+		When the merchant requests a transaction
 #		And provides a customer's token
 #		Then the transaction is successful
 
