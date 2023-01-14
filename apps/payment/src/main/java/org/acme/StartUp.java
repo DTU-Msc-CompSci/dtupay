@@ -1,13 +1,12 @@
 package org.acme;
 
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 import messaging.implementations.RabbitMqQueue;
+import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-
-import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
-import org.jboss.logging.Logger;
 
 // This concept needs to be added to ALL other microservices
 @ApplicationScoped
@@ -20,7 +19,7 @@ public class StartUp {
 		var mq = new RabbitMqQueue("localhost");
 		LOGGER.info("The customer Service is starting...11");
 
-		new AccountService(mq);
+		new TransactionService(mq);
 
 
 

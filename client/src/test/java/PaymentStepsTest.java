@@ -7,7 +7,9 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
@@ -29,19 +31,24 @@ public class PaymentStepsTest {
 
     private MessageQueue q =  new RabbitMqQueue("localhost");
     private CustomerService customerService = new CustomerService(q);
-    private CompletableFuture<DTUPayUser> registeredCustomer = new CompletableFuture<>();
+    private MerchantService merchantService = new MerchantService(q);
+    private PaymentService paymentService = new PaymentService(q);
+
+    private DTUPayUser registeredCustomer;
+    private DTUPayUser registeredMerchant;
+
     private DTUPayUser dtuPayUser;
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John");
-        customer.setLastName("Doe");
-        customer.setCprNumber("123456-7890");
+        customer.setFirstName("John34543");
+        customer.setLastName("Doe43454");
+        customer.setCprNumber("12344535456-78902");
 
-        merchant.setFirstName("Jane");
-        merchant.setLastName("Doe");
-        merchant.setCprNumber("123456-7891");
+        merchant.setFirstName("Jane445332");
+        merchant.setLastName("Doe245433");
+        merchant.setCprNumber("12344544356-78912");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
@@ -52,10 +59,16 @@ public class PaymentStepsTest {
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
 
-        new Thread(() -> {
-            var result = customerService.register(dtuPayCustomer);
-            registeredCustomer.complete(result);
-        }).start();
+        dtuPayMerchant.setBankId(new BankId(merchantBankId));
+        dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
+
+        registeredCustomer = customerService.registerCustomer(dtuPayCustomer);
+        registeredMerchant = merchantService.registerMerchant(dtuPayMerchant);
+
+
+//        new Thread(() -> {
+//            registeredMerchant = customerService.registerMerchant(dtuPayMerchant);
+//        }).start();
     }
 
     @After
@@ -69,14 +82,21 @@ public class PaymentStepsTest {
     }
     @Given("^a customer registered with DTU Pay$")
     public void aCustomerRegisteredWithDTUPay() {
-        // TODO: Clean up the test accounts
-//        Event event = new Event("CustomerAccountCreated", new Object[] {  });
-//        var response = publishedEvent.join();
-       // var customer =  customerService.getCustomer(dtuPayCustomer.getBankId());
-        //assertEquals(dtuPayCustomer, customer);
-
-//        assertEquals(response.getType() ,"CustomerAccountCreated");
-
-        //assertEquals(event,publishedEvent.join());
+        assertNotNull(registeredCustomer.getUniqueId());
     }
+    @Given("^a merchant registered with DTU Pay$")
+    public void aMerchantRegisteredWithDTUPay() {
+        assertNotNull(registeredMerchant.getUniqueId());
+    }
+
+    @When("the merchant requests a transaction")
+    public void the_merchant_requests_a_transaction() {
+        // Write code here that turns the phrase above into concrete actions
+        Transaction transaction = new Transaction();
+        transaction.setMerchantId(registeredMerchant.getUniqueId());
+        transaction.setCustomerId(registeredCustomer.getUniqueId());
+        transaction.setAmount(100);
+        assertEquals("completed", paymentService.transactionRequest(transaction));
+    }
+
 }

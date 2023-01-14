@@ -3,29 +3,29 @@ import messaging.MessageQueue;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CustomerService {
+public class MerchantService {
     private MessageQueue queue;
     private CompletableFuture<DTUPayUser> dtuPayUserCompletableFuture;
 
 
-
-    public CustomerService(MessageQueue q) {
+    public MerchantService(MessageQueue q) {
         queue = q;
-        queue.addHandler("CustomerAccountCreated", this::handleCustomerAccountCreated);
+        queue.addHandler("MerchantAccountCreated", this::handleMerchantAccountCreated);
+
     }
 
-    public DTUPayUser registerCustomer(DTUPayUser d) {
+
+    public DTUPayUser registerMerchant(DTUPayUser d) {
         dtuPayUserCompletableFuture = new CompletableFuture<>();
-        Event event = new Event("CustomerAccountCreationRequested", new Object[] { d });
+        Event event = new Event("MerchantAccountCreationRequested", new Object[] { d });
         queue.publish(event);
         return dtuPayUserCompletableFuture.join();
     }
 
 
-    public void handleCustomerAccountCreated(Event e) {
+    public void handleMerchantAccountCreated(Event e) {
         var s = e.getArgument(0, DTUPayUser.class);
         System.out.println(s.toString());
         dtuPayUserCompletableFuture.complete(s);
     }
-
 }
