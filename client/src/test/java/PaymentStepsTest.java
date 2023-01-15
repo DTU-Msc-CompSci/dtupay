@@ -50,13 +50,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John023");
-        customer.setLastName("Doe023");
-        customer.setCprNumber("123456-39002");
+        customer.setFirstName("John0243");
+        customer.setLastName("Doe0243");
+        customer.setCprNumber("123456-390042");
 
-        merchant.setFirstName("Jane023");
-        merchant.setLastName("Doe023");
-        merchant.setCprNumber("123456-39102");
+        merchant.setFirstName("Jane0243");
+        merchant.setLastName("Doe0234");
+        merchant.setCprNumber("123456-391042");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
@@ -97,23 +97,26 @@ public class PaymentStepsTest {
     }
     @Given("^a merchant registered with DTU Pay$")
     public void aMerchantRegisteredWithDTUPay() {
-
-        //assertNotNull(registeredMerchant.getUniqueId());
+        dtuPayMerchant.setBankId(new BankId(merchantBankId));
+        dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
+        registeredMerchant = merchantAPI.postMerchant()
+        assertNotNull(registeredCustomer.getUniqueId());
     }
 
     @Given("a token associated with the customer")
     public void a_token_associated_with_the_customer() {
         token = customerAPI.requestToken(dtuPayCustomer.getUniqueId(),1);
+        var a = token;
     }
     @When("the merchant requests a transaction with the customer token")
     public void the_merchant_requests_a_transaction_with_the_customer_token() {
-        // Write code here that turns the phrase above into concrete actions
-        //Transaction transaction = new Transaction(registeredMerchant.getUniqueId(), token, 100);
-        //success = merchantAPI.postTransaction(transaction);
+         //Write code here that turns the phrase above into concrete actions
+        Transaction transaction = new Transaction(registeredMerchant.getUniqueId(), token, 100);
+        success = merchantAPI.postTransaction(transaction);
     }
 
     @Then("the transaction is successful")
     public void theTransactionIsSuccessful() {
-        //assertTrue(success);
+        assertTrue(success);
     }
 }
