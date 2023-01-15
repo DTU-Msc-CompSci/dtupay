@@ -29,7 +29,7 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
     public Token postToken(TokenRequest tokenRequest) {
-
+        System.out.println(tokenRequest.getCid());
         return service.getToken(tokenRequest);
     }
 

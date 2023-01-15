@@ -24,8 +24,8 @@ public class MerchantResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DTUPayUser postCustomer(DTUPayUser user) {
-        return service.registerCustomer(user);
+    public DTUPayUser postMerchant(DTUPayUser user) {
+        return service.registerMerchant(user);
     }
 
     @POST
@@ -36,4 +36,6 @@ public class MerchantResource {
 
         return service.requestTransaction(transaction);
     }
+
+
 }
