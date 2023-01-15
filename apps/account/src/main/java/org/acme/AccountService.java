@@ -14,6 +14,14 @@ public class AccountService {
     // For RabbitMQ stuffs
     MessageQueue queue;
 
+    public AccountService(MessageQueue q) {
+        this.queue = q;
+        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
+        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
+        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
+        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
+    }
+
 
 //    public List<DTUPayUser> getCustomers() {
 //        return customers;
@@ -51,15 +59,6 @@ public class AccountService {
 
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
-    }
-
-    public AccountService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
-        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
-
     }
 
     public void handleCustomerAccountCreationRequested(Event ev) {
