@@ -11,17 +11,25 @@ public class CoreService {
     private MessageQueue queue;
     private CompletableFuture<DTUPayUser> registeredCustomer;
     private CompletableFuture<Token> requestedToken;
-    private CompletableFuture<Transaction> requestedTransaction;
+    private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
         queue = q;
         queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
+        queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
+
     }
 
     public DTUPayUser registerCustomer(DTUPayUser c) {
         registeredCustomer = new CompletableFuture<>();
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { c });
+        queue.publish(event);
+        return registeredCustomer.join();
+    }
+    public DTUPayUser registerMerchant(DTUPayUser c) {
+        registeredCustomer = new CompletableFuture<>();
+        Event event = new Event("MerchantAccountCreationRequested", new Object[] { c });
         queue.publish(event);
         return registeredCustomer.join();
     }
@@ -47,7 +55,17 @@ public class CoreService {
         requestedTransaction = new CompletableFuture<>();
         Event event = new Event("TransactionRequested", new Object[] { t });
         queue.publish(event);
-        requestedTransaction.join();
-        return Response.status(Response.Status.CREATED).build();
+        if (requestedTransaction.join().equals("completed")){
+            return Response.status(Response.Status.CREATED).build();
+        }
+        return Response.status(Response.Status.FORBIDDEN).build();
     }
+
+    public void handleTransactionCompleted(Event e) {
+        var s = e.getArgument(0, String.class);
+        requestedTransaction.complete(s);
+        // TODO standardize the response
+
+    }
+
 }
