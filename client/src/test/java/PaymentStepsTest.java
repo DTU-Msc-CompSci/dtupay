@@ -9,6 +9,7 @@ import io.cucumber.java.Before;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
 import messaging.Event;
@@ -42,17 +43,20 @@ public class PaymentStepsTest {
 
     private DTUPayUser dtuPayUser;
     private CustomerAPI customerAPI = new CustomerAPI();
+    private MerchantAPI merchantAPI = new MerchantAPI();
+    Token token;
+    boolean success;
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John02");
-        customer.setLastName("Doe02");
-        customer.setCprNumber("123456-89002");
+        customer.setFirstName("John0243");
+        customer.setLastName("Doe0243");
+        customer.setCprNumber("123456-390042");
 
-        merchant.setFirstName("Jane02");
-        merchant.setLastName("Doe02");
-        merchant.setCprNumber("123456-89102");
+        merchant.setFirstName("Jane0243");
+        merchant.setLastName("Doe0234");
+        merchant.setCprNumber("123456-391042");
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
@@ -67,7 +71,7 @@ public class PaymentStepsTest {
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
 
 //        registeredCustomer = customerService.registerCustomer(dtuPayCustomer);
-        registeredMerchant = merchantService.registerMerchant(dtuPayMerchant);
+        //registeredMerchant = merchantService.registerMerchant(dtuPayMerchant);
 
 
 //        new Thread(() -> {
@@ -93,17 +97,26 @@ public class PaymentStepsTest {
     }
     @Given("^a merchant registered with DTU Pay$")
     public void aMerchantRegisteredWithDTUPay() {
-        assertNotNull(registeredMerchant.getUniqueId());
+        dtuPayMerchant.setBankId(new BankId(merchantBankId));
+        dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
+        registeredMerchant = merchantAPI.postMerchant()
+        assertNotNull(registeredCustomer.getUniqueId());
     }
 
-    @When("the merchant requests a transaction")
-    public void the_merchant_requests_a_transaction() {
-        // Write code here that turns the phrase above into concrete actions
-        Transaction transaction = new Transaction();
-        transaction.setMerchantId(registeredMerchant.getUniqueId());
-        transaction.setCustomerId(registeredCustomer.getUniqueId());
-        transaction.setAmount(100);
-        assertEquals("completed", paymentService.transactionRequest(transaction));
+    @Given("a token associated with the customer")
+    public void a_token_associated_with_the_customer() {
+        token = customerAPI.requestToken(dtuPayCustomer.getUniqueId(),1);
+        var a = token;
+    }
+    @When("the merchant requests a transaction with the customer token")
+    public void the_merchant_requests_a_transaction_with_the_customer_token() {
+         //Write code here that turns the phrase above into concrete actions
+        Transaction transaction = new Transaction(registeredMerchant.getUniqueId(), token, 100);
+        success = merchantAPI.postTransaction(transaction);
     }
 
+    @Then("the transaction is successful")
+    public void theTransactionIsSuccessful() {
+        assertTrue(success);
+    }
 }
