@@ -19,23 +19,21 @@ import javax.ws.rs.core.Response;
 @Path("/merchant")
 public class MerchantResource {
 
+    CoreService service = new CoreFactory().getService();
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response postCustomer(DTUPayUser user) {
-
-
-        return Response.status(201).build();
+    public DTUPayUser postCustomer(DTUPayUser user) {
+        return service.registerCustomer(user);
     }
 
-//    @POST
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Path("/transaction")
-//    public Response postTransaction(Transaction transaction) {
-//
-//        // SEND EVENT TO TRANSACTION (PAYMENT?) SERVICE
-//
-//        return Response.status(201).build();
-//    }
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/transaction")
+    public Response postTransaction(Transaction transaction) {
+
+        return service.requestTransaction(transaction);
+    }
 }

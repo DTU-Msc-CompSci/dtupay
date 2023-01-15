@@ -1,12 +1,13 @@
 package org.acme;
 
-import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
 import messaging.implementations.RabbitMqQueue;
-import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
+import org.jboss.logging.Logger;
 
 // This concept needs to be added to ALL other microservices
 @ApplicationScoped
@@ -15,18 +16,18 @@ public class StartUp {
 	private static final Logger LOGGER = Logger.getLogger("ListenerBean");
 
 	void onStart(@Observes StartupEvent event) {
-		LOGGER.info("The Payment Service is starting...");
+		LOGGER.info("The Token Service is starting...");
 		var mq = new RabbitMqQueue("localhost");
-		LOGGER.info("The Payment Service is starting...11");
+		LOGGER.info("The Token Service is starting...11");
 
-		new TransactionService(mq);
+		new TokenService(mq);
 
 
 
 	}
 
 	void onStop(@Observes ShutdownEvent event) {
-		LOGGER.info("The Payment Service is stopping...");
+		LOGGER.info("The Token Service is stopping...");
 	}
 
 //	public static void main(String[] args) throws Exception {
