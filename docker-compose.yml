@@ -44,17 +44,19 @@ services:
       account-service:
         condition: service_started
 
-#  token-service:
-#    build:
-#      context: apps/token
-#      dockerfile: ./Dockerfile
+  token-service:
+    build:
+      context: apps/token
+      dockerfile: ./Dockerfile
+    hostname: token
+    restart: always
 #    ports:
 #      - "8093:8080"
-#    networks:
-#      - dtupay-network
-#    depends_on:
-#      account-service:
-#        condition: service_started
+    networks:
+      - dtupay-network
+    depends_on:
+      account-service:
+        condition: service_started
 
   rabbitmq-service:
     image: rabbitmq:3-management

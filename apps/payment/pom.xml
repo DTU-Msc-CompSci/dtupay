@@ -85,6 +85,11 @@
       <artifactId>lombok</artifactId>
       <version>1.18.24</version>
     </dependency>
+      <dependency>
+          <groupId>org.acme.libs.bank-service</groupId>
+          <artifactId>bank-service</artifactId>
+          <version>SNAPSHOT 0.0.1</version>
+      </dependency>
   </dependencies>
   <build>
     <plugins>
