@@ -37,4 +37,4 @@ Feature: Payment
 		Then the transaction is successful
 		And the balance of the customer at the bank is 900 kr
 		And the balance of the merchant at the bank is 2100 kr
-
+#werer
