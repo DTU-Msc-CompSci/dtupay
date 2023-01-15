@@ -55,6 +55,8 @@ public class TransactionService {
 
 
         if (customerBankId != null) {
+            // TODO: Migrate to an adapter later
+
             initiateTransaction(customerBankId, merchantBankId, amount);
         }
     }
@@ -65,6 +67,8 @@ public class TransactionService {
         customerBankId = (t);
         // Generate random number to tie event to the request
         if (merchantBankId != null) {
+            // TODO: Migrate to an adapter later
+
             initiateTransaction(customerBankId, merchantBankId, amount);
         }
     }
@@ -73,30 +77,14 @@ public class TransactionService {
         var t = ev.getArgument(0, Transaction.class);
         addTransaction(t);
         // Generate random number to tie event to the request
-        Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.merchantId });
-        Event customerInfoEvent = new Event("CustomerInfoRequested", new Object[] { t.customerId });
+        Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.getMerchantId() });
+        Event customerInfoEvent = new Event("InvalidateTokenRequested", new Object[] { t.getCustomerToken() });
 
         // This needs to respond to a different queue; which are interested in the "MerchantAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(merchantInfoEvent);
         queue.publish(customerInfoEvent);
-        // TODO: Migrate to an adapter later
-//        try {
-//        initiateTransaction(t);
-//        System.out.println("transaction completed");
-//
-//        }
-//        catch (BankServiceException_Exception e){
-//
-//            Event event = new Event("MerchantAccountCreated", new Object[] { s });
-//
-//            // This needs to respond to a different queue; which are interested in the "MerchantAccountCreated" topics
-//            // This is the "hat" that it wears
-//            queue.publish(event);
-//        }
-//
-//        // TODO: REMOVE ME
-//        System.out.println("transaction completed");
+
     }
 
     public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {

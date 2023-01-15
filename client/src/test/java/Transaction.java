@@ -1,7 +1,7 @@
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 
 //TODO This xml thing
@@ -11,12 +11,12 @@ import java.io.Serializable;
 public class Transaction implements Serializable {
     // Might need to change the number depending on the User being referenced
     private static final long serialVersionUID = 9023222281284906610L;
+    ;
+    private Token customerToken;
 
-    String customerId;
+    private String merchantId;
 
-    String merchantId;
-
-    int amount;
+    private int amount;
 
     String transactionId;
     @Override
@@ -25,9 +25,9 @@ public class Transaction implements Serializable {
             return false;
         }
         var c = (Transaction) o;
-        return customerId != null && customerId.equals(c.getCustomerId()) &&
-                merchantId != null && merchantId.equals(c.getCustomerId()) &&
-                merchantId != null && merchantId.equals(c.getCustomerId());
+        return customerToken != null && customerToken.equals(c.getCustomerToken()) &&
+                merchantId != null && merchantId.equals(c.getMerchantId()) &&
+                amount == (c.getAmount());
     }
 
     @Override

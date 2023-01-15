@@ -1,5 +1,6 @@
 package org.acme;
 
+import io.vertx.codegen.doc.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -27,16 +28,26 @@ public class AccountService {
 //        return customers;
 //    }
 
-    public Optional<String> getCustomer(String uniqueId) {
-
-        return customers.stream().filter( (user) -> user.getUniqueId().equals(uniqueId)).
-                map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
+    public String getCustomer(String uniqueId) {
+        String bankId = null;
+        for(DTUPayUser d : customers) {
+            if(d.getUniqueId().equals(uniqueId)) {
+                bankId = d.getBankId().getBankAccountId();
+            }
+        }
+        return bankId;
+        //return customers.stream().filter( (user) -> user.getUniqueId().equals(uniqueId)).
+        //        map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
     }
 
-    public Optional<String> getMerchant(String uniqueId) {
-
-        return merchants.stream().filter( (user) -> user.getUniqueId().equals(uniqueId)).
-                map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
+    public String getMerchant(String uniqueId) {
+        String bankId = null;
+        for(DTUPayUser d : merchants) {
+            if(d.getUniqueId().equals(uniqueId)) {
+                bankId = d.getBankId().getBankAccountId();
+            }
+        }
+        return bankId;
     }
 
     public void addCustomer(DTUPayUser user) {
@@ -76,9 +87,8 @@ public class AccountService {
     public void handleCustomerInfoRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
         // Verify that the unique ID is set correct
-
-
-        Event event = new Event("CustomerInfoProvided", new Object[] { getCustomer(s).get() });
+        String test = getCustomer(s);
+        Event event = new Event("CustomerInfoProvided", new Object[] { test });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);
@@ -87,8 +97,8 @@ public class AccountService {
     public void handleMerchantInfoRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
         // Verify that the unique ID is set correct
-
-        Event event = new Event("MerchantInfoProvided", new Object[] { getMerchant(s).get() });
+        String test = getMerchant(s);
+        Event event = new Event("MerchantInfoProvided", new Object[] { test });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 
 public class TokenRequest {
 
-    DTUPayUser user;
+    String cid;
     int amount;
 }

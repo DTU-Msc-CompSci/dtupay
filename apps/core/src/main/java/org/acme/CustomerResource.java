@@ -28,11 +28,9 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
-    public Response postToken(TokenRequest tokenRequest) {
-
-        // ADD EVENT TO SEND TO TOKEN SERVICE
-
-        return Response.status(201).build();
+    public Token postToken(TokenRequest tokenRequest) {
+        System.out.println(tokenRequest.getCid());
+        return service.getToken(tokenRequest);
     }
 
 

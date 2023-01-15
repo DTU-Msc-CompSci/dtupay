@@ -8,6 +8,7 @@
         <groupId>org.acme</groupId>
         <artifactId>root</artifactId>
         <version>1.0.0</version>
+        <relativePath></relativePath>
     </parent>
 
     <artifactId>apps</artifactId>
@@ -69,6 +70,17 @@
             </activation>
             <modules>
                 <module>core</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>token</id>
+            <activation>
+                <file>
+                    <exists>token/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>token</module>
             </modules>
         </profile>
     </profiles>
