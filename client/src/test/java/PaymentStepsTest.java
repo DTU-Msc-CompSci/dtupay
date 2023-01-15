@@ -2,6 +2,7 @@ import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import dtu.ws.fastmoney.User;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -23,59 +24,35 @@ import static org.junit.Assert.assertTrue;
 
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
+    private CustomerAPI customerAPI = new CustomerAPI();
+    private MerchantAPI merchantAPI = new MerchantAPI();
+
     User customer = new User();
+    User merchant = new User();
+
     DTUPayUser dtuPayCustomer = new DTUPayUser();
     DTUPayUser dtuPayMerchant = new DTUPayUser();
-    User merchant = new User();
+
     String customerBankId;
     String merchantBankId;
-
-    private CompletableFuture<Event> publishedEvent = new CompletableFuture<>();
-
-    private MessageQueue q =  new RabbitMqQueue("localhost");
-    private CustomerService customerService = new CustomerService(q);
-    private MerchantService merchantService = new MerchantService(q);
-    private PaymentService paymentService = new PaymentService(q);
 
     private DTUPayUser registeredCustomer;
     private DTUPayUser registeredMerchant;
 
-    private DTUPayUser dtuPayUser;
-    private CustomerAPI customerAPI = new CustomerAPI();
-    private MerchantAPI merchantAPI = new MerchantAPI();
     Token token;
+
     boolean success;
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("John0231111113112111111");
-        customer.setLastName("Doe0231111111112311111");
-        customer.setCprNumber("123456-390021111312111111111");
+        customer.setFirstName("John0231112113131122111111");
+        customer.setLastName("Doe0231111311111223112111");
+        customer.setCprNumber("123456-390032111213122111111111");
 
-        merchant.setFirstName("Jane0231111111211113111");
-        merchant.setLastName("Doe023111111131121111");
-        merchant.setCprNumber("123456-391021111111231111111");
-        try {
-            customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
-            merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(2000));
-
-        } catch (BankServiceException_Exception e) {
-            throw new RuntimeException(e);
-        }
-        dtuPayCustomer.setBankId(new BankId(customerBankId));
-        dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
-
-        dtuPayMerchant.setBankId(new BankId(merchantBankId));
-        dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
-
-//        registeredCustomer = customerService.registerCustomer(dtuPayCustomer);
-        //registeredMerchant = merchantService.registerMerchant(dtuPayMerchant);
-
-
-//        new Thread(() -> {
-//            registeredMerchant = customerService.registerMerchant(dtuPayMerchant);
-//        }).start();
+        merchant.setFirstName("Jane0231111111321211132111");
+        merchant.setLastName("Doe023111111131312211121");
+        merchant.setCprNumber("123456-391023112111112231111111");
     }
 
     @After
@@ -116,5 +93,51 @@ public class PaymentStepsTest {
     @Then("the transaction is successful")
     public void theTransactionIsSuccessful() {
         assertTrue(success);
+    }
+
+    @And("the balance of the customer at the bank is {int} kr")
+    public void theBalanceOfTheCustomerAtTheBankIsKr(int arg0) {
+        try {
+            assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayCustomer.getBankId().getBankAccountId()).getBalance());
+        } catch (BankServiceException_Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @And("the balance of the merchant at the bank is {int} kr")
+    public void theBalanceOfTheMerchantAtTheBankIsKr(int arg0) {
+        try {
+            assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayMerchant.getBankId().getBankAccountId()).getBalance());
+        } catch (BankServiceException_Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @Given("a customer with a bank account with balance {int}")
+    public void aCustomerWithABankAccountWithBalance(int arg0) {
+        try {customerBankId
+             = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(arg0));
+            dtuPayCustomer.setBankId(new BankId(customerBankId));
+            dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
+        } catch (BankServiceException_Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @Given("a merchant with a bank account with balance {int}")
+    public void aMerchantWithABankAccountWithBalance(int amount) {
+        try {
+            merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(amount));
+            dtuPayMerchant.setBankId(new BankId(merchantBankId));
+            dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
+        } catch (BankServiceException_Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @When("the merchant initiates a payment for {int} kr with the customer token")
+    public void theMerchantInitiatesAPaymentForKrWithTheCustomerToken(int amount) {
+        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test1");
+        success = merchantAPI.postTransaction(transaction);
     }
 }
