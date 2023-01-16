@@ -1,3 +1,5 @@
+package behaviourtests;
+
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;

@@ -1,3 +1,5 @@
+package behaviourtests;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,6 @@ public class Transaction implements Serializable {
     @Override
     public String toString() {
         // uniqueId could potentially be null
-        return String.format("Transaction id: %s", transactionId);
+        return String.format("behaviourtests.Transaction id: %s", transactionId);
     }
 }
