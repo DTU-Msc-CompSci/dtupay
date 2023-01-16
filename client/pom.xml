@@ -114,12 +114,5 @@
             <version>1.18.24</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.acme.libs.bank-service</groupId>
-            <artifactId>bank-service</artifactId>
-            <version>SNAPSHOT 0.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 </project>
