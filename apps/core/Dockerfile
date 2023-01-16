@@ -2,11 +2,8 @@ FROM adoptopenjdk:11-jre-hotspot
 ARG APP_DIR=/app
 
 WORKDIR ${APP_DIR}
-COPY target ${APP_DIR}
-
-# COPY target/accountService.jar ${APP_DIR}/accountService.jar
+COPY target/quarkus-app ${APP_DIR}/quarkus-app
 
 CMD java -Xmx64m \
-        -jar accountService.jar
-
+        -jar quarkus-app/quarkus-run.jar
 
