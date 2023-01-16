@@ -2,7 +2,10 @@
 set -e
 docker image prune -f
 sleep 10
-docker-compose up -d
+
+./build.sh
+
+docker compose up -d
 sleep 5
 
 

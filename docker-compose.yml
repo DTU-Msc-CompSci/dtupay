@@ -12,10 +12,10 @@ services:
     networks:
       - dtupay-network
     depends_on:
-      core-service:
+      dtupay-service:
         condition: service_started
 
-  core-service:
+  dtupay-service:
     build:
       context: apps/dtupay
       dockerfile: ./Dockerfile
