@@ -11,20 +11,22 @@ public class MerchantAPI {
 
     public MerchantAPI() {
         Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8282/");
+        this.baseUrl = client.target("http://localhost:8091/");
 
     }
 
-    public Response postMerchant(DTUPayUser user) {
-        return baseUrl.path("merchant")
+    public DTUPayUser postMerchant(DTUPayUser user) {
+        Response response = baseUrl.path("merchant")
                 .request()
-                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(user,MediaType.APPLICATION_JSON));
+        return response.readEntity(DTUPayUser.class);
+
     }
 
-    /*public Response postTransaction(DTUPayUser user, Token token, int amount) {
-        //Transaction transaction = new Transaction(user, token, amount);
-        return baseUrl.path("merchant/transaction")
+    public boolean postTransaction(Transaction transaction) {
+        Response response = baseUrl.path("merchant/transaction")
                 .request()
                 .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
-    }*/
+        return response.getStatus() == 201;
+    }
 }

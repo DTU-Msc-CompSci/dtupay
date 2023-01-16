@@ -1,0 +1,78 @@
+version: "3"
+
+services:
+  account-service:
+    build:
+      context: apps/account
+      dockerfile: ./Dockerfile
+    hostname: account
+    restart: always
+#    ports:
+#      - "8090:8080"
+    networks:
+      - dtupay-network
+    depends_on:
+      core-service:
+        condition: service_started
+
+  core-service:
+    build:
+      context: apps/core
+      dockerfile: ./Dockerfile
+    hostname: core
+    restart: always
+    ports:
+      - "8091:8080"
+    networks:
+      - dtupay-network
+    depends_on:
+      rabbitmq-service:
+        condition: service_started
+
+
+  payment-service:
+    build:
+      context: apps/payment
+      dockerfile: ./Dockerfile
+    hostname: payment
+    restart: always
+#    ports:
+#      - "8092:8080"
+    networks:
+      - dtupay-network
+    depends_on:
+      account-service:
+        condition: service_started
+
+  token-service:
+    build:
+      context: apps/token
+      dockerfile: ./Dockerfile
+    hostname: token
+    restart: always
+#    ports:
+#      - "8093:8080"
+    networks:
+      - dtupay-network
+    depends_on:
+      account-service:
+        condition: service_started
+
+  rabbitmq-service:
+    image: rabbitmq:3-management
+    restart: on-failure
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - dtupay-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+networks:
+  dtupay-network:
+    driver: bridge

@@ -1,15 +1,11 @@
 package org.acme;
 
 
-import messaging.Event;
-import org.crac.Core;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("/customer")
 public class CustomerResource {
@@ -28,11 +24,9 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
-    public Response postToken(TokenRequest tokenRequest) {
-
-        // ADD EVENT TO SEND TO TOKEN SERVICE
-
-        return Response.status(201).build();
+    public Token postToken(TokenRequest tokenRequest) {
+        System.out.println(tokenRequest.getCid());
+        return service.getToken(tokenRequest);
     }
 
 

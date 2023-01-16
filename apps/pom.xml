@@ -8,10 +8,34 @@
         <groupId>org.acme</groupId>
         <artifactId>root</artifactId>
         <version>1.0.0</version>
+        <relativePath></relativePath>
     </parent>
 
     <artifactId>apps</artifactId>
     <packaging>pom</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.acme.libs</groupId>
+            <artifactId>messaging-utilities</artifactId>
+            <version>3.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-core</artifactId>
+            <version>2.15.3.Final</version>
+        </dependency>
+    </dependencies>
     <version>1.0.0</version>
 
     <profiles>
@@ -46,6 +70,17 @@
             </activation>
             <modules>
                 <module>core</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>token</id>
+            <activation>
+                <file>
+                    <exists>token/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>token</module>
             </modules>
         </profile>
     </profiles>

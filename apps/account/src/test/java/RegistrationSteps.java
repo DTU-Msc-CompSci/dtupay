@@ -58,8 +58,8 @@ public class RegistrationSteps {
     @Then("The customer added correctly")
     public void theEventIsSent() {
         customer.setUniqueId(result);
-        Optional<String> reg_user = service.getCustomer(result);
-        Optional<String> opt = Optional.of(customer.getBankId().getBankAccountId());
+        String reg_user = service.getCustomer(result);
+        String opt = customer.getBankId().getBankAccountId();
         assertEquals(reg_user, opt);
 
 

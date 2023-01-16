@@ -114,6 +114,5 @@
             <version>1.18.24</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>
