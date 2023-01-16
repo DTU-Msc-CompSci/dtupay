@@ -6,7 +6,7 @@ sleep 10
 ./build.sh
 
 docker compose up -d
-sleep 5
+sleep 20
 
 
 pushd client
