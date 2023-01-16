@@ -1,11 +1,9 @@
+import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.util.List;
 
 public class CustomerAPI {
 
@@ -13,7 +11,7 @@ public class CustomerAPI {
 
     public CustomerAPI() {
         Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8282/");
+        this.baseUrl = client.target("http://localhost:8091/");
     }
 
     public DTUPayUser postCustomer(DTUPayUser user) {

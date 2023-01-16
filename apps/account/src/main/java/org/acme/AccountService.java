@@ -1,10 +1,11 @@
 package org.acme;
 
-import io.vertx.codegen.doc.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class AccountService {
 
@@ -14,6 +15,14 @@ public class AccountService {
 
     // For RabbitMQ stuffs
     MessageQueue queue;
+
+    public AccountService(MessageQueue q) {
+        this.queue = q;
+        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
+        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
+        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
+        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
+    }
 
 
 //    public List<DTUPayUser> getCustomers() {
@@ -62,15 +71,6 @@ public class AccountService {
 
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
-    }
-
-    public AccountService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
-        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
-
     }
 
     public void handleCustomerAccountCreationRequested(Event ev) {

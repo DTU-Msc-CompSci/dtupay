@@ -9,17 +9,18 @@ import javax.enterprise.event.Observes;
 
 // This concept needs to be added to ALL other microservices
 @ApplicationScoped
-public class StartUp {
+public class TokenStartUp {
 
 	private static final Logger LOGGER = Logger.getLogger("ListenerBean");
-	TransactionService transactionService = null;
+	TokenService tokenService = null;
 
 	void onStart(@Observes StartupEvent event) {
-		LOGGER.info("The Payment Service is starting...");
-		transactionService = new TransactionFactory().getService();
+		LOGGER.info("The Token Service is starting...");
+		tokenService = new TokenFactory().getService();
+		LOGGER.info("The Token Service has started...");
 	}
 
 	void onStop(@Observes ShutdownEvent event) {
-		LOGGER.info("The Payment Service is stopping...");
+		LOGGER.info("The Token Service is stopping...");
 	}
 }

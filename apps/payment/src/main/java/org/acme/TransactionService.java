@@ -3,7 +3,6 @@ package org.acme;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
-import jdk.jfr.Experimental;
 import messaging.Event;
 import messaging.MessageQueue;
 

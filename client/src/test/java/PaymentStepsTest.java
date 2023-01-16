@@ -2,25 +2,18 @@ import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import dtu.ws.fastmoney.User;
-import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.ws.rs.core.Response;
-import messaging.Event;
-import messaging.MessageQueue;
-import messaging.implementations.RabbitMqQueue;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
