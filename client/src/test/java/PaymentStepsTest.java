@@ -39,20 +39,20 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Alekos");
-        customer.setLastName("ts");
-        customer.setCprNumber("123alex123test");
+        customer.setFirstName("Alekreos23");
+        customer.setLastName("tsecd23");
+        customer.setCprNumber("1vr323alex123test");
 
-        merchant.setFirstName("SomeOtherNames");
-        merchant.setLastName("ncname");
-        merchant.setCprNumber("321alex321test");
+        merchant.setFirstName("Som3veO23therNames");
+        merchant.setLastName("ncvrname23");
+        merchant.setCprNumber("321alrfex23321test");
     }
 
     @After
     public void tearDown() {
         try {
             bankService.retireAccount(customerBankId);
-            //bankService.retireAccount(merchantBankId);
+            bankService.retireAccount(merchantBankId);
         } catch (BankServiceException_Exception e) {
             throw new RuntimeException(e);
         }
