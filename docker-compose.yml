@@ -17,9 +17,9 @@ services:
 
   core-service:
     build:
-      context: apps/core
+      context: apps/dtupay
       dockerfile: ./Dockerfile
-    hostname: core
+    hostname: dtupay
     restart: always
     ports:
       - "8091:8080"
