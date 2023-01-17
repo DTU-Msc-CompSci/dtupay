@@ -46,11 +46,8 @@ public class TransactionService {
         merchantBankId = t;
 
 
-        if (customerBankId != null) {
-            // TODO: Migrate to an adapter later
+        checkTransactionInfo(ev.getArgument(1, UUID.class));
 
-            initiateTransaction(customerBankId, merchantBankId, amount, ev.getArgument(1, UUID.class));
-        }
     }
         // Generate random number to tie event to the request
 
@@ -58,24 +55,17 @@ public class TransactionService {
         var t = ev.getArgument(0, String.class);
         customerBankId = (t);
         // Generate random number to tie event to the request
-        if (merchantBankId != null) {
-            // TODO: Migrate to an adapter later
+        checkTransactionInfo(ev.getArgument(1, UUID.class));
 
-            initiateTransaction(customerBankId, merchantBankId, amount, ev.getArgument(1, UUID.class));
-        }
     }
 
     public void handleTransactionRequested(Event ev) {
         var t = ev.getArgument(0, Transaction.class);
         addTransaction(t);
         // Generate random number to tie event to the request
-        //Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.getMerchantId() });
-        //Event customerInfoEvent = new Event("InvalidateTokenRequested", new Object[] { t.getCustomerToken() });
+        checkTransactionInfo(ev.getArgument(1, UUID.class));
 
-        // This needs to respond to a different queue; which are interested in the "MerchantAccountCreated" topics
-        // This is the "hat" that it wears
-        //queue.publish(merchantInfoEvent);
-        //queue.publish(customerInfoEvent);
+
 
     }
 
@@ -103,6 +93,15 @@ public class TransactionService {
         amount = BigDecimal.valueOf(t.getAmount());
         transactions.add(t);
         System.out.println("DTU Pay User added to service");
+    }
+
+
+    private void checkTransactionInfo(UUID transactionId) {
+        if (merchantBankId != null && customerBankId != null && amount != null) {
+            // TODO: Migrate to an adapter later
+
+            initiateTransaction(customerBankId, merchantBankId, amount, transactionId);
+        }
     }
 
 
