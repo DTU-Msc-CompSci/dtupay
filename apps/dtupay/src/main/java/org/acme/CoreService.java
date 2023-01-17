@@ -4,6 +4,7 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 import javax.ws.rs.core.Response;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class CoreService {
@@ -11,7 +12,7 @@ public class CoreService {
     private CompletableFuture<DTUPayUser> registeredCustomer;
     private CompletableFuture<DTUPayUser> registeredMerchant;
 
-    private CompletableFuture<Token> requestedToken;
+    private CompletableFuture<Object> requestedToken;
     private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
@@ -48,7 +49,7 @@ public class CoreService {
         registeredMerchant.complete(s);
     }
 
-    public Token getToken(TokenRequest t) {
+    public Object getToken(TokenRequest t) {
         requestedToken = new CompletableFuture<>();
         Event event = new Event("TokenRequested", new Object[] { t });
         queue.publish(event);
@@ -56,7 +57,7 @@ public class CoreService {
     }
 
     public void handleRequestedToken(Event e) {
-        var s = e.getArgument(0, Token.class);
+        var s = e.getArgument(0, Object.class);
         requestedToken.complete(s);
     }
 
