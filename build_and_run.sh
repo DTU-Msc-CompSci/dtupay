@@ -5,7 +5,8 @@ sleep 10
 
 ./build.sh
 
-docker compose up -d
+#detect docker verison
+docker-compose up -d
 sleep 20
 
 
