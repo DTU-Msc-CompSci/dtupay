@@ -1,4 +1,4 @@
-package org.acme;
+package org.acme.dtupay;
 
 //import jakarta.transaction.Transaction;
 //import jakarta.ws.rs.Path;

@@ -1,4 +1,4 @@
-package org.acme;
+package org.acme.dtupay;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

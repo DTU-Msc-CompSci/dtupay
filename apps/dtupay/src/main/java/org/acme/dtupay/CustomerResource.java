@@ -1,4 +1,4 @@
-package org.acme;
+package org.acme.dtupay;
 
 
 import javax.ws.rs.Consumes;

@@ -75,11 +75,13 @@ public class AccountService {
         return UUID.randomUUID().toString();
     }
 
+    // TODO: Correlation ID will be the first field, and the Domain object/s will be from 2 onward
     public void handleCustomerAccountCreationRequested(Event ev) {
-        var s = ev.getArgument(0, DTUPayUser.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, DTUPayUser.class);
         // Verify that the unique ID is set correct
         addCustomer(s);
-        Event event = new Event("CustomerAccountCreated", new Object[] { s });
+        Event event = new Event("CustomerAccountCreated", new Object[] { correlationId, s });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);
