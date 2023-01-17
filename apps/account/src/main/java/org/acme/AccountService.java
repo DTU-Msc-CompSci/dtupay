@@ -6,6 +6,7 @@ import messaging.MessageQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.acme.*;
 
 public class AccountService {
 
@@ -20,8 +21,8 @@ public class AccountService {
         this.queue = q;
         this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
         this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
+        this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
+        this.queue.addHandler("TokenValidated", this::handleTokenValidated);
     }
 
 
@@ -87,7 +88,7 @@ public class AccountService {
         // TODO: REMOVE ME
         System.out.println("Customer Account Created");
     }
-    public void handleCustomerInfoRequested(Event ev) {
+    public void handleTokenValidated(Event ev) {
         var s = ev.getArgument(0, String.class);
         // Verify that the unique ID is set correct
         String test = getCustomer(s);
@@ -97,11 +98,11 @@ public class AccountService {
         queue.publish(event);
 
     }
-    public void handleMerchantInfoRequested(Event ev) {
-        var s = ev.getArgument(0, String.class);
+    public void handleTransactionRequested(Event ev) {
+        var s = ev.getArgument(0, Transaction.class);
         // Verify that the unique ID is set correct
-        String test = getMerchant(s);
-        Event event = new Event("MerchantInfoProvided", new Object[] { test });
+        String merchantId = getMerchant(s.getMerchantId());
+        Event event = new Event("MerchantInfoProvided", new Object[] { merchantId });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);

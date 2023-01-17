@@ -14,7 +14,7 @@ public class TokenService {
     public TokenService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
-        this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
+        this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
 
     }
 
@@ -26,8 +26,8 @@ public class TokenService {
 
     }
 
-    public void handleInvalidateTokenRequested(Event ev) {
-        var token = ev.getArgument(0, Token.class);
+    public void handleTransactionRequested(Event ev) {
+        var token = ev.getArgument(0, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
         System.out.println(token.getToken());
         tokenToId.remove(token.getToken(),customerId);

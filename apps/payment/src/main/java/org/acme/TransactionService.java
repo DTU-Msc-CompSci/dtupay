@@ -53,11 +53,8 @@ public class TransactionService {
         merchantBankId = t;
 
 
-        if (customerBankId != null) {
-            // TODO: Migrate to an adapter later
+        checkTransactionInfo();
 
-            initiateTransaction(customerBankId, merchantBankId, amount);
-        }
     }
         // Generate random number to tie event to the request
 
@@ -65,24 +62,17 @@ public class TransactionService {
         var t = ev.getArgument(0, String.class);
         customerBankId = (t);
         // Generate random number to tie event to the request
-        if (merchantBankId != null) {
-            // TODO: Migrate to an adapter later
+        checkTransactionInfo();
 
-            initiateTransaction(customerBankId, merchantBankId, amount);
-        }
     }
 
     public void handleTransactionRequested(Event ev) {
         var t = ev.getArgument(0, Transaction.class);
         addTransaction(t);
         // Generate random number to tie event to the request
-        Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.getMerchantId() });
-        Event customerInfoEvent = new Event("InvalidateTokenRequested", new Object[] { t.getCustomerToken() });
+        checkTransactionInfo();
 
-        // This needs to respond to a different queue; which are interested in the "MerchantAccountCreated" topics
-        // This is the "hat" that it wears
-        queue.publish(merchantInfoEvent);
-        queue.publish(customerInfoEvent);
+
 
     }
 
@@ -110,6 +100,15 @@ public class TransactionService {
         amount = BigDecimal.valueOf(t.getAmount());
         transactions.add(t);
         System.out.println("DTU Pay User added to service");
+    }
+
+
+    private void checkTransactionInfo() {
+        if (merchantBankId != null && customerBankId != null && amount != null) {
+            // TODO: Migrate to an adapter later
+
+            initiateTransaction(customerBankId, merchantBankId, amount);
+        }
     }
 
 
