@@ -62,8 +62,7 @@ public class TransactionService {
     public void handleTransactionRequested(Event ev) {
         var t = ev.getArgument(0, Transaction.class);
         addTransaction(t);
-        // Generate random number to tie event to the request
-        checkTransactionInfo(ev.getArgument(1, UUID.class));
+        checkTransactionInfo(t.transactionId);
 
 
 
