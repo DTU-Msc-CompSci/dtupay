@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 //TODO This xml thing
 @Data
@@ -20,7 +21,7 @@ public class Transaction implements Serializable {
 
     private int amount;
 
-    String transactionId;
+    UUID transactionId;
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Transaction)) {

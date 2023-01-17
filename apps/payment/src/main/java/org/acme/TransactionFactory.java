@@ -1,5 +1,6 @@
 package org.acme;
 
+import dtu.ws.fastmoney.BankServiceService;
 import messaging.implementations.RabbitMqQueue;
 
 public class TransactionFactory {
@@ -22,7 +23,8 @@ public class TransactionFactory {
         // At the end, we can use the PaymentService in tests
         // without sending actual messages to RabbitMq.
         var mq = new RabbitMqQueue("rabbitmq");
-        transactionService = new TransactionService(mq);
+        var bankService = new BankServiceService().getBankServicePort();
+        transactionService = new TransactionService(mq, bankService);
 
         return transactionService;
     }

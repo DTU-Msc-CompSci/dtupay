@@ -18,7 +18,7 @@ public class TransactionService {
 
 
     List<Transaction> transactions = new ArrayList<>();
-    private BankService bankService =  new BankServiceService().getBankServicePort();
+    private BankService bankService;
 
     String customerBankId;
     String merchantBankId;
@@ -33,19 +33,12 @@ public class TransactionService {
 //        return users.stream().filter( (user) -> user.getUniqueId().toString().equals(uniqueId)).findFirst();
 //    }
 
-
-
-    public String generateUniqueId() {
-        return UUID.randomUUID().toString();
-    }
-
-    public TransactionService(MessageQueue q) {
+    public TransactionService(MessageQueue q, BankService bankService) {
         this.queue = q;
+        this.bankService = bankService;
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("MerchantInfoProvided", this::handleMerchantInfoProvided);
         this.queue.addHandler("CustomerInfoProvided", this::handleCustomerInfoProvided);
-
-
     }
 
     public void handleMerchantInfoProvided(Event ev) {
@@ -56,7 +49,7 @@ public class TransactionService {
         if (customerBankId != null) {
             // TODO: Migrate to an adapter later
 
-            initiateTransaction(customerBankId, merchantBankId, amount);
+            initiateTransaction(customerBankId, merchantBankId, amount, ev.getArgument(1, UUID.class));
         }
     }
         // Generate random number to tie event to the request
@@ -68,7 +61,7 @@ public class TransactionService {
         if (merchantBankId != null) {
             // TODO: Migrate to an adapter later
 
-            initiateTransaction(customerBankId, merchantBankId, amount);
+            initiateTransaction(customerBankId, merchantBankId, amount, ev.getArgument(1, UUID.class));
         }
     }
 
@@ -76,17 +69,17 @@ public class TransactionService {
         var t = ev.getArgument(0, Transaction.class);
         addTransaction(t);
         // Generate random number to tie event to the request
-        Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.getMerchantId() });
-        Event customerInfoEvent = new Event("InvalidateTokenRequested", new Object[] { t.getCustomerToken() });
+        //Event merchantInfoEvent = new Event("MerchantInfoRequested", new Object[] { t.getMerchantId() });
+        //Event customerInfoEvent = new Event("InvalidateTokenRequested", new Object[] { t.getCustomerToken() });
 
         // This needs to respond to a different queue; which are interested in the "MerchantAccountCreated" topics
         // This is the "hat" that it wears
-        queue.publish(merchantInfoEvent);
-        queue.publish(customerInfoEvent);
+        //queue.publish(merchantInfoEvent);
+        //queue.publish(customerInfoEvent);
 
     }
 
-    public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {
+    public void initiateTransaction(String customer, String merchant, BigDecimal amount, UUID transactionId) {
         // Right now bankId == DTUPayID but this should change when we add registration service
         //TODO fetch the bank id from a registration service
 
@@ -94,7 +87,7 @@ public class TransactionService {
        // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionId });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
             // error event
@@ -106,7 +99,7 @@ public class TransactionService {
     public void addTransaction(Transaction t) {
         //TODO Query external BankService
 
-        t.setTransactionId(generateUniqueId());
+        //t.setTransactionId(generateUniqueId());
         amount = BigDecimal.valueOf(t.getAmount());
         transactions.add(t);
         System.out.println("DTU Pay User added to service");
