@@ -16,14 +16,6 @@ public class AccountService {
     // For RabbitMQ stuffs
     MessageQueue queue;
 
-    public AccountService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
-        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
-    }
-
 
 //    public List<DTUPayUser> getCustomers() {
 //        return customers;
@@ -71,8 +63,43 @@ public class AccountService {
         return user.getUniqueId();
     }
 
+    public void removeCustomer(String uniqueId) {
+        customers.removeIf(user -> user.getUniqueId().equals(uniqueId));
+    }
+
+    public void removeMerchant(String uniqueId) {
+        merchants.removeIf(user -> user.getUniqueId().equals(uniqueId));
+    }
+
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
+    }
+
+    public AccountService(MessageQueue q) {
+        this.queue = q;
+        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
+        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
+        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
+        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
+        this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleCustomerAccountDeRegistrationRequested);
+        this.queue.addHandler("MerchantAccountDeRegistrationRequested", this::handleMerchantAccountDeRegistrationRequested);
+
+    }
+
+    private void handleMerchantAccountDeRegistrationRequested(Event ev) {
+        var s = ev.getArgument(0, String.class);
+        removeMerchant(s);
+        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
+        queue.publish(event);
+        System.out.println("Merchant account de-registration completed");
+    }
+
+    private void handleCustomerAccountDeRegistrationRequested(Event ev) {
+        var s = ev.getArgument(0, String.class);
+        removeCustomer(s);
+        Event event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
+        queue.publish(event);
+        System.out.println("Customer account de-registration completed");
     }
 
     public String handleCustomerAccountCreationRequested(Event ev) {

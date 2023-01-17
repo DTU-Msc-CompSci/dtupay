@@ -33,5 +33,14 @@ public class MerchantResource {
         return service.requestTransaction(transaction);
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deregister")
+    public Response deRegisterMerchant(DTUPayUser user) {
+        service.deRegisterMerchant(user);
+        return Response.ok().build();
+    }
+
 
 }
