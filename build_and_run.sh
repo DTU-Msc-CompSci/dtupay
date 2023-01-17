@@ -5,10 +5,19 @@ sleep 10
 
 ./build.sh
 
-#detect docker verison
-docker-compose up -d
-sleep 20
+set +e
+#detect docker version
+docker-compose version
+if [ $? != 0 ]; then
+    echo "Executing docker compose up -d"
+    docker compose up -d
+else
+    echo "Executing docker-compose up -d"
+    docker-compose up -d
+fi
 
+sleep 20
+set -e
 
 pushd client
 ./test.sh
