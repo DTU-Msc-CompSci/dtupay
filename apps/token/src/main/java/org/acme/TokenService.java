@@ -16,7 +16,7 @@ public class TokenService {
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
-
+    }
     public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
         removeAllTokenFromCustomer(ev.getArgument(0, String.class));
         Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
