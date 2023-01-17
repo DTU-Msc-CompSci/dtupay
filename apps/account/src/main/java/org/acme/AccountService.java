@@ -75,7 +75,7 @@ public class AccountService {
         return UUID.randomUUID().toString();
     }
 
-    public void handleCustomerAccountCreationRequested(Event ev) {
+    public String handleCustomerAccountCreationRequested(Event ev) {
         var s = ev.getArgument(0, DTUPayUser.class);
         // Verify that the unique ID is set correct
         addCustomer(s);
@@ -86,6 +86,7 @@ public class AccountService {
 
         // TODO: REMOVE ME
         System.out.println("Customer Account Created");
+        return s.getUniqueId();
     }
     public void handleCustomerInfoRequested(Event ev) {
         var s = ev.getArgument(0, String.class);

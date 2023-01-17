@@ -2,6 +2,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -16,52 +17,59 @@ import org.acme.*;
 import java.util.*;
 
 public class RegistrationSteps {
-
-    private CompletableFuture<Event> publishedEvent = new CompletableFuture<>();
-
-    private MessageQueue q = new MessageQueue() {
-
-        @Override
-        public void publish(Event event) {
-            publishedEvent.complete(event);
-        }
-
-        @Override
-        public void addHandler(String eventType, Consumer<Event> handler) {
-        }
-
-    };
+    private MessageQueue q = mock(MessageQueue.class);
+    //private AccountService service = mock ( AccountService.class , withSettings().useConstructor(q));
     private AccountService service = new AccountService(q);
-    private CompletableFuture<DTUPayUser> registeredUser = new CompletableFuture<>();
-    private Person person;
-
     private DTUPayUser customer = new DTUPayUser();
-
-    String result;
+    //private DTUPayUser merchant = new DTUPayUser();
 
     public RegistrationSteps() {
     }
 
     @Given("There is a costumer with empty id")
-    public void thereIsAUserWithEmptyId() {
-        person = new Person("John", "Magkas", "420666");
+    public void thereIsACostumerWithEmptyId() {
+        Person person = new Person("John", "Magkas", "123123");
         customer.setPerson(person);
         customer.setBankId(new BankId("customerBankId"));
         assertNull(customer.getUniqueId());
     }
 
-    @When("the customer is being registered")
-    public void theCustomerIsBeingRegistered() {
-        result = service.addCustomer(customer);
+    @When("the service receives a CustomerAccountCreationRequested event")
+    public void theServiceReceivesCustomerAccountCreationRequestedEvent(){
+        var event = new  Event("CustomerAccountCreationRequested", new Object[] {customer});
+        customer.setUniqueId(service.handleCustomerAccountCreationRequested(event));
     }
 
-    @Then("The customer added correctly")
-    public void theEventIsSent() {
-        customer.setUniqueId(result);
-        String reg_user = service.getCustomer(result);
-        String opt = customer.getBankId().getBankAccountId();
-        assertEquals(reg_user, opt);
-
-
+    @Then("a CustomerAccountCreated event is published")
+    public void aCustomerAccountCreationRequestedPublished() {
+        Event event = new Event("CustomerAccountCreated", new Object[] {customer});
+        verify(q).publish(event);
     }
+
+//    @Given("There is a merchant with empty id")
+//    public void thereIsAMerchantWithEmptyId() {
+//        Person person = new Person("John", "Wick", "321321");
+//        customer.setPerson(person);
+//        customer.setBankId(new BankId("customerBankId"));
+//        assertNull(customer.getUniqueId());
+//    }
+//    @When("the service receives a MerchantAccountCreationRequested event")
+//
+//    @When("the customer is being registered")
+//    public void theCustomerIsBeingRegistered() {
+//        result = service.addCustomer(customer);
+//    }
+//
+//    @When("the merchant is being registered")
+//    public void theMerchantIsBeingRegistered() {
+//        result = service.addMerchant(merchant);
+//    }
+//
+//    @Then("The merchant added correctly")
+//    @Then("The customer added correctly")
+//    public void theEventIsSent() {
+//        String reg_user = service.getCustomer(result);
+//        String opt = customer.getBankId().getBankAccountId();
+//        assertEquals(reg_user, opt);
+//    }
 }
