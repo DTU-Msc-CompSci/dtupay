@@ -6,7 +6,7 @@ import messaging.MessageQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.acme.*;
+
 public class AccountService {
 
     List<DTUPayUser> customers = new ArrayList<>();
@@ -32,16 +32,6 @@ public class AccountService {
 //        return customers;
 //    }
 
-    public AccountService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
-        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
-        this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleCustomerAccountDeRegistrationRequested);
-        this.queue.addHandler("MerchantAccountDeRegistrationRequested", this::handleMerchantAccountDeRegistrationRequested);
-
-    }
 
     public String getCustomer(String uniqueId) {
         String bankId = null;
@@ -141,7 +131,7 @@ public class AccountService {
 
     public String handleMerchantAccountCreationRequested(Event ev) {
         var s = ev.getArgument(0, DTUPayUser.class);
-        Event event = null;
+        Event event;
         if (doesMerchantExist(s)){
             event = new Event("MerchantAccountCreationFailed", new Object[] { false });
             // TODO: REMOVE ME
@@ -160,7 +150,7 @@ public class AccountService {
 
     public String handleCustomerAccountCreationRequested(Event ev) {
         var s = ev.getArgument(0, DTUPayUser.class);
-        Event event = null;
+        Event event;
         if (doesCostumerExist(s)){
             event = new Event("CostumerAccountCreationFailed", new Object[] { false });
             // TODO: REMOVE ME
