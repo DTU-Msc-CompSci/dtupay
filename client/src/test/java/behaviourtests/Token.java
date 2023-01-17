@@ -1,3 +1,4 @@
+package behaviourtests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

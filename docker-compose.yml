@@ -12,14 +12,14 @@ services:
     networks:
       - dtupay-network
     depends_on:
-      core-service:
+      dtupay-service:
         condition: service_started
 
-  core-service:
+  dtupay-service:
     build:
-      context: apps/core
+      context: apps/dtupay
       dockerfile: ./Dockerfile
-    hostname: core
+    hostname: dtupay
     restart: always
     ports:
       - "8091:8080"

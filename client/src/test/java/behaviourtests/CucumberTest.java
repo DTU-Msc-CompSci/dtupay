@@ -1,3 +1,5 @@
+package behaviourtests;
+
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import io.cucumber.junit.CucumberOptions.SnippetType;
@@ -11,7 +13,7 @@ For example, the class name CucumberTestExample will be ignored by Maven.
 
 @RunWith(Cucumber.class)
 @CucumberOptions(plugin="summary"
-			   , publish= false
+			   //, publish= false
 			   , features = "features"  // directory of the feature files
 			   , snippets = SnippetType.CAMELCASE
 			   )

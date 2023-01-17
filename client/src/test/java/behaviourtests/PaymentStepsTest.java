@@ -1,3 +1,5 @@
+package behaviourtests;
+
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
@@ -39,13 +41,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Alekreos23");
-        customer.setLastName("tsecd23");
-        customer.setCprNumber("1vr323alex123test");
+        customer.setFirstName("Alekreos23rf");
+        customer.setLastName("tsecfrd23");
+        customer.setCprNumber("1vr323arflex123test");
 
-        merchant.setFirstName("Som3veO23therNames");
-        merchant.setLastName("ncvrname23");
-        merchant.setCprNumber("321alrfex23321test");
+        merchant.setFirstName("Som3rfrfveO23therNames");
+        merchant.setLastName("ncvrrfname23");
+        merchant.setCprNumber("321alrrffex23321test");
     }
 
     @After

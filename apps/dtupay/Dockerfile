@@ -7,3 +7,5 @@ COPY target/quarkus-app ${APP_DIR}/quarkus-app
 CMD java -Xmx64m \
         -jar quarkus-app/quarkus-run.jar
 
+
+
