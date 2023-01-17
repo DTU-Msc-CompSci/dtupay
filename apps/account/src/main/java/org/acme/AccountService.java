@@ -6,7 +6,7 @@ import messaging.MessageQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+import org.acme.*;
 public class AccountService {
 
     List<DTUPayUser> customers = new ArrayList<>();
@@ -86,16 +86,7 @@ public class AccountService {
         return UUID.randomUUID().toString();
     }
 
-    public AccountService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
-        this.queue.addHandler("MerchantAccountCreationRequested", this::handleMerchantAccountCreationRequested);
-        this.queue.addHandler("MerchantInfoRequested", this::handleMerchantInfoRequested);
-        this.queue.addHandler("CustomerInfoRequested", this::handleCustomerInfoRequested);
-        this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleCustomerAccountDeRegistrationRequested);
-        this.queue.addHandler("MerchantAccountDeRegistrationRequested", this::handleMerchantAccountDeRegistrationRequested);
 
-    }
 
     private void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
