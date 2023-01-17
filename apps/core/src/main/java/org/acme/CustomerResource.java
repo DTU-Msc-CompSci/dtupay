@@ -27,6 +27,15 @@ public class CustomerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deregister")
+    public Response deRegisterCustomer(DTUPayUser user) {
+        service.deRegisterCustomer(user);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
     public Token postToken(TokenRequest tokenRequest) {
         System.out.println(tokenRequest.getCid());

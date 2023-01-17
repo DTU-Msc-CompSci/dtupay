@@ -86,7 +86,7 @@ public class AccountService {
     private void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
         removeMerchant(s);
-        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {s});
+        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
         queue.publish(event);
         System.out.println("Merchant account de-registration completed");
     }

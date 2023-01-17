@@ -15,7 +15,13 @@ public class TokenService {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
         this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
+        this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
+    }
 
+    public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
+        removeAllTokenFromCustomer(ev.getArgument(0, String.class));
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
+        queue.publish(event);
     }
 
     public void handleTokenRequested(Event ev) {
@@ -23,7 +29,6 @@ public class TokenService {
         Token token = generateToken(s);
         Event event = new Event("TokenRequestFulfilled", new Object[] { token });
         queue.publish(event);
-
     }
 
     public void handleInvalidateTokenRequested(Event ev) {
@@ -38,7 +43,15 @@ public class TokenService {
         queue.publish(customerInfoEvent);
     }
 
-
+    public void removeAllTokenFromCustomer(String customerId) {
+        for (Map.Entry<String, Token> entry : assignedTokens.entrySet()) {
+            if (entry.getKey().equals(customerId)) {
+                assignedTokens.remove(entry.getKey());
+                tokenToId.remove(entry.getValue().getToken());
+                usedTokenPool.add(entry.getValue().getToken());
+            }
+        }
+    }
 
     public Token generateToken(TokenRequest tokenRequest) {
         // TODO: Expand to a list of Tokens later
