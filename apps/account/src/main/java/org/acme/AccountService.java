@@ -1,10 +1,11 @@
 package org.acme;
 
-import io.vertx.codegen.doc.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class AccountService {
 
@@ -42,22 +43,24 @@ public class AccountService {
         return bankId;
     }
 
-    public void addCustomer(DTUPayUser user) {
+    public String addCustomer(DTUPayUser user) {
         //TODO Query external BankService
 
         user.setUniqueId(generateUniqueId());
 
         customers.add(user);
         System.out.println("DTU Pay User added to service");
+        return user.getUniqueId();
     }
 
-    public void addMerchant(DTUPayUser user) {
+    public String addMerchant(DTUPayUser user) {
         //TODO Query external BankService
 
         user.setUniqueId(generateUniqueId());
 
         merchants.add(user);
         System.out.println("DTU Pay User added to service");
+        return user.getUniqueId();
     }
 
     public void removeCustomer(String uniqueId) {

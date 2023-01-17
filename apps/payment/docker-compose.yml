@@ -1,8 +1,0 @@
-version: '3'
-services:
-  demo:
-    build: .
-    image: demo
-    container_name: demo
-    ports:
-      - "8080:8080"
