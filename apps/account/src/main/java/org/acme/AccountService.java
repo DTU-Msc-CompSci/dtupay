@@ -6,6 +6,7 @@ import messaging.MessageQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class AccountService {
 
@@ -55,6 +56,10 @@ public class AccountService {
         //TODO Query external BankService
 
         user.setUniqueId(generateUniqueId());
+
+        CompletableFuture<String> requestedTokenUser;
+        Event event = new Event("TokenUserRequested", new Object[] { user.getUniqueId() });
+        queue.publish(event);
 
         customers.add(user);
         System.out.println("DTU Pay User added to service");
