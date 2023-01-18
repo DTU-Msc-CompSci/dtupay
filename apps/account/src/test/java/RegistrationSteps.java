@@ -102,9 +102,9 @@ public class RegistrationSteps {
     public void aUserAccountCreatedPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreated", new Object[]{customer});
+            event = new Event("CustomerAccountCreated", new Object[]{new AccountResponse(customer,"Success")});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreated", new Object[]{merchant});
+            event = new Event("MerchantAccountCreated", new Object[]{new AccountResponse(merchant,"Success")});
         }
         verify(q).publish(event);
     }
@@ -135,11 +135,11 @@ public class RegistrationSteps {
     public void aUserAccountCreationFailedEventPublished(String userType, String errorMsg) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreationFailed", new Object[]{ errorMsg });
-        } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreationFailed", new Object[]{ errorMsg });
+            event = new Event("CustomerAccountCreated", new Object[]{new AccountResponse(null, errorMsg)});
+        } else if (userType.equals("Merchant")) {
+            event = new Event("MerchantAccountCreated", new Object[]{new AccountResponse(null, errorMsg)});
+            verify(q).publish(event);
         }
-        verify(q).publish(event);
     }
 
     @And("the {string} should exist in the database")

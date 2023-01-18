@@ -19,7 +19,7 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response postCustomer(DTUPayUser user) {
         AccountResponse response = service.registerCustomer(user);
-        if (!response.getMessage().equals("success")) {
+        if (!response.getMessage().equals("Success")) {
             return Response.status(400).entity(response.getMessage()).build();
         }
         return Response.status(201).entity(response.getUser()).build();
