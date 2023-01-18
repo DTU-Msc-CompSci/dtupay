@@ -7,7 +7,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
 
 @Path("/customer")
 public class CustomerResource {
@@ -20,6 +19,15 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DTUPayUser postCustomer(DTUPayUser user) {
         return service.registerCustomer(user);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deregister")
+    public Response deRegisterCustomer(DTUPayUser user) {
+        service.deRegisterCustomer(user);
+        return Response.ok().build();
     }
 
     @POST

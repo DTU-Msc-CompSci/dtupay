@@ -14,6 +14,8 @@ public class TokenService {
     public TokenService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
+        this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
+        this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
         this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
         this.queue.addHandler("TokenUserRequested", this::handleTokenUserAdd);
     }
@@ -56,9 +58,14 @@ public class TokenService {
         var s = ev.getArgument(0,String.class);
         assignedTokens.put(s,new HashSet<Token>());
     }
+    public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
+        removeAllTokenFromCustomer(ev.getArgument(0, String.class));
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
+        queue.publish(event);
+    }
 
-    public void handleInvalidateTokenRequested(Event ev) {
-        var token = ev.getArgument(0, Token.class);
+    public void handleTransactionRequested(Event ev) {
+        var token = ev.getArgument(0, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
         System.out.println(token.getToken());
         tokenToId.remove(token.getToken(),customerId);
@@ -69,7 +76,15 @@ public class TokenService {
         queue.publish(customerInfoEvent);
     }
 
-
+    public void removeAllTokenFromCustomer(String customerId) {
+        for (Map.Entry<String, Token> entry : assignedTokens.entrySet()) {
+            if (entry.getKey().equals(customerId)) {
+                assignedTokens.remove(entry.getKey());
+                tokenToId.remove(entry.getValue().getToken());
+                usedTokenPool.add(entry.getValue().getToken());
+            }
+        }
+    }
 
     public Set<Token> generateTokens(TokenRequest tokenRequest) {
 
