@@ -63,7 +63,9 @@ public class TransactionService {
         var t = ev.getArgument(1, String.class);
         Payment payment = repository.getById(id);
 
-        payment.addMerchantBankID(t);
+        payment.addMerchantBankID(id,t);
+        repository.save(payment);
+
         // Generate random number to tie event to the request
         checkTransactionInfo(id);
 
@@ -76,7 +78,9 @@ public class TransactionService {
         var t = ev.getArgument(1, String.class);
         Payment payment = repository.getById(id);
 
-        payment.addCustomerBankID(t);
+        payment.addCustomerBankID(id,t);
+        repository.save(payment);
+
         // Generate random number to tie event to the request
         checkTransactionInfo(id);
 
@@ -100,7 +104,7 @@ public class TransactionService {
         // Right now bankId == DTUPayID but this should change when we add registration service
         //TODO fetch the bank id from a registration service
 
-       // var customerBankAccountID = transaction.getCustomerId();
+        // var customerBankAccountID = transaction.getCustomerId();
        // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");

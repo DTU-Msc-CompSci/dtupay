@@ -39,7 +39,7 @@ public class TokenService {
         assignedTokens.remove(customerId,token);
         usedTokenPool.add(token.getToken());
         System.out.println(customerId);
-        Event customerInfoEvent = new Event("TokenValidated", new Object[] { customerId });
+        Event customerInfoEvent = new Event("TokenValidated", new Object[] { id, customerId });
         queue.publish(customerInfoEvent);
     }
 

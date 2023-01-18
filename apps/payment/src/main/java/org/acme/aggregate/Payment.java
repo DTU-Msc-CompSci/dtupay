@@ -37,6 +37,7 @@ public class Payment {
 	private Map<Class<? extends Event>, Consumer<Event>> handlers = new HashMap<>();
 
 	public void create(String transactionId,String customerToken, String merchantID, BigDecimal amount) {
+
 		//var transactionId = UUID.randomUUID().toString();
         TransactionCreated event = new TransactionCreated(transactionId, customerToken, customerToken,amount);
 		//var payment = new Payment();
@@ -63,12 +64,12 @@ public class Payment {
 
 	/* Business Logic */
 
-	public void addMerchantBankID(String merchantBankID) {
+	public void addMerchantBankID(String transactionID, String merchantBankID) {
 		appliedEvents.add( (PaymentEvent)new TransactionMerchantBankIDAdded(transactionID,merchantBankID));
         applyEvents(appliedEvents.stream());
 
     }
-    public void addCustomerBankID(String customerBankID) {
+    public void addCustomerBankID(String transactionID, String customerBankID) {
         appliedEvents.add( (PaymentEvent)new TransactionCustomerBankIDAdded(transactionID,customerBankID));
         applyEvents(appliedEvents.stream());
 
@@ -82,12 +83,13 @@ public class Payment {
 		events.forEachOrdered(e -> {
 			this.applyEvent(e);
 		});
-		if (this.getTransactionID() == null) {
-			throw new Error("Transaction does not exist");
-		}
+//		if (this.getTransactionID() == null) {
+//			throw new Error("Transaction does not exist");
+//		}
 	}
 
 	private void applyEvent(PaymentEvent e) {
+		System.out.println("APPLYING EVENT");
 		handlers.getOrDefault(e.getClass(), this::missingHandler).accept(e);
 	}
 

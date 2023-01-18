@@ -179,7 +179,7 @@ public class RegistrationSteps {
     @When("the service receives a TransactionRequested event")
     public void theServiceReceivesATransactionRequestedEvent() {
         Transaction transaction = new Transaction(new Token("fakeToken"), merchant.getUniqueId(), 100, "fakeTransactionID");
-        Event event = new Event("TransactionRequested", new Object[]{ transaction });
+        Event event = new Event("TransactionRequested", new Object[]{ "random id", transaction });
         service.handleTransactionRequested(event);
     }
 
@@ -187,17 +187,17 @@ public class RegistrationSteps {
     public void aMerchantInfoProvidedEventIsPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerInfoProvided", new Object[]{customer.getBankId().getBankAccountId()});
+            event = new Event("CustomerInfoProvided", new Object[]{ "random id", customer.getBankId().getBankAccountId()});
         }
         else if(userType.equals("Merchant")) {
-            event = new Event("MerchantInfoProvided", new Object[]{merchant.getBankId().getBankAccountId()});
+            event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant.getBankId().getBankAccountId()});
         }
         verify(q).publish(event);
     }
 
     @When("the service receives a TokenValidated event")
     public void theServiceReceivesATokenValidatedEvent() {
-        Event event = new Event("TokenValidated", new Object[]{ customer.getUniqueId() });
+        Event event = new Event("TokenValidated", new Object[]{  "random id", customer.getUniqueId() });
         service.handleTokenValidated(event);
     }
 }
