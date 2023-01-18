@@ -31,14 +31,15 @@ public class TokenService {
     }
 
     public void handleTransactionRequested(Event ev) {
-        var token = ev.getArgument(0, Transaction.class).getCustomerToken();
+        var id =ev.getArgument(0, String.class);
+        var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
         System.out.println(token.getToken());
         tokenToId.remove(token.getToken(),customerId);
         assignedTokens.remove(customerId,token);
         usedTokenPool.add(token.getToken());
         System.out.println(customerId);
-        Event customerInfoEvent = new Event("TokenValidated", new Object[] { customerId });
+        Event customerInfoEvent = new Event("TokenValidated", new Object[] { id, customerId });
         queue.publish(customerInfoEvent);
     }
 

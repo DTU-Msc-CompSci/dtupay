@@ -1,4 +1,4 @@
-package org.acme;
+package org.acme.aggregate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

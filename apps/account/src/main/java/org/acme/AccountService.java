@@ -159,15 +159,18 @@ public class AccountService {
     }
 
     public void handleTokenValidated(Event ev) {
-        var user = ev.getArgument(0, String.class);
-        Event event = new Event("CustomerInfoProvided", new Object[] { getCustomerBankInfo(user) });
+        var id = ev.getArgument(0, String.class);
+        var user = ev.getArgument(1, String.class);
+        Event event = new Event("CustomerInfoProvided", new Object[] { id, getCustomerBankInfo(user) });
         queue.publish(event);
 
     }
 
     public void handleTransactionRequested(Event ev) {
-        var s = ev.getArgument(0, Transaction.class);
-        Event event = new Event("MerchantInfoProvided", new Object[] { getMerchantBankInfo(s.getMerchantId()) });
+        var id = ev.getArgument(0, String.class);
+
+        var s = ev.getArgument(1, Transaction.class);
+        Event event = new Event("MerchantInfoProvided", new Object[] { id, getMerchantBankInfo(s.getMerchantId()) });
         queue.publish(event);
     }
 }

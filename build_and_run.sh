@@ -6,6 +6,8 @@ sleep 10
 ./build.sh
 
 set +e
+docker-compose build .
+
 #detect docker version
 docker-compose version
 if [ $? != 0 ]; then

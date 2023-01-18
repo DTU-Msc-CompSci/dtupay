@@ -1,5 +1,7 @@
 package org.acme;
 //import messaging.implementations.RabbitMqQueue;
+import org.acme.service.TransactionService;
+
 import java.util.logging.Logger;
 
 public class StartUp {
