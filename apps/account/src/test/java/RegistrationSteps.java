@@ -43,14 +43,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedhrfyrtyvvohn");
-        cost.setLastName("Ramddhtrytryfvfvbo");
-        cost.setCprNumber("12ddfrteyvhgf3123");
+        cost.setFirstName("Jrfedrsdfvvohn");
+        cost.setLastName("Ramddsdfvfvbo");
+        cost.setCprNumber("12ddfsdvf3123");
 
         User mer = new User();
-        mer.setFirstName("Jodertyfdffvfvhn");
-        mer.setLastName("Widfertydffgvvck");
-        mer.setCprNumber("321dfertyffv3dfv21");
+        mer.setFirstName("Joddfvsdfvhn");
+        mer.setLastName("Widfdsdfvvck");
+        mer.setCprNumber("321dfsdv3dfv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -187,10 +187,10 @@ public class RegistrationSteps {
     public void aMerchantInfoProvidedEventIsPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerInfoProvided", new Object[]{ "random id", customer.getBankId().getBankAccountId()});
+            event = new Event("CustomerInfoProvided", new Object[]{ "random id", customer});
         }
         else if(userType.equals("Merchant")) {
-            event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant.getBankId().getBankAccountId()});
+            event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant});
         }
         verify(q).publish(event);
     }

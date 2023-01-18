@@ -123,7 +123,9 @@ public class CoreService {
     }
 
     public void handleTransactionCompleted(Event e) {
-        var s = e.getArgument(0, String.class);
+        var id = e.getArgument(0, String.class);
+
+        var s = e.getArgument(1, String.class);
         requestedTransaction.complete(s);
         // TODO standardize the response
 

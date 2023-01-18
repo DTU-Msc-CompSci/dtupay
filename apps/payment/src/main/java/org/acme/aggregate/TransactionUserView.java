@@ -18,6 +18,7 @@ public class TransactionUserView implements Serializable {
     private String customerToken;
 
     private String merchantId;
+    private DTUPayUser merchant;
 
     private BigDecimal amount;
 
