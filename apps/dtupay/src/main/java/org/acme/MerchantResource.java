@@ -20,8 +20,12 @@ public class MerchantResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DTUPayUser postMerchant(DTUPayUser user) {
-        return service.registerMerchant(user);
+    public Response postMerchant(DTUPayUser user) {
+        AccountResponse response = service.registerMerchant(user);
+        if (!response.getMessage().equals("Success")) {
+            return Response.status(400).entity(response.getMessage()).build();
+        }
+        return Response.status(201).entity(response.getUser()).build();
     }
 
     @POST

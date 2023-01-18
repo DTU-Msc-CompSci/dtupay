@@ -14,8 +14,7 @@ import io.cucumber.java.en.When;
 import java.math.BigDecimal;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
@@ -41,13 +40,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Aleeerefbrsdfvdverkdfbrfeos23rf");
-        customer.setLastName("tsefeerefbsddfvrdfgbercfrd23");
-        customer.setCprNumber("1vffrebefsddfvvedfbrerfr323arflex123test");
+        customer.setFirstName("Aleeerefrvttgbrtvrsdfvdedverkdfbrfeos23rf");
+        customer.setLastName("tseftgeerertrvtvfbsdedcdfvrdfgbercfrd23");
+        customer.setCprNumber("1vffrtgeberrtvtfedsddfvvedfbrerfr323arflex123test");
 
-        merchant.setFirstName("Som3reresdvdfvfdfbbfrfererfveO23therNames");
-        merchant.setLastName("ncvrrfeefsdvdfvrdfbbferername23");
-        merchant.setCprNumber("321alrefsdvdfverdfbbrfffereex23321test");
+        merchant.setFirstName("Som3rertgrrtvtveseddvdfvfdfbbfrfererfveO23therNames");
+        merchant.setLastName("ncvrrftgeeftrvrtvedcsdvdfvrdfbbferername23");
+        merchant.setCprNumber("321altgrefrtvrtedcsdvdfverdfbbrfffereex23321test");
     }
 
     @After
@@ -61,16 +60,23 @@ public class PaymentStepsTest {
     }
     @Given("^a customer registered with DTU Pay$")
     public void aCustomerRegisteredWithDTUPay() {
-        dtuPayCustomer.setBankId(new BankId(customerBankId));
-        dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
-        registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
+        try {
+            registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            //assertFalse(true);
+        }
         assertNotNull(registeredCustomer.getUniqueId());
     }
     @Given("^a merchant registered with DTU Pay$")
     public void aMerchantRegisteredWithDTUPay() {
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
-        registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
+        try {
+            registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         assertNotNull(registeredMerchant.getUniqueId());
     }
 
@@ -110,8 +116,8 @@ public class PaymentStepsTest {
 
     @Given("a customer with a bank account with balance {int}")
     public void aCustomerWithABankAccountWithBalance(int arg0) {
-        try {customerBankId
-             = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(arg0));
+        try {
+            customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(arg0));
             dtuPayCustomer.setBankId(new BankId(customerBankId));
             dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         } catch (BankServiceException_Exception e) {

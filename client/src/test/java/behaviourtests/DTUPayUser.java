@@ -26,10 +26,10 @@ public class DTUPayUser implements Serializable {
         }
         var c = (DTUPayUser) o;
         return person.getFirstName() != null && person.getFirstName().equals(c.getPerson().getFirstName()) &&
-               person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
+                person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
                 person.getCprNumber() != null && person.getCprNumber().equals(c.getPerson().getCprNumber()) &&
                 bankId != null && bankId.equals(c.getBankId()) &&
-                uniqueId != null && uniqueId.equals(c.getUniqueId());
+                ( (uniqueId == null && c.getUniqueId() == null) || (uniqueId != null && uniqueId.equals(c.getUniqueId()) ));
     }
 
     @Override
