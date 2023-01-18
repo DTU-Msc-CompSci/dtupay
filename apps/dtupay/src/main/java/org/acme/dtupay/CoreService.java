@@ -6,6 +6,7 @@ import messaging.MessageQueue;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,8 +17,12 @@ public class CoreService {
     // TODO: Migrate these concurrent-safe collection
     private Map<String, CompletableFuture<DTUPayUser>> pendingCustomers = new ConcurrentHashMap<>();
     private CompletableFuture<DTUPayUser> registeredMerchant;
+    private boolean tokenRemoved;
+    private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
+    private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
+    private boolean deRegisteredCustomer;
 
-    private CompletableFuture<Token> requestedToken;
+    private CompletableFuture<TokenResponse> requestedToken;
     private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
@@ -27,10 +32,37 @@ public class CoreService {
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
+        queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
+        queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
+        queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
+    }
+
+    public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {
+        tokenRemoved = ev.getArgument(0, Boolean.class);
+        if(deRegisteredCustomer) {
+            deRegisteredCustomerCompleted.complete(true);
+        }
     }
 
     public Map<String, CompletableFuture<DTUPayUser>> getPendingCustomers() {
         return pendingCustomers;
+    }
+
+    
+    public String deRegisterCustomer(DTUPayUser user) {
+        deRegisteredCustomerCompleted = new CompletableFuture<>();
+        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
+        queue.publish(event);
+        deRegisteredCustomerCompleted.join();
+        return "De-registration request sent";
+    }
+
+    public String deRegisterMerchant(DTUPayUser user) {
+        deRegisteredMerchantCompleted = new CompletableFuture<>();
+        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
+        queue.publish(event);
+        deRegisteredMerchantCompleted.join();
+        return "De-registration request sent";
     }
 
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
@@ -60,8 +92,21 @@ public class CoreService {
         var s = e.getArgument(0, DTUPayUser.class);
         registeredMerchant.complete(s);
     }
+    public void handleMerchantDeRegistrationCompleted(Event e) {
+        var s = e.getArgument(0, Boolean.class);
+        deRegisteredMerchantCompleted.complete(s);
+    }
 
-    public Token getToken(TokenRequest t) {
+    public void handleCustomerDeRegistrationCompleted(Event event) {
+        deRegisteredCustomer = event.getArgument(0, Boolean.class);
+        if(tokenRemoved) {
+            deRegisteredCustomerCompleted.complete(true);
+        }
+    }
+
+
+
+    public TokenResponse getToken(TokenRequest t) {
         requestedToken = new CompletableFuture<>();
         Event event = new Event("TokenRequested", new Object[] { t });
         queue.publish(event);
@@ -69,7 +114,10 @@ public class CoreService {
     }
 
     public void handleRequestedToken(Event e) {
-        var s = e.getArgument(0, Token.class);
+        TokenResponse s = e.getArgument(0, TokenResponse.class);
+        System.out.println("TESTING!!!!");
+        System.out.println(s.getMessage());
+        System.out.println(s.getTokens());
         requestedToken.complete(s);
     }
 

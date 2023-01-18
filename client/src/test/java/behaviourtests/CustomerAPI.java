@@ -4,8 +4,14 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CustomerAPI {
 
@@ -25,11 +31,16 @@ public class CustomerAPI {
 
     }
 
-    public Token requestToken(String cid, int amount) { //Customer requests token
+    public Set<Token> requestToken(String cid, int amount) throws Exception { //Customer requests token
         TokenRequest tokenRequest = new TokenRequest(cid, amount);
         Response response = baseUrl.path("customer/token")
-                            .request()
-                            .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
-        return response.readEntity(Token.class);
+                .request()
+                .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
+
+        if (response.getStatus() == 201) {
+            return response.readEntity(new GenericType<>() {});
+        } else {
+            throw new Exception(response.readEntity(String.class));
+        }
     }
 }
