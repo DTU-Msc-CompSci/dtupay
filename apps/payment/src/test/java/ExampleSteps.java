@@ -124,14 +124,11 @@ public class ExampleSteps {
     public void transaction_is_initiated() {
         // Write code here that turns the phrase above into concrete actions
         Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
-        //verify(q).publish(transactionCompletedEvent);
     }
     @Then("money is only transferred once")
     public void money_is_only_transferred_once() throws BankServiceException_Exception {
-        // Write code here that turns the phrase above into concrete actions
-        System.out.println( bankService.getAccount(customerBankAccountId).getBalance());
-        System.out.println( bankService.getAccount(merchantBankAccountId).getBalance());
-
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+        verify(q,times(1)).publish(transactionCompletedEvent);
 
     }
 }

@@ -55,7 +55,7 @@ public class TransactionService {
             handlePaymentForOnePayment(ev, id);
 
         }
-    public void handlePaymentForOnePayment(Event ev, String id) {
+    public synchronized void handlePaymentForOnePayment(Event ev, String id) {
         Payment payment = repository.getById(id);
         switch (ev.getType()){
             case "CustomerInfoProvided":
