@@ -83,7 +83,11 @@ public class AccountService {
 
     private void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
-        if(userType.equals("customer")){ customers.add(user); }
+        if(userType.equals("customer")){
+            customers.add(user);
+            Event event = new Event("TokenUserRequested", new Object[] { user.getUniqueId() });
+            queue.publish(event);
+        }
         else if(userType.equals("merchant")){ merchants.add(user); }
         System.out.println("DTU Pay User added to service");
     }
@@ -125,21 +129,22 @@ public class AccountService {
     public String handleCustomerAccountCreationRequested(Event ev) {
         var user = ev.getArgument(0, DTUPayUser.class);
         Event event;
+        AccountResponse response = new AccountResponse();
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
+
+            if (doesCustomerExist(user.getBankId().getBankAccountId())){
+                response.setMessage("Duplicate User");
+            } else {
+                addUser(user,"customer");
+                response.setUser(user);
+                response.setMessage("Success");
+            }
+
         } catch (BankServiceException_Exception e) {
-            event = new Event("CustomerAccountCreationFailed", new Object[] { "Invalid BankAccountId" });
-            queue.publish(event);
-            return user.getUniqueId();
+            response.setMessage("Invalid BankAccountId");
         }
-
-        if (doesCustomerExist(user.getBankId().getBankAccountId())){
-            event = new Event("CustomerAccountCreationFailed", new Object[] { "Duplicate User" });
-        } else {
-            addUser(user,"customer");
-            event = new Event("CustomerAccountCreated", new Object[]{user});
-        }
-
+        event = new Event("CustomerAccountCreated", new Object[]{response});
         queue.publish(event);
         return user.getUniqueId();
     }

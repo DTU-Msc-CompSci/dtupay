@@ -8,14 +8,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class CoreService {
     private MessageQueue queue;
-    private CompletableFuture<DTUPayUser> registeredCustomer;
+    private CompletableFuture<AccountResponse> registeredCustomer;
     private CompletableFuture<DTUPayUser> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
     private boolean deRegisteredCustomer;
 
-    private CompletableFuture<Token> requestedToken;
+    private CompletableFuture<TokenResponse> requestedToken;
     private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
@@ -54,7 +54,7 @@ public class CoreService {
         return "De-registration request sent";
     }
 
-    public DTUPayUser registerCustomer(DTUPayUser c) {
+    public AccountResponse registerCustomer(DTUPayUser c) {
         registeredCustomer = new CompletableFuture<>();
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { c });
         queue.publish(event);
@@ -68,7 +68,7 @@ public class CoreService {
     }
 
     public void handleCustomerRegistered(Event e) {
-        var s = e.getArgument(0, DTUPayUser.class);
+        var s = e.getArgument(0, AccountResponse.class);
         registeredCustomer.complete(s);
     }
     public void handleMerchantRegistered(Event e) {
@@ -89,7 +89,7 @@ public class CoreService {
 
 
 
-    public Token getToken(TokenRequest t) {
+    public TokenResponse getToken(TokenRequest t) {
         requestedToken = new CompletableFuture<>();
         Event event = new Event("TokenRequested", new Object[] { t });
         queue.publish(event);
@@ -97,7 +97,7 @@ public class CoreService {
     }
 
     public void handleRequestedToken(Event e) {
-        var s = e.getArgument(0, Token.class);
+        TokenResponse s = e.getArgument(0, TokenResponse.class);
         requestedToken.complete(s);
     }
 
