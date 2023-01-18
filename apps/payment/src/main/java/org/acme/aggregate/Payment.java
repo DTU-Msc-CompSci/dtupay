@@ -18,8 +18,8 @@ import lombok.Setter;
 import messaging.Event;
 import org.acme.events.PaymentEvent;
 import org.acme.events.TransactionCreated;
-import org.acme.events.TransactionCustomerBankIDAdded;
-import org.acme.events.TransactionMerchantBankIDAdded;
+import org.acme.events.TransactionCustomerInfoAdded;
+import org.acme.events.TransactionMerchantInfoAdded;
 
 @Getter
 public class Payment {
@@ -29,6 +29,10 @@ public class Payment {
 	private String customerToken ;
 	private String merchantID;
     private BigDecimal amount;
+	private Person merchant;
+	private Person customer;
+	private String customerID;
+
 
 
 	@Setter(AccessLevel.NONE)
@@ -60,19 +64,19 @@ public class Payment {
 
 	private void registerEventHandlers() {
 		handlers.put(TransactionCreated.class, e -> apply((TransactionCreated) e));
-		handlers.put(TransactionMerchantBankIDAdded.class, e -> apply((TransactionMerchantBankIDAdded) e));
-		handlers.put(TransactionCustomerBankIDAdded.class, e -> apply((TransactionCustomerBankIDAdded) e));
+		handlers.put(TransactionMerchantInfoAdded.class, e -> apply((TransactionMerchantInfoAdded) e));
+		handlers.put(TransactionCustomerInfoAdded.class, e -> apply((TransactionCustomerInfoAdded) e));
 	}
 
 	/* Business Logic */
 
-	public void addMerchantBankID(String transactionID, String merchantBankID) {
-		appliedEvents.add( (PaymentEvent)new TransactionMerchantBankIDAdded(transactionID,merchantBankID));
+	public void addMerchantInfo(String transactionID, DTUPayUser merchantInfo) {
+		appliedEvents.add( (PaymentEvent)new TransactionMerchantInfoAdded(transactionID,merchantInfo));
         applyEvents(appliedEvents.stream());
 
     }
-    public void addCustomerBankID(String transactionID, String customerBankID) {
-        appliedEvents.add( (PaymentEvent)new TransactionCustomerBankIDAdded(transactionID,customerBankID));
+    public void addCustomerInfo(String transactionID, DTUPayUser customerInfo) {
+        appliedEvents.add( (PaymentEvent)new TransactionCustomerInfoAdded(transactionID,customerInfo));
         applyEvents(appliedEvents.stream());
 
     }
@@ -106,15 +110,19 @@ public class Payment {
 		amount = event.getAmount();
 	}
 
-	private void apply(TransactionMerchantBankIDAdded event) {
+	private void apply(TransactionMerchantInfoAdded event) {
 		transactionID = event.getTransactionID();
-		merchantBankID = event.getMerchantBankID();
+		merchantBankID = event.getMerchantInfo().getBankId().getBankAccountId();
+		merchant = event.getMerchantInfo().getPerson();
+		merchantID= event.getMerchantInfo().getUniqueId();
 	}
 
-	private void apply(TransactionCustomerBankIDAdded event) {
+	private void apply(TransactionCustomerInfoAdded event) {
 
 		transactionID = event.getTransactionID();
-		customerBankID = event.getCustomerBankID();
+		customerBankID = event.getCustomerInfo().getBankId().getBankAccountId();
+		customer = event.getCustomerInfo().getPerson();
+		customerID = event.getCustomerInfo().getUniqueId();
 	}
 
 	public void clearAppliedEvents() {

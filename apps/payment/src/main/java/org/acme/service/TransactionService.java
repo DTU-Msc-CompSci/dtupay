@@ -5,6 +5,7 @@ import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.acme.aggregate.DTUPayUser;
 import org.acme.aggregate.Payment;
 import org.acme.aggregate.Transaction;
 import org.acme.repositories.PaymentRepository;
@@ -59,9 +60,9 @@ public class TransactionService {
         Payment payment = repository.getById(id);
         switch (ev.getType()){
             case "CustomerInfoProvided":
-                var customerBankID = ev.getArgument(1, String.class);
+                var customerInfo = ev.getArgument(1, DTUPayUser.class);
 
-                payment.addCustomerBankID(id,customerBankID);
+                payment.addCustomerInfo(id,customerInfo);
                 repository.save(payment);
 
                 break;
@@ -72,9 +73,9 @@ public class TransactionService {
 
                 break;
             case "MerchantInfoProvided":
-                var merchantBankID = ev.getArgument(1, String.class);
+                var merchantInfo = ev.getArgument(1, DTUPayUser.class);
 
-                payment.addMerchantBankID(id,merchantBankID);
+                payment.addMerchantInfo(id,merchantInfo);
                 repository.save(payment);
                 break;
         }

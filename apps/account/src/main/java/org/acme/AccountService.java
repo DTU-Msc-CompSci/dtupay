@@ -39,25 +39,26 @@ public class AccountService {
 
     }
 
-    private String getCustomerBankInfo(String uniqueId) {
-        String bankId = null;
+    private DTUPayUser getCustomerInfo(String uniqueId) {
+        DTUPayUser customer = null;
         for(DTUPayUser d : customers) {
             if(d.getUniqueId().equals(uniqueId)) {
-                bankId = d.getBankId().getBankAccountId();
+                customer = d;
                 break;
             }
         }
-        return bankId;
+        return customer;
     }
 
-    private String getMerchantBankInfo(String uniqueId) {
-        String bankId = null;
+    private DTUPayUser getMerchantInfo(String uniqueId) {
+        DTUPayUser merchant = null;
         for(DTUPayUser d : merchants) {
             if(d.getUniqueId().equals(uniqueId)) {
-                bankId = d.getBankId().getBankAccountId();
+                merchant = d;
+                break;
             }
         }
-        return bankId;
+        return merchant;
     }
 
     public boolean doesCustomerExist(String bankId){
@@ -161,7 +162,7 @@ public class AccountService {
     public void handleTokenValidated(Event ev) {
         var id = ev.getArgument(0, String.class);
         var user = ev.getArgument(1, String.class);
-        Event event = new Event("CustomerInfoProvided", new Object[] { id, getCustomerBankInfo(user) });
+        Event event = new Event("CustomerInfoProvided", new Object[] { id, getCustomerInfo(user) });
         queue.publish(event);
 
     }
@@ -170,7 +171,7 @@ public class AccountService {
         var id = ev.getArgument(0, String.class);
 
         var s = ev.getArgument(1, Transaction.class);
-        Event event = new Event("MerchantInfoProvided", new Object[] { id, getMerchantBankInfo(s.getMerchantId()) });
+        Event event = new Event("MerchantInfoProvided", new Object[] { id, getMerchantInfo(s.getMerchantId()) });
         queue.publish(event);
     }
 }

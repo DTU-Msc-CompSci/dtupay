@@ -16,13 +16,11 @@ public class TransactionManagerView implements Serializable {
     private static final long serialVersionUID = 9023222281284906610L;
 
     private String customerToken;
-
+    private BigDecimal amount;
     private String merchantId;
 
-    private String merchantBankId;
-    private String customerBankId;
-
-    private BigDecimal amount;
+    private DTUPayUser customer;
+    private DTUPayUser merchant;
 
 
     private String transactionId;
@@ -33,10 +31,11 @@ public class TransactionManagerView implements Serializable {
         }
         var c = (TransactionManagerView) o;
         return customerToken != null && customerToken.equals(c.getCustomerToken()) &&
+                merchant != null && merchant.equals(c.getMerchant()) &&
                 merchantId != null && merchantId.equals(c.getMerchantId()) &&
+                transactionId != null && transactionId.equals(c.getTransactionId()) &&
 
-                merchantBankId != null && merchantBankId.equals(c.getMerchantBankId()) &&
-                customerBankId != null && customerBankId.equals(c.getCustomerBankId()) &&
+                customer != null && customer.equals(c.getCustomer()) &&
 
                 amount == (c.getAmount());
     }

@@ -8,20 +8,18 @@ import messaging.Event;
 import messaging.MessageQueue;
 import org.acme.aggregate.*;
 import org.acme.events.TransactionCreated;
-import org.acme.events.TransactionCustomerBankIDAdded;
-import org.acme.events.TransactionMerchantBankIDAdded;
 
 public class ReadModelRepository {
 
 	private Map<String, Set<TransactionUserView>> merchantPayments = new HashMap<>();
-	//private Map<String, Set<TransactionUserView>> customerPayments = new HashMap<>();
+	private Map<String, Set<TransactionUserView>> customerPayments = new HashMap<>();
 	private Map<String, TransactionManagerView> allPayments = new HashMap<>();
 
 
 	public ReadModelRepository(MessageQueue eventQueue) {
 		eventQueue.addHandler("TransactionCreated", this::handleTransactionCreated);
-		eventQueue.addHandler("TransactionCustomerBankIDAdded",this::handleTransactionCustomerBankIDAdded);
-		eventQueue.addHandler("TransactionMerchantBankIDAdded", this::handleTransactionMerchantBankIDAdded);
+		eventQueue.addHandler("TransactionCustomerInfoAdded",this::handleTransactionCustomerInfoAdded);
+		eventQueue.addHandler("TransactionMerchantInfoAdded", this::handleTransactionMerchantInfoAdded);
 	}
 
 //	public Set<TransactionUserView> getCustomerPayments(String customerId) {
@@ -59,22 +57,22 @@ public class ReadModelRepository {
 
 	}
 
-	public void handleTransactionMerchantBankIDAdded (Event event) {
+	public void handleTransactionMerchantInfoAdded (Event event) {
 		var transactionId = event.getArgument(0, String.class);
-		var merchantBankId = event.getArgument(1, String.class);
+		var merchantInfo = event.getArgument(1, DTUPayUser.class);
 		var transactionManagerView = allPayments.getOrDefault(transactionId,new TransactionManagerView());
 
-		transactionManagerView.setMerchantBankId(merchantBankId);
+		transactionManagerView.setMerchant(merchantInfo);
 		allPayments.put(transactionId,transactionManagerView);
 
 
 	}
-	public void handleTransactionCustomerBankIDAdded (Event event) {
+	public void handleTransactionCustomerInfoAdded (Event event) {
 		var transactionId = event.getArgument(0, String.class);
-		var customerBankId = event.getArgument(1, String.class);
+		var customerInfo = event.getArgument(1, DTUPayUser.class);
 		var transactionManagerView = allPayments.getOrDefault(transactionId,new TransactionManagerView());
 
-		transactionManagerView.setCustomerBankId(customerBankId);
+		transactionManagerView.setCustomer(customerInfo);
 		allPayments.put(transactionId,transactionManagerView);
 
 

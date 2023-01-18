@@ -11,8 +11,8 @@ import messaging.Event;
 import messaging.MessageQueue;
 import org.acme.events.PaymentEvent;
 import org.acme.events.TransactionCreated;
-import org.acme.events.TransactionCustomerBankIDAdded;
-import org.acme.events.TransactionMerchantBankIDAdded;
+import org.acme.events.TransactionCustomerInfoAdded;
+import org.acme.events.TransactionMerchantInfoAdded;
 
 public class EventStore {
 
@@ -28,11 +28,11 @@ public class EventStore {
 		if (event instanceof TransactionCreated){
 			addEvent(id, (TransactionCreated) event);
 		}
-		if (event instanceof TransactionMerchantBankIDAdded){
-			addEvent(id, (TransactionMerchantBankIDAdded) event);
+		if (event instanceof TransactionCustomerInfoAdded){
+			addEvent(id, (TransactionCustomerInfoAdded) event);
 		}
-		if (event instanceof TransactionCustomerBankIDAdded){
-			addEvent(id, (TransactionCustomerBankIDAdded) event);
+		if (event instanceof TransactionMerchantInfoAdded){
+			addEvent(id, (TransactionMerchantInfoAdded) event);
 		}
 	}
 
@@ -45,21 +45,21 @@ public class EventStore {
 
 		eventBus.publish(event);
 	}
-	public void addEvent(String id, TransactionCustomerBankIDAdded event) {
+	public void addEvent(String id, TransactionCustomerInfoAdded event) {
 		if (!store.containsKey(event.getTransactionID())) {
 			store.put(event.getTransactionID(), new ArrayList<PaymentEvent>());
 		}
 		store.get(event.getTransactionID()).add(event);
-		var globalEvent = new Event("TransactionCustomerBankIDAdded", new Object[] { event.getTransactionID(), event.getCustomerBankID() });
+		var globalEvent = new Event("TransactionCustomerInfoAdded", new Object[] { event.getTransactionID(), event.getCustomerInfo() });
 
 		eventBus.publish(event);
 	}
-	public void addEvent(String id, TransactionMerchantBankIDAdded event) {
+	public void addEvent(String id, TransactionMerchantInfoAdded event) {
 		if (!store.containsKey(event.getTransactionID())) {
 			store.put(event.getTransactionID(), new ArrayList<PaymentEvent>());
 		}
 		store.get(event.getTransactionID()).add(event);
-		var globalEvent = new Event("TransactionMerchantBankIDAdded", new Object[] { event.getTransactionID(), event.getMerchantBankID() });
+		var globalEvent = new Event("TransactionMerchantBankIDAdded", new Object[] { event.getTransactionID(), event.getMerchantInfo() });
 
 		eventBus.publish(event);
 	}
