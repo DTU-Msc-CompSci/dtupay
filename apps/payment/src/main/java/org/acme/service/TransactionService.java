@@ -1,10 +1,14 @@
-package org.acme;
+package org.acme.service;
 
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.acme.aggregate.Payment;
+import org.acme.aggregate.Transaction;
+import org.acme.repositories.PaymentRepository;
+import org.acme.repositories.ReadModelRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,9 +19,7 @@ public class TransactionService {
     // For RabbitMQ stuffs
     MessageQueue queue;
 
-
-
-    List<Transaction> transactions = new ArrayList<>();
+//    List<Transaction> transactions = new ArrayList<>();
     private BankService bankService =  new BankServiceService().getBankServicePort();
 
     String customerBankId;
@@ -38,39 +40,57 @@ public class TransactionService {
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
     }
+    private PaymentRepository repository;
+    private ReadModelRepository readRepository;
 
-    public TransactionService(MessageQueue q) {
+
+
+
+    public TransactionService(MessageQueue q, PaymentRepository repository, ReadModelRepository readRepository) {
         this.queue = q;
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("MerchantInfoProvided", this::handleMerchantInfoProvided);
         this.queue.addHandler("CustomerInfoProvided", this::handleCustomerInfoProvided);
+        this.readRepository = readRepository;
+        this.repository = repository;
 
 
     }
 
     public void handleMerchantInfoProvided(Event ev) {
-        var t = ev.getArgument(0, String.class);
-        merchantBankId = t;
+        var id = ev.getArgument(0, String.class);
 
+        var t = ev.getArgument(1, String.class);
+        Payment payment = repository.getById(id);
 
-        checkTransactionInfo();
+        payment.addMerchantBankID(t);
+        // Generate random number to tie event to the request
+        checkTransactionInfo(id);
 
     }
         // Generate random number to tie event to the request
 
     public void handleCustomerInfoProvided(Event ev) {
-        var t = ev.getArgument(0, String.class);
-        customerBankId = (t);
+        var id = ev.getArgument(0, String.class);
+
+        var t = ev.getArgument(1, String.class);
+        Payment payment = repository.getById(id);
+
+        payment.addCustomerBankID(t);
         // Generate random number to tie event to the request
-        checkTransactionInfo();
+        checkTransactionInfo(id);
 
     }
 
     public void handleTransactionRequested(Event ev) {
-        var t = ev.getArgument(0, Transaction.class);
-        addTransaction(t);
+        var id = ev.getArgument(0, String.class);
+
+        var t = ev.getArgument(1, Transaction.class);
+        Payment payment = repository.getById(id);
+        payment.create(id,t.getCustomerToken().getToken(),t.getMerchantId(),BigDecimal.valueOf(t.getAmount()));
+        repository.save(payment);
         // Generate random number to tie event to the request
-        checkTransactionInfo();
+        checkTransactionInfo(id);
 
 
 
@@ -93,21 +113,21 @@ public class TransactionService {
 
     }
 
-    public void addTransaction(Transaction t) {
-        //TODO Query external BankService
+//    public void addTransaction(Transaction t) {
+//        //TODO Query external BankService
+//
+//        t.setTransactionId(generateUniqueId());
+//        amount = BigDecimal.valueOf(t.getAmount());
+//        transactions.add(t);
+//        System.out.println("DTU Pay User added to service");
+//    }
 
-        t.setTransactionId(generateUniqueId());
-        amount = BigDecimal.valueOf(t.getAmount());
-        transactions.add(t);
-        System.out.println("DTU Pay User added to service");
-    }
 
+    private synchronized void checkTransactionInfo(String transactionId) {
+        var payment = repository.getById(transactionId);
+        if (payment.complete()){
+            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount());
 
-    private void checkTransactionInfo() {
-        if (merchantBankId != null && customerBankId != null && amount != null) {
-            // TODO: Migrate to an adapter later
-
-            initiateTransaction(customerBankId, merchantBankId, amount);
         }
     }
 

@@ -117,20 +117,22 @@ public class AccountService {
         System.out.println("Customer Account Created");
     }
     public void handleTokenValidated(Event ev) {
-        var s = ev.getArgument(0, String.class);
+        var id = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, String.class);
         // Verify that the unique ID is set correct
         String test = getCustomer(s);
-        Event event = new Event("CustomerInfoProvided", new Object[] { test });
+        Event event = new Event("CustomerInfoProvided", new Object[] { id, test });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);
 
     }
     public void handleTransactionRequested(Event ev) {
-        var s = ev.getArgument(0, Transaction.class);
+        var id = ev.getArgument(0,String.class);
+        var s = ev.getArgument(1, Transaction.class);
         // Verify that the unique ID is set correct
         String merchantId = getMerchant(s.getMerchantId());
-        Event event = new Event("MerchantInfoProvided", new Object[] { merchantId });
+        Event event = new Event("MerchantInfoProvided", new Object[] {id, merchantId });
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);
