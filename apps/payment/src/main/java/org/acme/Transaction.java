@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 //TODO This xml thing
 @Data
@@ -20,8 +19,9 @@ public class Transaction implements Serializable {
     private String merchantId;
 
     private int amount;
-
-    UUID transactionId;
+    //Transaction id should probably not be stored here
+    //TODO: Remove correlation id
+    String transactionId;
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Transaction)) {
