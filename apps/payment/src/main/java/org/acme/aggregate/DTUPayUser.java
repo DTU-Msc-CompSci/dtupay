@@ -3,7 +3,7 @@ package org.acme.aggregate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.acme.aggregate.Person;
+
 import java.io.Serializable;
 
 //TODO This xml thing
@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class DTUPayUser implements Serializable {
     // Might need to change the number depending on the User being referenced
     private static final long serialVersionUID = 9023222981284806610L;
+
     Person person;
 
     BankId bankId;
@@ -25,10 +26,10 @@ public class DTUPayUser implements Serializable {
         }
         var c = (DTUPayUser) o;
         return person.getFirstName() != null && person.getFirstName().equals(c.getPerson().getFirstName()) &&
-               person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
+                person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
                 person.getCprNumber() != null && person.getCprNumber().equals(c.getPerson().getCprNumber()) &&
                 bankId != null && bankId.equals(c.getBankId()) &&
-                uniqueId != null && uniqueId.equals(c.getUniqueId());
+                ( (uniqueId == null && c.getUniqueId() == null) || (uniqueId != null && uniqueId.equals(c.getUniqueId()) ));
     }
 
     @Override
