@@ -5,6 +5,7 @@ import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.acme.aggregate.Transaction;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

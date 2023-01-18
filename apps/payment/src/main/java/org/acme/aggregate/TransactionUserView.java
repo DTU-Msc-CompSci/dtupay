@@ -1,32 +1,33 @@
-package org.acme;
+package org.acme.aggregate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 //TODO This xml thing
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transaction implements Serializable {
+public class TransactionUserView implements Serializable {
     // Might need to change the number depending on the User being referenced
     private static final long serialVersionUID = 9023222281284906610L;
 
-    private Token customerToken;
+    private String customerToken;
 
     private String merchantId;
 
-    private int amount;
+    private BigDecimal amount;
 
-    String transactionId;
+    private String transactionId;
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Transaction)) {
+        if (!(o instanceof TransactionUserView)) {
             return false;
         }
-        var c = (Transaction) o;
+        var c = (TransactionUserView) o;
         return customerToken != null && customerToken.equals(c.getCustomerToken()) &&
                 merchantId != null && merchantId.equals(c.getMerchantId()) &&
                 amount == (c.getAmount());

@@ -2,6 +2,7 @@ package org.acme.dtupay;
 
 import messaging.Event;
 import messaging.MessageQueue;
+import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 import java.util.Map;
@@ -137,7 +138,7 @@ public class CoreService {
 
     public Response requestTransaction(Transaction t) {
         requestedTransaction = new CompletableFuture<>();
-        Event event = new Event("TransactionRequested", new Object[] { t });
+        Event event = new Event("TransactionRequested", new Object[] { UUID.randomUUID() ,t });
         queue.publish(event);
         if (requestedTransaction.join().equals("completed")){
             return Response.status(Response.Status.CREATED).build();
