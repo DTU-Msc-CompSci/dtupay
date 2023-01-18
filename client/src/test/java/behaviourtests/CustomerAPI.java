@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream:client/src/test/java/behaviourtests/CustomerAPI.java
 package behaviourtests;
 
-=======
-import com.fasterxml.jackson.core.type.TypeReference;
-import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
->>>>>>> Stashed changes:client/src/test/java/CustomerAPI.java
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;

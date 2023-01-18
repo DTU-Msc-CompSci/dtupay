@@ -12,7 +12,7 @@ public class CoreService {
     private CompletableFuture<DTUPayUser> registeredCustomer;
     private CompletableFuture<DTUPayUser> registeredMerchant;
 
-    private CompletableFuture<Object> requestedToken;
+    private CompletableFuture<TokenResponse> requestedToken;
     private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
@@ -49,7 +49,7 @@ public class CoreService {
         registeredMerchant.complete(s);
     }
 
-    public Object getToken(TokenRequest t) {
+    public TokenResponse getToken(TokenRequest t) {
         requestedToken = new CompletableFuture<>();
         Event event = new Event("TokenRequested", new Object[] { t });
         queue.publish(event);
@@ -57,7 +57,10 @@ public class CoreService {
     }
 
     public void handleRequestedToken(Event e) {
-        var s = e.getArgument(0, Object.class);
+        TokenResponse s = e.getArgument(0, TokenResponse.class);
+        System.out.println("TESTING!!!!");
+        System.out.println(s.getMessage());
+        System.out.println(s.getTokens());
         requestedToken.complete(s);
     }
 

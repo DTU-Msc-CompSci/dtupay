@@ -19,23 +19,37 @@ public class TokenService {
     }
 
     public void handleTokenRequested(Event ev) {
+
+
         var s = ev.getArgument(0, TokenRequest.class);
         Event event;
+        TokenResponse response = new TokenResponse();
         if (!assignedTokens.containsKey(s.getCid())) {
-            event = new Event("TokenRequestFulfilled", new Object[] { "User does not exist" });
+            response.setMessage("User does not exist");
         } else if (assignedTokens.get(s.getCid()).size() > 1) {
-            event = new Event("TokenRequestFulfilled", new Object[] { "User already has more than 1 token" });
+            response.setMessage("User already has more than 1 token");
         } else if (s.getAmount() <= 0) {
-            event = new Event("TokenRequestFulfilled", new Object[] { "Less than 1 token requested" });
+            response.setMessage("Less than 1 token requested");
         } else if(s.getAmount() > 5) {
-            event = new Event("TokenRequestFulfilled", new Object[] { "More than 5 tokens requested" });
+            response.setMessage("More than 5 tokens requested");
         } else if(assignedTokens.get(s.getCid()).size() + s.getAmount() > 6) {
-            event = new Event("TokenRequestFulfilled", new Object[] { "Not enough tokens available" });
-        } else {
-            event = new Event("TokenRequestFulfilled", new Object[] { generateTokens(s) });
+            response.setMessage("Not enough tokens available");
         }
-        queue.publish(event);
 
+
+        if (response.getMessage() != null) {
+            System.out.println("TESTING!!!!!!!!!!!!!!!");
+            queue.publish(new Event("TokenRequestFulfilled", new Object[] { response }));
+
+        } else {
+            response.setMessage("success");
+            response.setTokens(generateTokens(s));
+            System.out.println("TESTING!!!!!!!!!!!!!!!");
+            System.out.println(response.getMessage());
+            System.out.println(response.getTokens());
+            queue.publish(new Event("TokenRequestFulfilled", new Object[] { response }));
+            System.out.println("HERE");
+        }
     }
 
     public void handleTokenUserAdd(Event ev) {

@@ -10,6 +10,7 @@ set +e
 docker-compose version
 if [ $? != 0 ]; then
     echo "Executing docker compose up -d"
+    docker compose build
     docker compose up -d
 else
     echo "Executing docker-compose up -d"

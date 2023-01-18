@@ -27,13 +27,11 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
     public Response postToken(TokenRequest tokenRequest) {
-        var response = service.getToken(tokenRequest);
-
-        if (response instanceof Set<?>) {
-            return Response.status(201).entity(response).build();
-        } else {
-            return Response.status(400).entity(response).build();
+        TokenResponse response = service.getToken(tokenRequest);
+        if (!response.getMessage().equals("success")) {
+            return Response.status(400).entity(response.getMessage()).build();
         }
+        return Response.status(201).entity(response.getTokens()).build();
     }
 
 
