@@ -31,8 +31,10 @@ public class CoreService {
 
     public CoreService(MessageQueue q) {
         queue = q;
-        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
-        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistered);
+        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistration);
+        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistration);
+        queue.addHandler("CustomerAccountCreationFailed", this::handleCustomerRegistration);
+        queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);

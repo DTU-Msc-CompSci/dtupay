@@ -38,10 +38,6 @@ public class AccountService {
 
     }
 
-    public List<DTUPayUser> getCustomers() {
-        return customers;
-    }
-
     private String getCustomerBankInfo(String uniqueId) {
         String bankId = null;
         for(DTUPayUser d : customers) {
@@ -94,7 +90,6 @@ public class AccountService {
         }
         else if(userType.equals("merchant")){ merchants.add(user); }
         System.out.println("DTU Pay User added to service");
-        System.out.println("List of DTU Pay Users: " + getCustomers());
     }
 
     private void removeCustomer(String uniqueId) {
@@ -115,6 +110,12 @@ public class AccountService {
         Event event;
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
+            if (doesMerchantExist(user.getBankId().getBankAccountId())){
+                event = new Event("MerchantAccountCreationFailed", new Object[] { new AccountResponse(user,"Duplicate User")});
+            } else{
+                addUser(user, "merchant");
+                event = new Event("MerchantAccountCreated", new Object[] { new AccountResponse(user,"Success")});
+            }
         } catch (BankServiceException_Exception e) {
             event = new Event("MerchantAccountCreationFailed", new Object[] { corId, "Invalid BankAccountId" });
             queue.publish(event);

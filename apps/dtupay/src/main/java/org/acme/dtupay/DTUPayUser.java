@@ -1,6 +1,5 @@
 package org.acme.dtupay;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +29,7 @@ public class DTUPayUser implements Serializable {
                 person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
                 person.getCprNumber() != null && person.getCprNumber().equals(c.getPerson().getCprNumber()) &&
                 bankId != null && bankId.equals(c.getBankId()) &&
-                uniqueId != null && uniqueId.equals(c.getUniqueId());
+                ( (uniqueId == null && c.getUniqueId() == null) || (uniqueId != null && uniqueId.equals(c.getUniqueId()) ));
     }
 
     @Override
