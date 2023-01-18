@@ -83,7 +83,11 @@ public class AccountService {
 
     private void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
-        if(userType.equals("customer")){ customers.add(user); }
+        if(userType.equals("customer")){
+            customers.add(user);
+            Event event = new Event("TokenUserRequested", new Object[] { user.getUniqueId() });
+            queue.publish(event);
+        }
         else if(userType.equals("merchant")){ merchants.add(user); }
         System.out.println("DTU Pay User added to service");
     }
