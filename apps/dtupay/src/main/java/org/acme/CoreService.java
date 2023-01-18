@@ -8,8 +8,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class CoreService {
     private MessageQueue queue;
-    private CompletableFuture<DTUPayUser> registeredCustomer;
-    private CompletableFuture<DTUPayUser> registeredMerchant;
+    private CompletableFuture<AccountResponse> registeredCustomer;
+    private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
@@ -20,8 +20,10 @@ public class CoreService {
 
     public CoreService(MessageQueue q) {
         queue = q;
-        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
-        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistered);
+        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistration);
+        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistration);
+        queue.addHandler("CustomerAccountCreationFailed", this::handleCustomerRegistration);
+        queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
@@ -54,25 +56,25 @@ public class CoreService {
         return "De-registration request sent";
     }
 
-    public DTUPayUser registerCustomer(DTUPayUser c) {
+    public AccountResponse registerCustomer(DTUPayUser c) {
         registeredCustomer = new CompletableFuture<>();
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { c });
         queue.publish(event);
         return registeredCustomer.join();
     }
-    public DTUPayUser registerMerchant(DTUPayUser c) {
+    public AccountResponse registerMerchant(DTUPayUser c) {
         registeredMerchant = new CompletableFuture<>();
         Event event = new Event("MerchantAccountCreationRequested", new Object[] { c });
         queue.publish(event);
         return registeredMerchant.join();
     }
 
-    public void handleCustomerRegistered(Event e) {
-        var s = e.getArgument(0, DTUPayUser.class);
+    public void handleCustomerRegistration(Event e) {
+        var s = e.getArgument(0, AccountResponse.class);
         registeredCustomer.complete(s);
     }
-    public void handleMerchantRegistered(Event e) {
-        var s = e.getArgument(0, DTUPayUser.class);
+    public void handleMerchantRegistration(Event e) {
+        var s = e.getArgument(0, AccountResponse.class);
         registeredMerchant.complete(s);
     }
     public void handleMerchantDeRegistrationCompleted(Event e) {

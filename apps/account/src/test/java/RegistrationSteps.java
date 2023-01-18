@@ -102,9 +102,9 @@ public class RegistrationSteps {
     public void aUserAccountCreatedPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreated", new Object[]{customer});
+            event = new Event("CustomerAccountCreated", new Object[]{ new AccountResponse(customer, "Success")});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreated", new Object[]{merchant});
+            event = new Event("MerchantAccountCreated", new Object[]{ new AccountResponse(merchant, "Success")});
         }
         verify(q).publish(event);
     }
@@ -135,9 +135,9 @@ public class RegistrationSteps {
     public void aUserAccountCreationFailedEventPublished(String userType, String errorMsg) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreationFailed", new Object[]{ errorMsg });
+            event = new Event("CustomerAccountCreationFailed", new Object[]{ new AccountResponse(customer, errorMsg) });
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreationFailed", new Object[]{ errorMsg });
+            event = new Event("MerchantAccountCreationFailed", new Object[]{ new AccountResponse(merchant, errorMsg) });
         }
         verify(q).publish(event);
     }

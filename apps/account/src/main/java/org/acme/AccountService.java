@@ -106,17 +106,14 @@ public class AccountService {
         Event event;
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
+            if (doesMerchantExist(user.getBankId().getBankAccountId())){
+                event = new Event("MerchantAccountCreationFailed", new Object[] { new AccountResponse(user,"Duplicate User")});
+            } else{
+                addUser(user, "merchant");
+                event = new Event("MerchantAccountCreated", new Object[] { new AccountResponse(user,"Success")});
+            }
         } catch (BankServiceException_Exception e) {
-            event = new Event("MerchantAccountCreationFailed", new Object[] { "Invalid BankAccountId" });
-            queue.publish(event);
-            return user.getUniqueId();
-        }
-
-        if (doesMerchantExist(user.getBankId().getBankAccountId())){
-            event = new Event("MerchantAccountCreationFailed", new Object[] { "Duplicate User" });
-        } else{
-            addUser(user, "merchant");
-            event = new Event("MerchantAccountCreated", new Object[] { user });
+            event = new Event("MerchantAccountCreationFailed", new Object[] { new AccountResponse(user,"Invalid BankAccountId")});
         }
         queue.publish(event);
         return user.getUniqueId();
@@ -127,17 +124,14 @@ public class AccountService {
         Event event;
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
+            if (doesCustomerExist(user.getBankId().getBankAccountId())){
+                event = new Event("CustomerAccountCreationFailed", new Object[] { new AccountResponse(user, "Duplicate User")});
+            } else {
+                addUser(user,"customer");
+                event = new Event("CustomerAccountCreated", new Object[] { new AccountResponse(user, "Success")});
+            }
         } catch (BankServiceException_Exception e) {
-            event = new Event("CustomerAccountCreationFailed", new Object[] { "Invalid BankAccountId" });
-            queue.publish(event);
-            return user.getUniqueId();
-        }
-
-        if (doesCustomerExist(user.getBankId().getBankAccountId())){
-            event = new Event("CustomerAccountCreationFailed", new Object[] { "Duplicate User" });
-        } else {
-            addUser(user,"customer");
-            event = new Event("CustomerAccountCreated", new Object[]{user});
+            event = new Event("CustomerAccountCreationFailed", new Object[] { new AccountResponse(user, "Invalid BankAccountId")});
         }
 
         queue.publish(event);
