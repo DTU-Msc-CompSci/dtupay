@@ -16,23 +16,16 @@ public class TransactionService {
     MessageQueue queue;
 
 
-
     List<Transaction> transactions = new ArrayList<>();
-    private BankService bankService =  new BankServiceService().getBankServicePort();
+    private BankService bankService = new BankServiceService().getBankServicePort();
 
+    // I don't think these are thread-safe
     String customerBankId;
     String merchantBankId;
 
     BigDecimal amount;
-
-//    public List<DTUPayUser> getCustomers() {
-//        return customers;
-//    }
-
-//    public Optional<DTUPayUser> getCustomer(String uniqueId) {
-//        return users.stream().filter( (user) -> user.getUniqueId().toString().equals(uniqueId)).findFirst();
-//    }
-
+    // This feels like a dirty hack
+    String correlationId;
 
 
     public String generateUniqueId() {
@@ -49,17 +42,19 @@ public class TransactionService {
     }
 
     public void handleMerchantInfoProvided(Event ev) {
-        var t = ev.getArgument(0, String.class);
+        correlationId = ev.getArgument(0, String.class);
+        var t = ev.getArgument(1, String.class);
         merchantBankId = t;
 
 
         checkTransactionInfo();
 
     }
-        // Generate random number to tie event to the request
+    // Generate random number to tie event to the request
 
     public void handleCustomerInfoProvided(Event ev) {
-        var t = ev.getArgument(0, String.class);
+        correlationId = ev.getArgument(0, String.class);
+        var t = ev.getArgument(1, String.class);
         customerBankId = (t);
         // Generate random number to tie event to the request
         checkTransactionInfo();
@@ -67,29 +62,27 @@ public class TransactionService {
     }
 
     public void handleTransactionRequested(Event ev) {
-        var t = ev.getArgument(0, Transaction.class);
+        correlationId = ev.getArgument(0, String.class);
+        var t = ev.getArgument(1, Transaction.class);
         addTransaction(t);
         // Generate random number to tie event to the request
         checkTransactionInfo();
-
-
-
     }
 
-    public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {
+    public void initiateTransaction(String customer, String merchant, BigDecimal amount) {
         // Right now bankId == DTUPayID but this should change when we add registration service
         //TODO fetch the bank id from a registration service
 
-       // var customerBankAccountID = transaction.getCustomerId();
-       // var merchantBankAccountID = transaction.getMerchantId();
+        // var customerBankAccountID = transaction.getCustomerId();
+        // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[]{ correlationId, "completed"});
             queue.publish(transactionCompletedEvent);
-        }catch (BankServiceException_Exception e){
+        } catch (BankServiceException_Exception e) {
             // error event
         }
-       //     transactions.add(transaction);
+        //     transactions.add(transaction);
 
     }
 
@@ -99,7 +92,6 @@ public class TransactionService {
         t.setTransactionId(generateUniqueId());
         amount = BigDecimal.valueOf(t.getAmount());
         transactions.add(t);
-        System.out.println("DTU Pay User added to service");
     }
 
 
@@ -110,8 +102,6 @@ public class TransactionService {
             initiateTransaction(customerBankId, merchantBankId, amount);
         }
     }
-
-
 
 
 }

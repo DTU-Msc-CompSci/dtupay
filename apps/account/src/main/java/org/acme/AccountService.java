@@ -7,12 +7,10 @@ import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import java.util.UUID;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AccountService {
@@ -69,7 +67,7 @@ public class AccountService {
         return bankId;
     }
 
-    public boolean doesCostumerExist(String bankId){
+    public boolean doesCustomerExist(String bankId){
         //TODO Ask if this is going to be the uniqueId
         for(DTUPayUser d : customers) {
             if(d.getBankId().getBankAccountId().equals(bankId)) {
@@ -116,55 +114,46 @@ public class AccountService {
         return UUID.randomUUID().toString();
     }
 
-    // TODO: Correlation ID will be the first field, and the Domain object/s will be from 2 onward
-    public void handleCustomerAccountCreationRequested(Event ev) {
-        var correlationId = ev.getArgument(0, String.class);
-        var s = ev.getArgument(1, DTUPayUser.class);
-        // Verify that the unique ID is set correct
-        addCustomer(s);
-        Event event = new Event("CustomerAccountCreated", new Object[] { correlationId, s });
-        // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
-        // This is the "hat" that it wears
-        queue.publish(event);
-    }
-
     public String handleMerchantAccountCreationRequested(Event ev) {
-        var user = ev.getArgument(0, DTUPayUser.class);
+        var corId = ev.getArgument(0, String.class);
+        var user = ev.getArgument(1, DTUPayUser.class);
         Event event;
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
         } catch (BankServiceException_Exception e) {
-            event = new Event("MerchantAccountCreationFailed");
+            event = new Event("MerchantAccountCreationFailed", new Object[] { corId });
             queue.publish(event);
             return user.getUniqueId();
         }
 
         if (doesMerchantExist(user.getBankId().getBankAccountId())){
-            event = new Event("MerchantAccountCreationFailed");
+            event = new Event("MerchantAccountCreationFailed", new Object[] { corId });
         } else{
             addUser(user, "merchant");
-            event = new Event("MerchantAccountCreated", new Object[] { user });
+            event = new Event("MerchantAccountCreated", new Object[] { corId, user });
         }
         queue.publish(event);
         return user.getUniqueId();
     }
 
+    // TODO: Correlation ID will be the first field, and the Domain object/s will be from 2 onward
     public String handleCustomerAccountCreationRequested(Event ev) {
-        var user = ev.getArgument(0, DTUPayUser.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var user = ev.getArgument(1, DTUPayUser.class);
         Event event;
         try {
-            bankService.getAccount(user.getBankId().getBankAccountId());
+            bankService.getAccount(user.bankId.bankAccountId);
         } catch (BankServiceException_Exception e) {
-            event = new Event("CostumerAccountCreationFailed");
+            event = new Event("CustomerAccountCreationFailed", new Object[] { correlationId });
             queue.publish(event);
             return user.getUniqueId();
         }
 
-        if (doesCostumerExist(user.getBankId().getBankAccountId())){
-            event = new Event("CostumerAccountCreationFailed");
+        if (doesCustomerExist(user.getBankId().getBankAccountId())){
+            event = new Event("CustomerAccountCreationFailed", new Object[] { correlationId });
         } else {
             addUser(user,"customer");
-            event = new Event("CustomerAccountCreated", new Object[]{user});
+            event = new Event("CustomerAccountCreated", new Object[]{ correlationId, user});
         }
 
         queue.publish(event);
@@ -205,5 +194,9 @@ public class AccountService {
         // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
         // This is the "hat" that it wears
         queue.publish(event);
+    }
+
+    public String generateCorrelationId() {
+        return UUID.randomUUID().toString();
     }
 }

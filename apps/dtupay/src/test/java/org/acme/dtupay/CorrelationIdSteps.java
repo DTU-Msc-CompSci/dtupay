@@ -1,18 +1,16 @@
+package org.acme.dtupay;
+
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
-import org.acme.dtupay.BankId;
-import org.acme.dtupay.CoreService;
-import org.acme.dtupay.DTUPayUser;
-import org.acme.dtupay.Person;
 
 import java.util.UUID;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class CorrelationIdSteps {
 //    RabbitMqQueue queue = new RabbitMqQueue();

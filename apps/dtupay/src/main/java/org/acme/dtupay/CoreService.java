@@ -16,6 +16,9 @@ public class CoreService {
 
     // TODO: Migrate these concurrent-safe collection
     private Map<String, CompletableFuture<DTUPayUser>> pendingCustomers = new ConcurrentHashMap<>();
+
+    private Map<String, CompletableFuture<Boolean>> pendingDeregisterCustomers = new ConcurrentHashMap<>();
+    private Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
     private CompletableFuture<DTUPayUser> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
@@ -50,17 +53,21 @@ public class CoreService {
 
     
     public String deRegisterCustomer(DTUPayUser user) {
+        var correlationId = generateCorrelationId();
         deRegisteredCustomerCompleted = new CompletableFuture<>();
-        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
+        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
         queue.publish(event);
+        pendingDeregisterCustomers.put(correlationId, deRegisteredCustomerCompleted);
         deRegisteredCustomerCompleted.join();
         return "De-registration request sent";
     }
 
     public String deRegisterMerchant(DTUPayUser user) {
+        var correlationId = generateCorrelationId();
         deRegisteredMerchantCompleted = new CompletableFuture<>();
-        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
+        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
         queue.publish(event);
+        pendingDeregisterMerchants.put(correlationId, deRegisteredMerchantCompleted);
         deRegisteredMerchantCompleted.join();
         return "De-registration request sent";
     }
@@ -89,19 +96,26 @@ public class CoreService {
         completeFutureByCorrelationId(correlationId, s);
     }
     public void handleMerchantRegistered(Event e) {
-        var s = e.getArgument(0, DTUPayUser.class);
-        registeredMerchant.complete(s);
+        var correlationId = e.getArgument(0, String.class);
+        var s = e.getArgument(1, DTUPayUser.class);
+        completeFutureByCorrelationId(correlationId, s);
+//        registeredMerchant.complete(correlationId, s);
     }
     public void handleMerchantDeRegistrationCompleted(Event e) {
-        var s = e.getArgument(0, Boolean.class);
-        deRegisteredMerchantCompleted.complete(s);
+        var correlationId = e.getArgument(0, String.class);
+        var s = e.getArgument(1, Boolean.class);
+        // TODO: Implement the part of the Message object
+        pendingDeregisterCustomers.get(correlationId).complete(s);
+        pendingDeregisterCustomers.remove(correlationId);
+//        deRegisteredMerchantCompleted.complete(s);
     }
 
-    public void handleCustomerDeRegistrationCompleted(Event event) {
-        deRegisteredCustomer = event.getArgument(0, Boolean.class);
-        if(tokenRemoved) {
-            deRegisteredCustomerCompleted.complete(true);
-        }
+    public void handleCustomerDeRegistrationCompleted(Event e) {
+        var correlationId = e.getArgument(0, String.class);
+        var s = e.getArgument(1, Boolean.class);
+        // TODO: Implement the part of the Message object
+        pendingDeregisterCustomers.get(correlationId).complete(s);
+        pendingDeregisterCustomers.remove(correlationId);
     }
 
 

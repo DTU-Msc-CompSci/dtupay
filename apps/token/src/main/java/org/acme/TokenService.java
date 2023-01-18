@@ -16,14 +16,14 @@ public class TokenService {
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
-        this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
+        // TODO: Implement this
+//        this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
         this.queue.addHandler("TokenUserRequested", this::handleTokenUserAdd);
     }
 
     public void handleTokenRequested(Event ev) {
-
-
-        var s = ev.getArgument(0, TokenRequest.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, TokenRequest.class);
         Event event;
         TokenResponse response = new TokenResponse();
         if (!assignedTokens.containsKey(s.getCid())) {
@@ -41,7 +41,7 @@ public class TokenService {
 
         if (response.getMessage() != null) {
             System.out.println("TESTING!!!!!!!!!!!!!!!");
-            queue.publish(new Event("TokenRequestFulfilled", new Object[] { response }));
+            queue.publish(new Event("TokenRequestFulfilled", new Object[] { correlationId, response }));
 
         } else {
             response.setMessage("success");
@@ -49,30 +49,34 @@ public class TokenService {
             System.out.println("TESTING!!!!!!!!!!!!!!!");
             System.out.println(response.getMessage());
             System.out.println(response.getTokens());
-            queue.publish(new Event("TokenRequestFulfilled", new Object[] { response }));
+            queue.publish(new Event("TokenRequestFulfilled", new Object[] { correlationId, response }));
             System.out.println("HERE");
         }
     }
 
     public void handleTokenUserAdd(Event ev) {
-        var s = ev.getArgument(0,String.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1,String.class);
         assignedTokens.put(s,new HashSet<Token>());
+        // TODO: This needs a "TokensAddedToUser" event
     }
     public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
-        removeAllTokenFromCustomer(ev.getArgument(0, String.class));
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
+        var correlationId = ev.getArgument(0, String.class);
+        removeAllTokenFromCustomer(ev.getArgument(1, String.class));
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {correlationId, true});
         queue.publish(event);
     }
 
     public void handleTransactionRequested(Event ev) {
-        var token = ev.getArgument(0, Transaction.class).getCustomerToken();
+        var correlationId = ev.getArgument(0, String.class);
+        var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
         System.out.println(token.getToken());
         tokenToId.remove(token.getToken(),customerId);
         assignedTokens.remove(customerId,token);
         usedTokenPool.add(token.getToken());
         System.out.println(customerId);
-        Event customerInfoEvent = new Event("CustomerInfoRequested", new Object[] { customerId });
+        Event customerInfoEvent = new Event("CustomerInfoRequested", new Object[] { correlationId, customerId });
         queue.publish(customerInfoEvent);
     }
 
