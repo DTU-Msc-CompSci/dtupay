@@ -27,16 +27,6 @@ public class TransactionService {
 
     BigDecimal amount;
 
-//    public List<DTUPayUser> getCustomers() {
-//        return customers;
-//    }
-
-//    public Optional<DTUPayUser> getCustomer(String uniqueId) {
-//        return users.stream().filter( (user) -> user.getUniqueId().toString().equals(uniqueId)).findFirst();
-//    }
-
-
-
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
     }
@@ -48,57 +38,56 @@ public class TransactionService {
 
     public TransactionService(MessageQueue q, PaymentRepository repository, ReadModelRepository readRepository) {
         this.queue = q;
-        this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
-        this.queue.addHandler("MerchantInfoProvided", this::handleMerchantInfoProvided);
-        this.queue.addHandler("CustomerInfoProvided", this::handleCustomerInfoProvided);
+        this.queue.addHandler("TransactionRequested", this::handlePayment);
+        this.queue.addHandler("MerchantInfoProvided", this::handlePayment);
+        this.queue.addHandler("CustomerInfoProvided", this::handlePayment);
         this.readRepository = readRepository;
         this.repository = repository;
 
 
     }
 
-    public void handleMerchantInfoProvided(Event ev) {
-        var id = ev.getArgument(0, String.class);
-
-        var t = ev.getArgument(1, String.class);
-        Payment payment = repository.getById(id);
-
-        payment.addMerchantBankID(id,t);
-        repository.save(payment);
 
         // Generate random number to tie event to the request
+        public void handlePayment(Event ev) {
+            var id = ev.getArgument(0, String.class);
+
+            handlePaymentForOnePayment(ev, id);
+
+        }
+    public void handlePaymentForOnePayment(Event ev, String id) {
+        Payment payment = repository.getById(id);
+        switch (ev.getType()){
+            case "CustomerInfoProvided":
+                var customerBankID = ev.getArgument(1, String.class);
+
+                payment.addCustomerBankID(id,customerBankID);
+                repository.save(payment);
+
+                break;
+            case "TransactionRequested":
+                var transaction = ev.getArgument(1, Transaction.class);
+                payment.create(id,transaction.getCustomerToken().getToken(),transaction.getMerchantId(),BigDecimal.valueOf(transaction.getAmount()));
+                repository.save(payment);
+
+                break;
+            case "MerchantInfoProvided":
+                var merchantBankID = ev.getArgument(1, String.class);
+
+                payment.addMerchantBankID(id,merchantBankID);
+                repository.save(payment);
+                break;
+        }
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         checkTransactionInfo(id);
 
     }
-        // Generate random number to tie event to the request
 
-    public void handleCustomerInfoProvided(Event ev) {
-        var id = ev.getArgument(0, String.class);
-
-        var t = ev.getArgument(1, String.class);
-        Payment payment = repository.getById(id);
-
-        payment.addCustomerBankID(id,t);
-        repository.save(payment);
-
-        // Generate random number to tie event to the request
-        checkTransactionInfo(id);
-
-    }
-
-    public void handleTransactionRequested(Event ev) {
-        var id = ev.getArgument(0, String.class);
-
-        var t = ev.getArgument(1, Transaction.class);
-        Payment payment = repository.getById(id);
-        payment.create(id,t.getCustomerToken().getToken(),t.getMerchantId(),BigDecimal.valueOf(t.getAmount()));
-        repository.save(payment);
-        // Generate random number to tie event to the request
-        checkTransactionInfo(id);
-
-
-
-    }
 
     public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {
         // Right now bankId == DTUPayID but this should change when we add registration service
@@ -113,22 +102,14 @@ public class TransactionService {
         }catch (BankServiceException_Exception e){
             // error event
         }
-       //     transactions.add(transaction);
 
     }
 
-//    public void addTransaction(Transaction t) {
-//        //TODO Query external BankService
-//
-//        t.setTransactionId(generateUniqueId());
-//        amount = BigDecimal.valueOf(t.getAmount());
-//        transactions.add(t);
-//        System.out.println("DTU Pay User added to service");
-//    }
 
 
-    private synchronized void checkTransactionInfo(String transactionId) {
-        var payment = repository.getById(transactionId);
+    private  void checkTransactionInfo(String id) {
+        Payment payment = repository.getById(id);
+
         if (payment.complete()){
             initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount());
 

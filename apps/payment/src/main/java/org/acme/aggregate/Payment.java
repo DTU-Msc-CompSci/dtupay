@@ -39,10 +39,12 @@ public class Payment {
 	public void create(String transactionId,String customerToken, String merchantID, BigDecimal amount) {
 
 		//var transactionId = UUID.randomUUID().toString();
-        TransactionCreated event = new TransactionCreated(transactionId, customerToken, customerToken,amount);
 		//var payment = new Payment();
         //payment.transactionID = transactionId;
-        appliedEvents.add(event);
+		appliedEvents.add( (PaymentEvent)new TransactionCreated(transactionId, customerToken, customerToken,amount));
+
+		applyEvents(appliedEvents.stream());
+
 
 	}
 
