@@ -28,7 +28,6 @@ public class AccountService {
 
     // For RabbitMQ stuffs
     MessageQueue queue;
-
     public AccountService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("CustomerAccountCreationRequested", this::handleCustomerAccountCreationRequested);
@@ -40,7 +39,7 @@ public class AccountService {
 
     }
 
-    public String getCustomer(String uniqueId) {
+    private String getCustomerBankInfo(String uniqueId) {
         String bankId = null;
         for(DTUPayUser d : customers) {
             if(d.getUniqueId().equals(uniqueId)) {
@@ -49,11 +48,9 @@ public class AccountService {
             }
         }
         return bankId;
-        //return customers.stream().filter( (user) -> user.getUniqueId().equals(uniqueId)).
-        //        map(dtuPayUser -> dtuPayUser.getBankId().getBankAccountId()).findFirst();
     }
 
-    public String getMerchant(String uniqueId) {
+    private String getMerchantBankInfo(String uniqueId) {
         String bankId = null;
         for(DTUPayUser d : merchants) {
             if(d.getUniqueId().equals(uniqueId)) {
@@ -63,7 +60,7 @@ public class AccountService {
         return bankId;
     }
 
-    public boolean doesCostumerExist(String bankId){
+    public boolean doesCustomerExist(String bankId){
         //TODO Ask if this is going to be the uniqueId
         for(DTUPayUser d : customers) {
             if(d.getBankId().getBankAccountId().equals(bankId)) {
@@ -84,23 +81,22 @@ public class AccountService {
         return false;
     }
 
-    public String addUser(DTUPayUser user, String userType) {
+    private void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
         if(userType.equals("customer")){ customers.add(user); }
         else if(userType.equals("merchant")){ merchants.add(user); }
         System.out.println("DTU Pay User added to service");
-        return user.getUniqueId();
     }
 
-    public void removeCustomer(String uniqueId) {
+    private void removeCustomer(String uniqueId) {
         customers.removeIf(user -> user.getUniqueId().equals(uniqueId));
     }
 
-    public void removeMerchant(String uniqueId) {
+    private void removeMerchant(String uniqueId) {
         merchants.removeIf(user -> user.getUniqueId().equals(uniqueId));
     }
 
-    public String generateUniqueId() {
+    private String generateUniqueId() {
         return UUID.randomUUID().toString();
     }
 
@@ -111,13 +107,13 @@ public class AccountService {
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
         } catch (BankServiceException_Exception e) {
-            event = new Event("MerchantAccountCreationFailed");
+            event = new Event("MerchantAccountCreationFailed", new Object[] { "Invalid BankAccountId" });
             queue.publish(event);
             return user.getUniqueId();
         }
 
         if (doesMerchantExist(user.getBankId().getBankAccountId())){
-            event = new Event("MerchantAccountCreationFailed");
+            event = new Event("MerchantAccountCreationFailed", new Object[] { "Duplicate User" });
         } else{
             addUser(user, "merchant");
             event = new Event("MerchantAccountCreated", new Object[] { user });
@@ -132,13 +128,13 @@ public class AccountService {
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
         } catch (BankServiceException_Exception e) {
-            event = new Event("CostumerAccountCreationFailed");
+            event = new Event("CustomerAccountCreationFailed", new Object[] { "Invalid BankAccountId" });
             queue.publish(event);
             return user.getUniqueId();
         }
 
-        if (doesCostumerExist(user.getBankId().getBankAccountId())){
-            event = new Event("CostumerAccountCreationFailed");
+        if (doesCustomerExist(user.getBankId().getBankAccountId())){
+            event = new Event("CustomerAccountCreationFailed", new Object[] { "Duplicate User" });
         } else {
             addUser(user,"customer");
             event = new Event("CustomerAccountCreated", new Object[]{user});
@@ -162,25 +158,16 @@ public class AccountService {
         queue.publish(event);
     }
 
-    //TODO DELETE THIS METHOD
-    //THE TOKEN VALIDATION IS TRIGERED BY THE TransactionRequested DIRECTLY
     public void handleTokenValidated(Event ev) {
-        var s = ev.getArgument(0, String.class);
-        // Verify that the unique ID is set correct
-        String test = getCustomer(s);
-        Event event = new Event("CustomerInfoProvided", new Object[] { test });
-        // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
-        // This is the "hat" that it wears
+        var user = ev.getArgument(0, String.class);
+        Event event = new Event("CustomerInfoProvided", new Object[] { getCustomerBankInfo(user) });
         queue.publish(event);
 
     }
+
     public void handleTransactionRequested(Event ev) {
         var s = ev.getArgument(0, Transaction.class);
-        // Verify that the unique ID is set correct
-        String merchantId = getMerchant(s.getMerchantId());
-        Event event = new Event("MerchantInfoProvided", new Object[] { merchantId });
-        // This needs to respond to a different queue; which are interested in the "CustomerAccountCreated" topics
-        // This is the "hat" that it wears
+        Event event = new Event("MerchantInfoProvided", new Object[] { getMerchantBankInfo(s.getMerchantId()) });
         queue.publish(event);
     }
 }

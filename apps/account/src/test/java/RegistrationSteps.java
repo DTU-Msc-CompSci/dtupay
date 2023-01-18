@@ -112,10 +112,10 @@ public class RegistrationSteps {
     @When("the service receives a {word}AccountDeRegistrationRequested event")
     public void theServiceReceivesUserAccountDeRegistrationRequested(String userType) {
         if (userType.equals("Customer")) {
-            Event event = new Event("CostumerAccountCreationFailed", new Object[]{customer.getUniqueId()});
+            Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[]{customer.getUniqueId()});
             service.handleCustomerAccountDeRegistrationRequested(event);
         } else if(userType.equals("Merchant")) {
-            Event event = new Event("MerchantAccountCreationFailed", new Object[]{merchant.getUniqueId()});
+            Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{merchant.getUniqueId()});
             service.handleMerchantAccountDeRegistrationRequested(event);
         }
     }
@@ -131,13 +131,13 @@ public class RegistrationSteps {
         verify(q).publish(event);
     }
 
-    @Then("a {word}AccountCreationFailed event is published")
-    public void aUserAccountCreationFailedEventPublished(String userType) {
+    @Then("a {word}AccountCreationFailed event is published because of {string}")
+    public void aUserAccountCreationFailedEventPublished(String userType, String errorMsg) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreationFailed");
+            event = new Event("CustomerAccountCreationFailed", new Object[]{ errorMsg });
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreationFailed");
+            event = new Event("MerchantAccountCreationFailed", new Object[]{ errorMsg });
         }
         verify(q).publish(event);
     }
@@ -146,7 +146,7 @@ public class RegistrationSteps {
     public void userExists(String userType) {
         boolean exist = false;
         if(userType.equals("customer")) {
-            exist = service.doesCostumerExist(customer.getBankId().getBankAccountId());
+            exist = service.doesCustomerExist(customer.getBankId().getBankAccountId());
         } else if(userType.equals("merchant")) {
             exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
         }
@@ -157,7 +157,7 @@ public class RegistrationSteps {
     public void userDoesNotExist(String userType) {
         boolean exist = true;
         if(userType.equals("customer")) {
-            exist = service.doesCostumerExist(customer.getBankId().getBankAccountId());
+            exist = service.doesCustomerExist(customer.getBankId().getBankAccountId());
         } else if(userType.equals("merchant")) {
             exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
         }
@@ -174,5 +174,30 @@ public class RegistrationSteps {
             merchant.setPerson(person);
             merchant.setBankId(new BankId("fakeMasterKey"));
         }
+    }
+
+    @When("the service receives a TransactionRequested event")
+    public void theServiceReceivesATransactionRequestedEvent() {
+        Transaction transaction = new Transaction(new Token("fakeToken"), merchant.getUniqueId(), 100, "fakeTransactionID");
+        Event event = new Event("TransactionRequested", new Object[]{ transaction });
+        service.handleTransactionRequested(event);
+    }
+
+    @Then("a {word}InfoProvided event is published")
+    public void aMerchantInfoProvidedEventIsPublished(String userType) {
+        Event event = null;
+        if(userType.equals("Customer")) {
+            event = new Event("CustomerInfoProvided", new Object[]{customer.getBankId().getBankAccountId()});
+        }
+        else if(userType.equals("Merchant")) {
+            event = new Event("MerchantInfoProvided", new Object[]{merchant.getBankId().getBankAccountId()});
+        }
+        verify(q).publish(event);
+    }
+
+    @When("the service receives a TokenValidated event")
+    public void theServiceReceivesATokenValidatedEvent() {
+        Event event = new Event("TokenValidated", new Object[]{ customer.getUniqueId() });
+        service.handleTokenValidated(event);
     }
 }
