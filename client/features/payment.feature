@@ -26,6 +26,7 @@
 ##		And the balance of the customer at the bank is 900 kr
 ##		And the balance of the merchant at the bank is 2100 kr
 #
+
 #Feature: Payment
 #	Scenario: Successful Payment
 #		Given a customer with a bank account with balance 1000
@@ -37,4 +38,4 @@
 #		Then the transaction is successful
 #		And the balance of the customer at the bank is 900 kr
 #		And the balance of the merchant at the bank is 2100 kr
-#
+

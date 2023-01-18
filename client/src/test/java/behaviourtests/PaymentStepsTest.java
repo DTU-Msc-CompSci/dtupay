@@ -12,6 +12,7 @@
 //import io.cucumber.java.en.When;
 //
 //import java.math.BigDecimal;
+//import java.util.Set;
 //
 //import static org.junit.Assert.assertTrue;
 //import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +35,7 @@
 //    private DTUPayUser registeredCustomer;
 //    private DTUPayUser registeredMerchant;
 //
-//    Token token;
+//    Set<Token> token;
 //
 //    boolean success;
 //
@@ -60,7 +61,7 @@
 //        }
 //    }
 //    @Given("^a customer registered with DTU Pay$")
-//    public void aCustomerRegisteredWithDTUPay() {
+//    public void aCustomerRegisteredWithDTUPay() throws Exception {
 //        dtuPayCustomer.setBankId(new BankId(customerBankId));
 //        dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
 //        registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
@@ -76,12 +77,17 @@
 //
 //    @Given("a token associated with the customer")
 //    public void a_token_associated_with_the_customer() {
-//        token = customerAPI.requestToken(registeredCustomer.getUniqueId(),1);
+//        try {
+//            token = customerAPI.requestToken(registeredCustomer.getUniqueId(), 1);
+//        } catch (Exception e) {
+//            assertTrue(false);
+//        }
 //    }
+//
 //    @When("the merchant requests a transaction with the customer token")
 //    public void the_merchant_requests_a_transaction_with_the_customer_token() {
 //        // Write code here that turns the phrase above into concrete actions
-//        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), 100, "test");
+//        Transaction transaction = new Transaction(token.iterator().next(),registeredMerchant.getUniqueId(), 100, "test");
 //        success = merchantAPI.postTransaction(transaction);
 //    }
 //
@@ -132,7 +138,7 @@
 //
 //    @When("the merchant initiates a payment for {int} kr with the customer token")
 //    public void theMerchantInitiatesAPaymentForKrWithTheCustomerToken(int amount) {
-//        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test1");
+//        Transaction transaction = new Transaction(token.iterator().next(),registeredMerchant.getUniqueId(), amount, "test1");
 //        success = merchantAPI.postTransaction(transaction);
 //    }
 //}

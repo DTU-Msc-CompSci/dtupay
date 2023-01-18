@@ -24,8 +24,6 @@ public class CustomerAPI {
                 .request()
                 .post(Entity.entity(user,MediaType.APPLICATION_JSON));
 
-
-
         if (response.getStatus() == 201) {
             return response.readEntity(new GenericType<>() {});
         } else {

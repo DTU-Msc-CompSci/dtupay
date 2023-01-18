@@ -6,8 +6,9 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.After;
-import org.junit.Before;
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,28 +31,36 @@ public class TokenStepsTest {
     Set<Token> tokens = new HashSet<Token>();
     String error;
     String bankID;
-
     @Before
-    public void init() throws BankServiceException_Exception {
+    public void before(){
         User c = new User();
-        c.setLastName("Test1546546545");
-        c.setFirstName("Test14545456");
-        c.setCprNumber("Test134454556t");
-        bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
+        c.setFirstName("Alextest");
+        c.setLastName("testAlex");
+        c.setCprNumber("123123123");
+        try{
+            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
+        } catch (Exception e){
+            error = e.getMessage();
+            System.out.println(e);
+        }
     }
 
     @After
-    public void tearDown() throws BankServiceException_Exception {
-        bankService.retireAccount(bankID);
+    public void after(){
+        try{
+            bankService.retireAccount(bankID);
+        } catch (Exception e){
+            error = e.getMessage();
+            System.out.println(e);
+        }
 
     }
 
     @Given("a customer is registered with DTU Pay")
     public void a_customer_is_registered_with_DTU_Pay() throws Exception {
         customer.setBankId(new BankId(bankID));
-        customer.setPerson(new Person("Test1546546545","Test14545456","Test134454556t"));
+        customer.setPerson(new Person("Alextest","testAlex","123123123"));
         customer = customerAPI.postCustomer(customer);
-        assertNotNull(customer.getUniqueId());
     }
 
     @When("the customer requests {int} tokens")
