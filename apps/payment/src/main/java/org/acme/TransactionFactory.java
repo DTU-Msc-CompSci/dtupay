@@ -1,6 +1,9 @@
 package org.acme;
 
 import messaging.implementations.RabbitMqQueue;
+import org.acme.repositories.PaymentRepository;
+import org.acme.repositories.ReadModelRepository;
+import org.acme.service.TransactionService;
 
 public class TransactionFactory {
     static TransactionService transactionService = null;
@@ -22,7 +25,9 @@ public class TransactionFactory {
         // At the end, we can use the PaymentService in tests
         // without sending actual messages to RabbitMq.
         var mq = new RabbitMqQueue("rabbitmq");
-        transactionService = new TransactionService(mq);
+        var repository = new PaymentRepository(mq);
+        var readRepository = new ReadModelRepository(mq);
+        transactionService = new TransactionService(mq,repository,readRepository);
 
         return transactionService;
     }

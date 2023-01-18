@@ -43,14 +43,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("John");
-        cost.setLastName("Rambo");
-        cost.setCprNumber("123123");
+        cost.setFirstName("Jrfedrfvvohn");
+        cost.setLastName("Ramddfvfvbo");
+        cost.setCprNumber("12ddfvf3123");
 
         User mer = new User();
-        mer.setFirstName("John");
-        mer.setLastName("Wick");
-        mer.setCprNumber("321321");
+        mer.setFirstName("Joddfvfvhn");
+        mer.setLastName("Widfdfvvck");
+        mer.setCprNumber("321dfv3dfv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -179,7 +179,7 @@ public class RegistrationSteps {
     @When("the service receives a TransactionRequested event")
     public void theServiceReceivesATransactionRequestedEvent() {
         Transaction transaction = new Transaction(new Token("fakeToken"), merchant.getUniqueId(), 100, "fakeTransactionID");
-        Event event = new Event("TransactionRequested", new Object[]{ transaction });
+        Event event = new Event("TransactionRequested", new Object[]{ "random id", transaction });
         service.handleTransactionRequested(event);
     }
 
@@ -187,17 +187,17 @@ public class RegistrationSteps {
     public void aMerchantInfoProvidedEventIsPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerInfoProvided", new Object[]{customer.getBankId().getBankAccountId()});
+            event = new Event("CustomerInfoProvided", new Object[]{ "random id", customer.getBankId().getBankAccountId()});
         }
         else if(userType.equals("Merchant")) {
-            event = new Event("MerchantInfoProvided", new Object[]{merchant.getBankId().getBankAccountId()});
+            event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant.getBankId().getBankAccountId()});
         }
         verify(q).publish(event);
     }
 
     @When("the service receives a TokenValidated event")
     public void theServiceReceivesATokenValidatedEvent() {
-        Event event = new Event("TokenValidated", new Object[]{ customer.getUniqueId() });
+        Event event = new Event("TokenValidated", new Object[]{  "random id", customer.getUniqueId() });
         service.handleTokenValidated(event);
     }
 }
