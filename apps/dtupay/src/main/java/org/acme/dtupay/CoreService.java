@@ -15,7 +15,6 @@ public class CoreService {
 
     // TODO: Migrate these concurrent-safe collection
     private Map<String, CompletableFuture<DTUPayUser>> pendingCustomers = new ConcurrentHashMap<>();
-    private CompletableFuture<DTUPayUser> registeredCustomer;
     private CompletableFuture<DTUPayUser> registeredMerchant;
 
     private CompletableFuture<Token> requestedToken;
@@ -36,7 +35,7 @@ public class CoreService {
 
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
     public DTUPayUser registerCustomer(DTUPayUser c) {
-        registeredCustomer = new CompletableFuture<>();
+        CompletableFuture<DTUPayUser> registeredCustomer = new CompletableFuture<>();
         var correlationId = generateCorrelationId();
         pendingCustomers.put(correlationId, registeredCustomer);
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { correlationId, c });

@@ -1,11 +1,13 @@
-package org.acme.dtupay;
-
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
+import org.acme.dtupay.BankId;
+import org.acme.dtupay.CoreService;
+import org.acme.dtupay.DTUPayUser;
+import org.acme.dtupay.Person;
 
 import java.util.UUID;
 
@@ -13,10 +15,10 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CorrelationIdSteps {
-    RabbitMqQueue queue = new RabbitMqQueue();
+//    RabbitMqQueue queue = new RabbitMqQueue();
     MessageQueue mockQueue = mock(RabbitMqQueue.class);
     private CoreService coreServiceMockRabbit = new CoreService(mockQueue);
-    private CoreService coreService = new CoreService(queue);
+//    private CoreService coreService = new CoreService(queue);
     private DTUPayUser customer;
 
     @Given("existing customer with bank ID {string}")
@@ -28,7 +30,7 @@ public class CorrelationIdSteps {
     @When("the customer registers for DTU Pay")
     public void theCustomerRegistersForDTUPay() {
         new Thread(() -> {
-            coreService.registerCustomer(customer);
+            coreServiceMockRabbit.registerCustomer(customer);
         }).start();
     }
 
@@ -36,7 +38,7 @@ public class CorrelationIdSteps {
     public void theEventIsSentToBeProcessedWithACorrelationID() {
         // We're going to change this test around just slightly. Since we are pushing the event to Rabbit, as long as another
         // service doesn't read from the queue, the message should still be there.
-        queue.addHandler("CustomerAccountCreationRequested", e -> {
+        mockQueue.addHandler("CustomerAccountCreationRequested", e -> {
             var correlationId = e.getArgument(0, String.class);
             var s = e.getArgument(1, DTUPayUser.class);
             var eventType = e.getType();
@@ -65,8 +67,8 @@ public class CorrelationIdSteps {
         }
         // we have to set the customer ID since the queue is mocked and never actually goes to the service
         customer.setUniqueId(UUID.randomUUID().toString());
-        var correlationId = coreService.getPendingCustomers().entrySet().iterator().next().getKey();
-        coreService.handleCustomerRegistered(new Event("CustomerAccountCreated", new Object[] { correlationId, customer }));
-        assertTrue(coreService.getPendingCustomers().isEmpty());
+        var correlationId = coreServiceMockRabbit.getPendingCustomers().entrySet().iterator().next().getKey();
+        coreServiceMockRabbit.handleCustomerRegistered(new Event("CustomerAccountCreated", new Object[] { correlationId, customer }));
+        assertTrue(coreServiceMockRabbit.getPendingCustomers().isEmpty());
     }
 }

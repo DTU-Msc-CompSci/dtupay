@@ -129,7 +129,6 @@
                 <configuration>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 

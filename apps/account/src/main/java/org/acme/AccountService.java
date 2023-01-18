@@ -25,9 +25,9 @@ public class AccountService {
     }
 
 
-//    public List<DTUPayUser> getCustomers() {
-//        return customers;
-//    }
+    public List<DTUPayUser> getCustomers() {
+        return customers;
+    }
 
     public String getCustomer(String uniqueId) {
         String bankId = null;
@@ -58,6 +58,7 @@ public class AccountService {
 
         customers.add(user);
         System.out.println("DTU Pay User added to service");
+        System.out.println("List of DTU Pay Users: " + getCustomers());
         return user.getUniqueId();
     }
 
