@@ -1,12 +1,22 @@
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceException_Exception;
+import dtu.ws.fastmoney.BankServiceService;
+
+import dtu.ws.fastmoney.User;
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,121 +31,148 @@ public class RegistrationSteps {
     //private AccountService service = mock ( AccountService.class , withSettings().useConstructor(q));
     private AccountService service = new AccountService(q);
     private DTUPayUser customer = new DTUPayUser();
-    private String costumerUniqueId = null;     //Store costumer's uniqueID in order to delete the costumer at the end
     private DTUPayUser merchant = new DTUPayUser();
-    private String merchantUniqueId = null;     //Store merchant's uniqueID in order to delete the costumer at the end
+
+    private BankService bankService =  new BankServiceService().getBankServicePort();
+    private String customerBankAccountId;
+    private String merchantBankAccountId;
 
     public RegistrationSteps() {
     }
 
-    @Given("There is a costumer with empty id")
-    public void thereIsACostumerWithEmptyId() {
-        Person person = new Person("John", "Magkas", "123123");
+    @Before
+    public void beforeStep() {
+        User cost = new User();
+        cost.setFirstName("John");
+        cost.setLastName("Rambo");
+        cost.setCprNumber("123123");
+
+        User mer = new User();
+        mer.setFirstName("John");
+        mer.setLastName("Wick");
+        mer.setCprNumber("321321");
+        try {
+            customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
+            merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
+        } catch (BankServiceException_Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @After
+    public void afterStep() {
+        try {
+            bankService.retireAccount(customerBankAccountId);
+            bankService.retireAccount(merchantBankAccountId);
+        } catch (BankServiceException_Exception e) {
+        }
+    }
+
+    @Given("There is a customer with empty id")
+    public void thereIsACustomerWithEmptyId() {
+        Person person = new Person("John", "Rambo", "123123");
         customer.setPerson(person);
-        customer.setBankId(new BankId("customerBankId"));
+        customer.setBankId(new BankId(customerBankAccountId));
         assertNull(customer.getUniqueId());
-    }
-
-    @When("the service receives a CustomerAccountCreationRequested event")
-    public void theServiceReceivesCustomerAccountCreationRequestedEvent(){
-        var event = new  Event("CustomerAccountCreationRequested", new Object[] {customer});
-        customer.setUniqueId(service.handleCustomerAccountCreationRequested(event));
-    }
-
-    @Then("a CustomerAccountCreated event is published")
-    public void aCustomerAccountCreatedPublished() {
-        costumerUniqueId = customer.getUniqueId();
-        Event event = new Event("CustomerAccountCreated", new Object[] {customer});
-        verify(q).publish(event);
-    }
-
-    @When("the service receives a CustomerAccountDeRegistrationRequested event")
-    public void theServiceReceivesCustomerAccountDeRegistrationRequested(){
-        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {customer.getUniqueId()});
-        service.handleCustomerAccountDeRegistrationRequested(event);
-    }
-
-    @Then("a CustomerAccountDeRegistrationCompleted event is published")
-    public void aCustomerAccountDeRegistrationCompletedPublished() {
-        Event event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
-        verify(q).publish(event);
-    }
-
-    @Then("a CustomerAccountFailed event is published")
-    public void aCustomerAccountFailedPublished() {
-        Event event = new Event("CostumerAccountCreationFailed", new Object[] {false});
-        verify(q).publish(event);
     }
 
     @Given("There is a merchant with empty id")
     public void thereIsAMerchantWithEmptyId() {
         Person person = new Person("John", "Wick", "321321");
         merchant.setPerson(person);
-        merchant.setBankId(new BankId("customerBankId"));
+        merchant.setBankId(new BankId(merchantBankAccountId));
         assertNull(merchant.getUniqueId());
     }
 
-    @When("the service receives a MerchantAccountCreationRequested event")
-    public void theServiceReceivesMerchantAccountCreationRequestedEvent(){
-        var event = new  Event("MerchantAccountCreationRequested", new Object[] {merchant});
-        merchant.setUniqueId(service.handleMerchantAccountCreationRequested(event));
+    @When("the service receives a {word}AccountCreationRequested event")
+    public void theServiceReceivesUserAccountCreationRequestedEvent(String userType){
+        boolean flag = false;
+        if(userType.equals("Customer")) {
+            var event = new Event("CustomerAccountCreationRequested", new Object[]{customer});
+            customer.setUniqueId(service.handleCustomerAccountCreationRequested(event));
+            flag = true;
+        } else if(userType.equals("Merchant")) {
+            var event = new Event("MerchantAccountCreationRequested", new Object[]{merchant});
+            merchant.setUniqueId(service.handleMerchantAccountCreationRequested(event));
+            flag = true;
+        }
+        assertTrue(flag);
     }
 
-    @Then("a MerchantAccountCreated event is published")
-    public void aMerchantAccountCreationRequestedPublished() {
-        merchantUniqueId = merchant.getUniqueId();
-        Event event = new Event("MerchantAccountCreated", new Object[] {merchant});
+    @Then("a {word}AccountCreated event is published")
+    public void aUserAccountCreatedPublished(String userType) {
+        Event event = null;
+        if(userType.equals("Customer")) {
+            event = new Event("CustomerAccountCreated", new Object[]{customer});
+        } else if(userType.equals("Merchant")) {
+            event = new Event("MerchantAccountCreated", new Object[]{merchant});
+        }
         verify(q).publish(event);
     }
 
-    @When("the service receives a MerchantAccountDeRegistrationRequested event")
-    public void theServiceReceivesMerchantAccountDeRegistrationRequested(){
-        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {merchant.getUniqueId()});
-        service.handleMerchantAccountDeRegistrationRequested(event);
+    @When("the service receives a {word}AccountDeRegistrationRequested event")
+    public void theServiceReceivesUserAccountDeRegistrationRequested(String userType) {
+        if (userType.equals("Customer")) {
+            Event event = new Event("CostumerAccountCreationFailed", new Object[]{customer.getUniqueId()});
+            service.handleCustomerAccountDeRegistrationRequested(event);
+        } else if(userType.equals("Merchant")) {
+            Event event = new Event("MerchantAccountCreationFailed", new Object[]{merchant.getUniqueId()});
+            service.handleMerchantAccountDeRegistrationRequested(event);
+        }
     }
 
-    @Then("a MerchantAccountDeRegistrationCompleted event is published")
-    public void aMerchantAccountDeRegistrationCompletedPublished() {
-        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
+    @Then("a {word}AccountDeRegistrationCompleted event is published")
+    public void aUserAccountDeRegistrationCompletedPublished(String userType) {
+        Event event = null;
+        if (userType.equals("Customer")) {
+            event = new Event("CustomerAccountDeRegistrationCompleted");
+        } else if(userType.equals("Merchant")) {
+            event = new Event("MerchantAccountDeRegistrationCompleted");
+        }
         verify(q).publish(event);
     }
 
-    @Then("a MerchantAccountCreationFailed event is published")
-    public void aMerchantAccountFailedPublished() {
-        Event event = new Event("MerchantAccountCreationFailed", new Object[] {false});
+    @Then("a {word}AccountCreationFailed event is published")
+    public void aUserAccountCreationFailedEventPublished(String userType) {
+        Event event = null;
+        if (userType.equals("Customer")) {
+            event = new Event("CustomerAccountCreationFailed");
+        } else if(userType.equals("Merchant")) {
+            event = new Event("MerchantAccountCreationFailed");
+        }
         verify(q).publish(event);
     }
 
-    @Then("Does costumer exists")
-    public void doesCostumerExists() {
-        boolean result = service.doesCostumerExist(customer);
-        assertTrue(result);
+    @And("the {string} should exist in the database")
+    public void userExists(String userType) {
+        boolean exist = false;
+        if(userType.equals("customer")) {
+            exist = service.doesCostumerExist(customer.getBankId().getBankAccountId());
+        } else if(userType.equals("merchant")) {
+            exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
+        }
+        assertTrue(exist);
     }
 
-//    @Given("There is a merchant with empty id")
-//    public void thereIsAMerchantWithEmptyId() {
-//        Person person = new Person("John", "Wick", "321321");
-//        customer.setPerson(person);
-//        customer.setBankId(new BankId("customerBankId"));
-//        assertNull(customer.getUniqueId());
-//    }
-//    @When("the service receives a MerchantAccountCreationRequested event")
-//
-//    @When("the customer is being registered")
-//    public void theCustomerIsBeingRegistered() {
-//        result = service.addCustomer(customer);
-//    }
-//
-//    @When("the merchant is being registered")
-//    public void theMerchantIsBeingRegistered() {
-//        result = service.addMerchant(merchant);
-//    }
-//
-//    @Then("The merchant added correctly")
-//    @Then("The customer added correctly")
-//    public void theEventIsSent() {
-//        String reg_user = service.getCustomer(result);
-//        String opt = customer.getBankId().getBankAccountId();
-//        assertEquals(reg_user, opt);
-//    }
+    @And("the {string} should not exist in the database")
+    public void userDoesNotExist(String userType) {
+        boolean exist = true;
+        if(userType.equals("customer")) {
+            exist = service.doesCostumerExist(customer.getBankId().getBankAccountId());
+        } else if(userType.equals("merchant")) {
+            exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
+        }
+        assertFalse(exist);
+    }
+
+    @Given("There is a {string} with fake bankId")
+    public void thereIsACustomerWithFakeBankId(String userType) {
+        Person person = new Person("John", "Smith", "213213");
+        if(userType.equals("customer")){
+            customer.setPerson(person);
+            customer.setBankId(new BankId("fakeMasterKey"));
+        } else if(userType.equals("merchant")){
+            merchant.setPerson(person);
+            merchant.setBankId(new BankId("fakeMasterKey"));
+        }
+    }
 }
