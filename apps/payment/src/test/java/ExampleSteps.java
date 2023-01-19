@@ -74,19 +74,19 @@ public class ExampleSteps {
     public void beforeStep() {
         User cost = new User();
 
-        cost.setFirstName("Johneefrfvrfvfgbdfffvervvrdrfvb");
-        cost.setLastName("Rambeedfrfvrfrrfvergbfvvffvgfrvo");
-        cost.setCprNumber("12erddfffvvgbrfvferfvvrffgv3123");
+        cost.setFirstName("Johneefddrfvrfvfgbdfffvervvrdrfvb");
+        cost.setLastName("Rambeedfddrddfvrfrrfvergbfvvffvgfrvo");
+        cost.setCprNumber("12erddfffvddvgbrfvferfvvrffgv3123");
         customer = new DTUPayUser();
         customer.setPerson( new Person(cost.getFirstName(),cost.getLastName(),cost.getCprNumber()));
-        customer.setUniqueId("uniquecustomerId");
+        customer.setUniqueId("uniquecusdtomerId");
         User mer = new User();
-        mer.setFirstName("Joedrdfeffvrfvfgbvrvfffvgrvhn");
-        mer.setLastName("Wicedfdfefvfvfvrgbrfvrffvgrvk");
-        mer.setCprNumber("32erddffeffvfvrgbfvrrfvfgv1321");
+        mer.setFirstName("Joedrdfeffvddrfvfgbvrvfffvgrvhn");
+        mer.setLastName("Wicedfdfefvfvddfvrgbrfvrffvgrvk");
+        mer.setCprNumber("32erddffeffvfddvrgbfvrrfvfgv1321");
         merchant = new DTUPayUser();
         merchant.setPerson( new Person(mer.getFirstName(),mer.getLastName(),mer.getCprNumber()));
-        merchant.setUniqueId("uniquemerchantId");
+        merchant.setUniqueId("uniquemderchantId");
         try {
             customer.setBankId(new BankId(bankService.createAccountWithBalance(cost, BigDecimal.valueOf(1000))));
             merchant.setBankId(new BankId(bankService.createAccountWithBalance(mer, BigDecimal.valueOf(1000))));

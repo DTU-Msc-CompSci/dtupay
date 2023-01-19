@@ -12,3 +12,8 @@ Feature: DeRegister customer and merchant
     Given a merchant exists in DTUPay
     When the merchant de-registers
     Then the merchant is removed from DTUPay
+
+  Scenario: Customer de-register unsuccessfully
+    Given a customer does not exist in DTUPay
+    When the customer de-registers
+    Then the customer gets an error message

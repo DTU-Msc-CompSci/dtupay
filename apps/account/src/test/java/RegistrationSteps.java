@@ -43,14 +43,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedrserefyudfvvohn");
-        cost.setLastName("Ramddsdefyfufvfvbo");
-        cost.setCprNumber("12ddfeeyufsdvf3123");
+        cost.setFirstName("Jrfedrddsdfvvohnre");
+        cost.setLastName("Ramddsddddfvfvbewo");
+        cost.setCprNumber("12ddfddsdvf31gr23");
 
         User mer = new User();
-        mer.setFirstName("Joddfevsyydffvhn");
-        mer.setLastName("Widfdsedeyffvvck");
-        mer.setCprNumber("321dfersefuydv3dfv21");
+        mer.setFirstName("Joddfvwwsdfvhwrn");
+        mer.setLastName("Widfdsdwwfvvckrw");
+        mer.setCprNumber("321dfswwdv3dfwrv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -203,5 +203,16 @@ public class RegistrationSteps {
     public void theServiceReceivesATokenValidatedEvent() {
         Event event = new Event("TokenValidated", new Object[]{  "random id", customer.getUniqueId() });
         service.handleTokenValidated(event);
+    }
+
+    @Then("a {word}AccountDeRegistrationFailed event is published")
+    public void a_customer_account_de_registration_failed_event_is_published(String userType) {
+        Event event = null;
+        if(userType.equals("Customer")) {
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{false});
+        } else if (userType.equals("Merchant")){
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{false});
+        }
+        verify(q).publish(event);
     }
 }

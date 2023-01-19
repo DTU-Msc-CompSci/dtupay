@@ -41,13 +41,12 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Arefrvttgbrtvrsfdfvdedf");
-        customer.setLastName("tsgeerertrvtfrd23");
-        customer.setCprNumber("1tgeberrtv23arflex123test");
-
-        merchant.setFirstName("SoertgrrtvtvfrfererfO23therNames");
-        merchant.setLastName("ncgeeftrvrtvederere23");
-        merchant.setCprNumber("321afrtvrtedcbrfffereex23321test");
+        customer.setFirstName("Alesseerefrvttgbrtvrsasdfdfvdedf");
+        customer.setLastName("tseftgeeresssssrtrvtvfbcfrd23");
+        customer.setCprNumber("1vffrtgeberrtsssvt323arflex123test");
+        merchant.setFirstName("Som3rertgrrtssvtvfrfererfveO23therNames");
+        merchant.setLastName("ncvrrftgeeftrvrsstvederername23");
+        merchant.setCprNumber("321altgrefrtvrtessdcsdvdfbbrfffereex23321test");
     }
 
     @After
