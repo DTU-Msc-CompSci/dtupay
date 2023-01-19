@@ -124,9 +124,9 @@ public class RegistrationSteps {
     public void aUserAccountDeRegistrationCompletedPublished(String userType) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationCompleted");
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountDeRegistrationCompleted");
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
         }
         verify(q).publish(event);
     }

@@ -146,14 +146,14 @@ public class AccountService {
     public void handleCustomerAccountDeRegistrationRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
         removeCustomer(s);
-        Event event = new Event("CustomerAccountDeRegistrationCompleted");
+        Event event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
         queue.publish(event);
     }
 
     public void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
         removeMerchant(s);
-        Event event = new Event("MerchantAccountDeRegistrationCompleted");
+        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
         queue.publish(event);
     }
 

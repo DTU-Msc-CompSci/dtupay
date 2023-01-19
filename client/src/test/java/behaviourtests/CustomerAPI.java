@@ -19,6 +19,18 @@ public class CustomerAPI {
         this.baseUrl = client.target("http://localhost:8091/");
     }
 
+    // deregister customer with given id
+    public Response deregisterCustomer(DTUPayUser user){
+        Response response = baseUrl.path("customer/deregister")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            return response;
+        } else {
+            return null;
+        }
+    }
+
     public DTUPayUser postCustomer(DTUPayUser user) throws Exception {
 
         Response response = baseUrl.path("customer")
