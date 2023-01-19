@@ -11,6 +11,9 @@ public class TokenService {
     Set<String> usedTokenPool = new HashSet<String>();
 
     MessageQueue queue;
+    public Map<String, Set<Token>> getAssignedTokens() {
+        return assignedTokens;
+    }
     public TokenService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
@@ -49,7 +52,7 @@ public class TokenService {
 
         }
 
-        if (response.getMessage() != null) {
+        if (response.getMessage() == null) {
             event = new Event("TokenRequestFailed", new Object[] { response });
         } else {
             event = new Event("TokenRequestFulfilled", new Object[] { response });

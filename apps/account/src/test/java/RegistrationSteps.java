@@ -106,6 +106,7 @@ public class RegistrationSteps {
         } else if(userType.equals("Merchant")) {
             event = new Event("MerchantAccountCreated", new Object[]{ new AccountResponse(merchant, "Success")});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -128,6 +129,7 @@ public class RegistrationSteps {
         } else if(userType.equals("Merchant")) {
             event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -139,6 +141,7 @@ public class RegistrationSteps {
         } else if(userType.equals("Merchant")) {
             event = new Event("MerchantAccountCreationFailed", new Object[]{ new AccountResponse(merchant, errorMsg) });
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -192,6 +195,7 @@ public class RegistrationSteps {
         else if(userType.equals("Merchant")) {
             event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
