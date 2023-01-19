@@ -34,7 +34,7 @@ public class MerchantAPI {
                 .request()
                 .post(Entity.entity(user,MediaType.APPLICATION_JSON));
 
-        if (response.getStatus() == 201) {
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
             return response.readEntity(new GenericType<>() {});
         } else {
             throw new Exception(response.readEntity(String.class));
@@ -45,6 +45,6 @@ public class MerchantAPI {
         Response response = baseUrl.path("merchant/transaction")
                 .request()
                 .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
-        return response.getStatus() == 201;
+        return response.getStatus() == 200 || response.getStatus() == 201;
     }
 }

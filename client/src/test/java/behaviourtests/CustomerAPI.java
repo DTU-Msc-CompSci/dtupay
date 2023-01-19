@@ -49,7 +49,7 @@ public class CustomerAPI {
         Response response = baseUrl.path("customer/token")
                 .request()
                 .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
-
+        System.out.println(response.getStatus());
         if (response.getStatus() == 201) {
             return response.readEntity(new GenericType<>() {});
         } else {

@@ -81,47 +81,46 @@ public class CoreService {
 
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
     public AccountResponse registerCustomer(DTUPayUser c) {
-        CompletableFuture<AccountResponse> registeredCustomer = new CompletableFuture<>();
+        CompletableFuture<AccountResponse> registeredCustomerFuture = new CompletableFuture<>();
         var correlationId = generateCorrelationId();
-        pendingCustomers.put(correlationId, registeredCustomer);
+        pendingCustomers.put(correlationId, registeredCustomerFuture);
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { correlationId, c });
         queue.publish(event);
-        return registeredCustomer.join();
+        return registeredCustomerFuture.join();
     }
 
     public AccountResponse registerMerchant(DTUPayUser c) {
-        CompletableFuture<AccountResponse> registeredMerchant = new CompletableFuture<>();
+        CompletableFuture<AccountResponse> registeredMerchantFuture = new CompletableFuture<>();
         var correlationId = generateCorrelationId();
         Event event = new Event("MerchantAccountCreationRequested", new Object[] { correlationId, c });
-        pendingMerchants.put(correlationId, registeredMerchant);
+        pendingMerchants.put(correlationId, registeredMerchantFuture);
         queue.publish(event);
-        return registeredMerchant.join();
+        return registeredMerchantFuture.join();
     }
 
     public void handleCustomerRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, AccountResponse.class);
         // TODO: I don't think this is returning anything, and probably should be
-        completePendingUserFutureByCorrelationId(correlationId, s);
+        completePendingCustomerFutureByCorrelationId(correlationId, s);
     }
 
     public void handleMerchantRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, AccountResponse.class);
         // TODO: I don't think this is returning anything, and probably should be
-        completePendingUserFutureByCorrelationId(correlationId, s);
+        completePendingMerchantFutureByCorrelationId(correlationId, s);
     }
     public void handleMerchantDeRegistrationCompleted(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, Boolean.class);
-        pendingDeregisterCustomers.get(correlationId).complete(s);
-        pendingDeregisterCustomers.remove(correlationId);
+        pendingDeregisterMerchants.get(correlationId).complete(s);
+        pendingDeregisterMerchants.remove(correlationId);
     }
 
     public void handleCustomerDeRegistrationCompleted(Event event) {
         var correlationId = event.getArgument(0, String.class);
         var deRegisteredCustomer = event.getArgument(1, Boolean.class);
-        deRegisteredCustomerCompleted.complete(deRegisteredCustomer);
         pendingDeregisterCustomers.get(correlationId).complete(deRegisteredCustomer);
         pendingDeregisterCustomers.remove(correlationId);
     }
@@ -162,7 +161,7 @@ public class CoreService {
     public void handleTransactionCompleted(Event e) {
         var id = e.getArgument(0, String.class);
         var s = e.getArgument(1, String.class);
-        requestedTransaction.complete(s);
+        completePendingTransactionFutureByCorrelationId(id, s);
         // TODO standardize the response
     }
 
@@ -171,8 +170,40 @@ public class CoreService {
         return UUID.randomUUID().toString();
     }
 
-    public void completePendingUserFutureByCorrelationId(String correlationId, AccountResponse result) {
-        pendingCustomers.get(correlationId).complete(result);
-        pendingCustomers.remove(correlationId);
+    public void completePendingCustomerFutureByCorrelationId(String correlationId, AccountResponse result) {
+        var completeableFuture = pendingCustomers.get(correlationId);
+        if (completeableFuture != null) {
+            completeableFuture.complete(result);
+            pendingCustomers.remove(correlationId);
+        }
+        throw new RuntimeException("No pending Customer future found for correlationId: " + correlationId);
+
+//        pendingCustomers.get(correlationId).complete(result);
+//        pendingCustomers.remove(correlationId);
     }
+
+    public void completePendingMerchantFutureByCorrelationId(String correlationId, AccountResponse result) {
+        var completeableFuture = pendingMerchants.get(correlationId);
+        if (completeableFuture != null) {
+            completeableFuture.complete(result);
+            pendingMerchants.remove(correlationId);
+        }
+        throw new RuntimeException("No pending Merchant future found for correlationId: " + correlationId);
+
+//        pendingCustomers.get(correlationId).complete(result);
+//        pendingCustomers.remove(correlationId);
+    }
+
+    public void completePendingTransactionFutureByCorrelationId(String correlationId, String result) {
+        var completeableFuture = pendingTransactions.get(correlationId);
+        if (completeableFuture != null) {
+            completeableFuture.complete(result);
+            pendingTransactions.remove(correlationId);
+        }
+        throw new RuntimeException("No pending Transaction future found for correlationId: " + correlationId);
+
+//        pendingCustomers.get(correlationId).complete(result);
+//        pendingCustomers.remove(correlationId);
+    }
+
 }

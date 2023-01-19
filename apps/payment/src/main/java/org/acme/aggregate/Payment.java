@@ -118,7 +118,6 @@ public class Payment {
 	}
 
 	private void apply(TransactionCustomerInfoAdded event) {
-
 		transactionID = event.getTransactionID();
 		customerBankID = event.getCustomerInfo().getBankId().getBankAccountId();
 		customer = event.getCustomerInfo().getPerson();

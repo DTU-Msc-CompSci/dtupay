@@ -38,32 +38,32 @@ public class DeRegisterStepsTest {
 
 
 
-    @Before
-    public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Aleeerefrsdfsdvtsstgssbrtvrsasdfdfvsssdedeesfdddddd");
-        customer.setLastName("tseftgeersertrvssssstvwsdsdwdfbcfresssed2s3dddddddd");
-        customer.setCprNumber("1vffrtgeberrtwdsssssdwdvt323arflex123ssstees33stdddddddddd");
-
-        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
-
-        merchant.setFirstName("Som3rertgrrtvtssvfrwdwdfererfveO23thersNam3es");
-        merchant.setLastName("ncvrrftgeeftrvrwssddtvedererna3sme23");
-        merchant.setCprNumber("321altgrefrtvrtwssdwedcsdvdfbbrfffereex23s3321test");
-
-        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
-
-
-    }
-
-    @After
-    public void tearDown() {
-        try {
-            bankService.retireAccount(customerBankId);
-            bankService.retireAccount(merchantBankId);
-        } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
-        }
-    }
+//    @Before
+//    public void init() throws BankServiceException_Exception {
+//        customer.setFirstName("Aleeerefrsdfsdvtsstgssbrtvrsasdfdfvsssdedeesfdddddd");
+//        customer.setLastName("tseftgeersertrvssssstvwsdsdwdfbcfresssed2s3dddddddd");
+//        customer.setCprNumber("1vffrtgeberrtwdsssssdwdvt323arflex123ssstees33stdddddddddd");
+//
+//        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
+//
+//        merchant.setFirstName("Som3rertgrrtvtssvfrwdwdfererfveO23thersNam3es");
+//        merchant.setLastName("ncvrrftgeeftrvrwssddtvedererna3sme23");
+//        merchant.setCprNumber("321altgrefrtvrtwssdwedcsdvdfbbrfffereex23s3321test");
+//
+//        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
+//
+//
+//    }
+//
+//    @After
+//    public void tearDown() {
+//        try {
+//            bankService.retireAccount(customerBankId);
+//            bankService.retireAccount(merchantBankId);
+//        } catch (BankServiceException_Exception e) {
+//            //throw new RuntimeException(e);
+//        }
+//    }
 
     @Given("a customer exists in DTUPay")
     public void aCustomerExistsInDTUPay() {

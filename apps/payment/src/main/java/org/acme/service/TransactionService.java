@@ -127,7 +127,7 @@ public class TransactionService {
        // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id,"completed" });
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id, "Success" });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
             // error event

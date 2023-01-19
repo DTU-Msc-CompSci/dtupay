@@ -117,16 +117,9 @@ public class AccountService {
             }
         } catch (BankServiceException_Exception e) {
             event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Invalid BankAccountId") });
-            queue.publish(event);
-            return user.getUniqueId();
+        } catch (Exception e) {
+            event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Unknown Error") });
         }
-
-//        if (doesMerchantExist(user.getBankId().getBankAccountId())){
-//            event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId, "Duplicate User" });
-//        } else{
-//            addUser(user, "merchant");
-//            event = new Event("MerchantAccountCreated", new Object[] { correlationId, user });
-//        }
         queue.publish(event);
         return user.getUniqueId();
     }

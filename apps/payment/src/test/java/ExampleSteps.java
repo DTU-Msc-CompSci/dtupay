@@ -132,7 +132,7 @@ public class ExampleSteps {
     }
     @Then("money is only transferred once")
     public void money_is_only_transferred_once() throws BankServiceException_Exception {
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "completed" });
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "Success" });
         verify(q,times(1)).publish(transactionCompletedEvent);
 
     }

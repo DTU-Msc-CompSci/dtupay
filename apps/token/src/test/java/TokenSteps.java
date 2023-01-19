@@ -32,7 +32,7 @@ public class TokenSteps {
     public void theIdIsInTheTokenMap() {
         Event event = new Event("TokenUserRequested", new Object[]{ correlationID, customerID });
         service.handleTokenUserAdd(event);
-        assertTrue(service.getAssignedTokens().keySet().contains(customerID));
+        assertTrue(service.getAssignedTokens().containsKey(customerID));
     }
 
     @And("a token request of {int}")

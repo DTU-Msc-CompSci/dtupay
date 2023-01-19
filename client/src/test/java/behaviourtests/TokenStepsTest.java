@@ -31,30 +31,30 @@ public class TokenStepsTest {
     Set<Token> tokens = new HashSet<Token>();
     String error;
     String bankID;
-    @Before
-    public void before(){
-        User c = new User();
-        c.setFirstName("Alexasagsdffassdftest");
-        c.setLastName("testAassdesdfasdflex");
-        c.setCprNumber("123asasdfesfasdf123123");
-        try{
-            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
-        } catch (Exception e){
-            error = e.getMessage();
-            System.out.println(e);
-        }
-    }
-
-    @After
-    public void after(){
-        try{
-            bankService.retireAccount(bankID);
-        } catch (Exception e){
-            error = e.getMessage();
-            System.out.println(e);
-        }
-
-    }
+//    @Before
+//    public void before(){
+//        User c = new User();
+//        c.setFirstName("Alexasagsdffassdftest");
+//        c.setLastName("testAassdesdfasdflex");
+//        c.setCprNumber("123asasdfesfasdf123123");
+//        try{
+//            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
+//        } catch (Exception e){
+//            error = e.getMessage();
+//            System.out.println(e);
+//        }
+//    }
+//
+//    @After
+//    public void after(){
+//        try{
+//            bankService.retireAccount(bankID);
+//        } catch (Exception e){
+//            error = e.getMessage();
+//            System.out.println(e);
+//        }
+//
+//    }
 
     @Given("a customer is registered with DTU Pay")
     public void a_customer_is_registered_with_DTU_Pay() throws Exception {

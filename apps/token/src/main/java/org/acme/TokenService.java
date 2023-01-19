@@ -38,7 +38,7 @@ public class TokenService {
 
     public void handleTokenUserAdd(Event ev) {
         // TODO: I think this is the only event we don't care about Correlation Id
-        var s = ev.getArgument(1, String.class);
+        var s = ev.getArgument(0, String.class);
         assignedTokens.put(s,new HashSet<Token>());
     }
 
