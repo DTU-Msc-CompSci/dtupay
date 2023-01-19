@@ -21,12 +21,7 @@ public class TransactionService {
     MessageQueue queue;
 
 //    List<Transaction> transactions = new ArrayList<>();
-    private BankService bankService =  new BankServiceService().getBankServicePort();
-
-    String customerBankId;
-    String merchantBankId;
-
-    BigDecimal amount;
+    private BankService bankService;
 
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
@@ -37,7 +32,7 @@ public class TransactionService {
 
 
 
-    public TransactionService(MessageQueue q, PaymentRepository repository, ReadModelRepository readRepository) {
+    public TransactionService(MessageQueue q, BankService b, PaymentRepository repository, ReadModelRepository readRepository) {
         this.queue = q;
         this.queue.addHandler("TransactionRequested", this::handlePayment);
         this.queue.addHandler("MerchantInfoProvided", this::handlePayment);
@@ -45,19 +40,20 @@ public class TransactionService {
         this.queue.addHandler("CustomerReportRequested", this::handleCustomerReportRequested);
         this.queue.addHandler("MerchantReportRequested", this::handleMerchantReportRequested);
         this.queue.addHandler("CustomerInfoProvided", this::handlePayment);
+        this.bankService = b;
         this.readRepository = readRepository;
         this.repository = repository;
 
 
     }
-    private void handleManagerReportRequested(Event event) {
+    public void handleManagerReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
         var resp = readRepository.getAllPayments();
         Event event2 = new Event("ManagerReportCreated", new Object[]{ id, resp});
         queue.publish(event2);
 
     }
-    private void handleCustomerReportRequested(Event event) {
+    public void handleCustomerReportRequested(Event event) {
 
         var id = event.getArgument(0, String.class);
         var customerId = event.getArgument(1, String.class);
@@ -68,7 +64,7 @@ public class TransactionService {
 
     }
 
-    private void handleMerchantReportRequested(Event event) {
+    public void handleMerchantReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
         var merchantId = event.getArgument(1, String.class);
         var resp = readRepository.getMerchantPayment(merchantId);
@@ -120,17 +116,14 @@ public class TransactionService {
 
 
     public void initiateTransaction(String customer, String merchant, BigDecimal amount, String id)  {
-        // Right now bankId == DTUPayID but this should change when we add registration service
-        //TODO fetch the bank id from a registration service
-
-        // var customerBankAccountID = transaction.getCustomerId();
-       // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
             Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id, "Success" });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
-            // error event
+            // TODO: Handle this event in dtupay service
+            Event transactionFailedEvent = new Event("TransactionFailed", new Object[] { id, "Transaction failed" });
+            queue.publish(transactionFailedEvent);
         }
 
     }
@@ -141,7 +134,7 @@ public class TransactionService {
         Payment payment = repository.getById(id);
 
         if (payment.complete()){
-            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(),id);
+            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(), id);
 
         }
     }

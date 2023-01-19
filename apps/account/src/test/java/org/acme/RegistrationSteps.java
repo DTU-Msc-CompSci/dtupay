@@ -246,4 +246,15 @@ public class RegistrationSteps {
         Event event = new Event("TokenValidated", new Object[]{  correlationId, customer.getUniqueId() });
         accountServiceMockQueue.handleTokenValidated(event);
     }
+
+    @Then("a {word}AccountDeRegistrationFailed event is published")
+    public void a_customer_account_de_registration_failed_event_is_published(String userType) {
+        Event event = null;
+        if(userType.equals("Customer")) {
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{false});
+        } else if (userType.equals("Merchant")){
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{false});
+        }
+        verify(q).publish(event);
+    }
 }

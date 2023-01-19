@@ -1,5 +1,6 @@
 package org.acme;
 
+import dtu.ws.fastmoney.BankServiceService;
 import messaging.implementations.RabbitMqQueue;
 import org.acme.repositories.PaymentRepository;
 import org.acme.repositories.ReadModelRepository;
@@ -27,7 +28,8 @@ public class TransactionFactory {
         var mq = new RabbitMqQueue("rabbitmq");
         var repository = new PaymentRepository(mq);
         var readRepository = new ReadModelRepository(mq);
-        transactionService = new TransactionService(mq,repository,readRepository);
+        var bankService =  new BankServiceService().getBankServicePort();
+        transactionService = new TransactionService(mq,bankService,repository,readRepository);
 
         return transactionService;
     }

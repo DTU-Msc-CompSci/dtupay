@@ -34,6 +34,7 @@ public class DeRegisterStepsTest {
     private DTUPayUser registeredCustomer;
     private DTUPayUser registeredMerchant;
     private DTUPayUser deRegisteredCustomer;
+    ErrorMessageHolder errorMessageHolder = new ErrorMessageHolder();
     private Response response;
 
 
@@ -79,8 +80,13 @@ public class DeRegisterStepsTest {
     }
 
     @When("the customer de-registers")
-    public void theCustomerDeRegisters() {
-        response = customerAPI.deregisterCustomer(registeredCustomer);
+    public void theCustomerDeRegisters() throws Exception {
+        try {
+            response = customerAPI.deregisterCustomer(registeredCustomer);
+            System.out.println(response.getStatus());
+        } catch (Exception e) {
+            errorMessageHolder.setErrorMessage(e.getMessage());
+        }
     }
 
     @Then("the customer is removed from DTUPay")
@@ -109,5 +115,19 @@ public class DeRegisterStepsTest {
     @Then("the merchant is removed from DTUPay")
     public void theMerchantIsRemovedFromDTUPay() {
         assertEquals(200,response.getStatus());
+    }
+
+    @Given("a customer does not exist in DTUPay")
+    public void aCustomerDoesNotExistInDTUPay() {
+        dtuPayCustomer.setPerson(new Person(customer.getFirstName(), customer.getLastName(), customer.getCprNumber()));
+        dtuPayCustomer.setBankId(new BankId(customerBankId));
+        registeredCustomer = dtuPayCustomer;
+        System.out.println(registeredCustomer.getUniqueId());
+        assertNull(registeredCustomer.getUniqueId());
+    }
+
+    @Then("the customer gets an error message")
+    public void theCustomerGetsAnErrorMessage() {
+        assertEquals("Account does not exist in DTUPay", errorMessageHolder.getErrorMessage());
     }
 }

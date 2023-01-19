@@ -68,6 +68,16 @@ public class AccountService {
         return false;
     }
 
+    public boolean doesCustomerExistUniqueId(String uniqueId){
+        //TODO Ask if this is going to be the uniqueId
+        for(DTUPayUser d : customers) {
+            if(d.getUniqueId().equals(uniqueId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean doesMerchantExist(String bankId ){
         for(DTUPayUser d : merchants) {
             if(d.getBankId().getBankAccountId().equals(bankId)) {
@@ -149,16 +159,26 @@ public class AccountService {
     public void handleCustomerAccountDeRegistrationRequested(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         var s = ev.getArgument(1, String.class);
-        removeCustomer(s);
-        Event event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { correlationId, true });
+        if(doesCustomerExistUniqueId(s) && s != null){
+            removeCustomer(s);
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
+        }
+        else {
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { false });
+        }
         queue.publish(event);
     }
 
     public void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         var s = ev.getArgument(1, String.class);
-        removeMerchant(s);
-        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { correlationId, true });
+        if(doesMerchantExistUniqueId(s)){
+            removeMerchant(s);
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
+        }
+        else {
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { false });
+        }
         queue.publish(event);
     }
 
