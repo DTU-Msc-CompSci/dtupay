@@ -92,7 +92,7 @@ public class TokenStepsTest {
 
     @Given("a customer that is not registered with DTU Pay")
     public void aCustomerThatIsNotRegisteredWithDTUPay() {
-        customer.setBankId(new BankId("test"));
+        customer.setBankId(new BankId(bankID));
         customer.setPerson(new Person("test","test","test"));
         assertNull(customer.getUniqueId());
     }
