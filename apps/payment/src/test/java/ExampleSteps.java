@@ -150,8 +150,8 @@ public class ExampleSteps {
         // Write code here that turns the phrase above into concrete actions
     }
 
-    @Then("the repo constains customer information")
-    public void the_repo_constains_customer_information() {
+    @Then("the repo contains customer information")
+    public void the_repo_contains_customer_information() {
         // Write code here that turns the phrase above into concrete actions
         var a = readmodel.getAllPayments();
         var b = a;

@@ -13,4 +13,4 @@ Feature: Payment
   Scenario: Transaction information saved in the readonly repo
     Given "TransactionCustomerInfoAdded" Event
     When info is added to the view
-    Then the repo constains customer information
+    Then the repo contains customer information

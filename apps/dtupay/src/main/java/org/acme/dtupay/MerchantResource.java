@@ -33,8 +33,13 @@ public class MerchantResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/transaction")
     public Response postTransaction(Transaction transaction) {
+        String transactionResult = service.requestTransaction(transaction);
+        if (!transactionResult.equals("Success")) {
+            return Response.status(400).entity(transactionResult).build();
+        }
+        return Response.status(201).entity(transactionResult).build();
 
-        return service.requestTransaction(transaction);
+//        return service.requestTransaction(transaction);
     }
 
     @POST

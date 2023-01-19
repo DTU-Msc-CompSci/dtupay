@@ -14,11 +14,15 @@ import static org.mockito.Mockito.*;
 
 import messaging.MessageQueue;
 
+import java.util.UUID;
+
 public class TokenSteps {
     private MessageQueue q = mock(MessageQueue.class);
     private TokenService service = new TokenService(q);
     String customerID;
     int amount;
+    String correlationID = UUID.randomUUID().toString();
+
     @Given("a customer id {string}")
     public void aCustomerId(String customerID) {
         this.customerID = customerID;
@@ -38,7 +42,7 @@ public class TokenSteps {
 
     @When("the service receives a TokenRequested event")
     public void theServiceReceivesATokenRequestedEvent() {
-        Event event = new Event("TokenRequested",new Object[]{ new TokenRequest(customerID,amount)});
+        Event event = new Event("TokenRequested",new Object[]{ correlationID, new TokenRequest(customerID,amount)});
         assertNotNull(event);
         service.handleTokenRequested(event);
     }
@@ -47,7 +51,7 @@ public class TokenSteps {
     public void aTokenRequestFulfilledEventIsPublished() {
         //Event event = new Event("TokenRequestFulfilled", new Object[] { new TokenResponse(service.getAssignedTokens().get(customerID),"success")});
         TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID),"success");
-        Event event = new Event("TokenRequestFulfilled", new Object[] { response });
+        Event event = new Event("TokenRequestFulfilled", new Object[] { correlationID, response });
         //q.publish(event);
         verify(q).publish(event);
     }

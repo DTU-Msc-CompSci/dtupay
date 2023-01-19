@@ -38,8 +38,6 @@ public class TransactionService {
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("MerchantInfoProvided", this::handleMerchantInfoProvided);
         this.queue.addHandler("CustomerInfoProvided", this::handleCustomerInfoProvided);
-
-
     }
 
     public void handleMerchantInfoProvided(Event ev) {
