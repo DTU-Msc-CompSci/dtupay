@@ -16,11 +16,12 @@ public class CoreService {
 
 
     // TODO: Migrate these concurrent-safe collection
-    private Map<String, CompletableFuture<DTUPayUser>> pendingCustomers = new ConcurrentHashMap<>();
+    private Map<String, CompletableFuture<AccountResponse>> pendingCustomers = new ConcurrentHashMap<>();
 
     private Map<String, CompletableFuture<Boolean>> pendingDeregisterCustomers = new ConcurrentHashMap<>();
     private Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
-    private CompletableFuture<DTUPayUser> registeredMerchant;
+    private CompletableFuture<AccountResponse> registeredCustomer;
+    private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
@@ -31,10 +32,11 @@ public class CoreService {
 
     public CoreService(MessageQueue q) {
         queue = q;
-        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistration);
-        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistration);
-        queue.addHandler("CustomerAccountCreationFailed", this::handleCustomerRegistration);
-        queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
+        queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
+        queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistered);
+        // Where did these go?????
+//        queue.addHandler("CustomerAccountCreationFailed", this::handleCustomerRegistration);
+//        queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
@@ -50,7 +52,7 @@ public class CoreService {
         }
     }
 
-    public Map<String, CompletableFuture<DTUPayUser>> getPendingCustomers() {
+    public Map<String, CompletableFuture<AccountResponse>> getPendingCustomers() {
         return pendingCustomers;
     }
 
@@ -76,8 +78,8 @@ public class CoreService {
     }
 
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
-    public DTUPayUser registerCustomer(DTUPayUser c) {
-        CompletableFuture<DTUPayUser> registeredCustomer = new CompletableFuture<>();
+    public AccountResponse registerCustomer(DTUPayUser c) {
+        CompletableFuture<AccountResponse> registeredCustomer = new CompletableFuture<>();
         var correlationId = generateCorrelationId();
         pendingCustomers.put(correlationId, registeredCustomer);
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { correlationId, c });
@@ -85,7 +87,7 @@ public class CoreService {
         return registeredCustomer.join();
     }
 
-    public DTUPayUser registerMerchant(DTUPayUser c) {
+    public AccountResponse registerMerchant(DTUPayUser c) {
         registeredMerchant = new CompletableFuture<>();
         var correlationId = UUID.randomUUID().toString();
         Event event = new Event("MerchantAccountCreationRequested", new Object[] { correlationId, c });
@@ -95,12 +97,12 @@ public class CoreService {
 
     public void handleCustomerRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
-        var s = e.getArgument(1, DTUPayUser.class);
+        var s = e.getArgument(1, AccountResponse.class);
         completeFutureByCorrelationId(correlationId, s);
     }
     public void handleMerchantRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
-        var s = e.getArgument(1, DTUPayUser.class);
+        var s = e.getArgument(1, AccountResponse.class);
         completeFutureByCorrelationId(correlationId, s);
 //        registeredMerchant.complete(correlationId, s);
     }
@@ -159,7 +161,7 @@ public class CoreService {
         return UUID.randomUUID().toString();
     }
 
-    public void completeFutureByCorrelationId(String correlationId, DTUPayUser result) {
+    public void completeFutureByCorrelationId(String correlationId, AccountResponse result) {
         pendingCustomers.get(correlationId).complete(result);
         pendingCustomers.remove(correlationId);
     }
