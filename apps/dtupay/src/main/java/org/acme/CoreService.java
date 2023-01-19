@@ -13,6 +13,7 @@ public class CoreService {
     private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
+    private CompletableFuture<Boolean> deRegisteredCustomerCompletedFailed;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
     private boolean deRegisteredCustomer;
 
@@ -33,6 +34,17 @@ public class CoreService {
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
         queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
+        queue.addHandler("CustomerAccountDeRegistrationFailed", this::handleCustomerDeRegistrationFailed);
+        queue.addHandler("MerchantAccountDeRegistrationFailed", this::handleMerchantDeRegistrationFailed);
+    }
+
+    private void handleMerchantDeRegistrationFailed(Event event) {
+        deRegisteredMerchantCompleted.complete(false);
+    }
+
+    private void handleCustomerDeRegistrationFailed(Event event) {
+        var s = event.getArgument(0, Boolean.class);
+        deRegisteredCustomerCompletedFailed.complete(s);
     }
 
     public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {
@@ -43,20 +55,19 @@ public class CoreService {
     }
 
 
-    public String deRegisterCustomer(DTUPayUser user) {
+    public Boolean deRegisterCustomer(DTUPayUser user) {
         deRegisteredCustomerCompleted = new CompletableFuture<>();
         Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
         queue.publish(event);
-        deRegisteredCustomerCompleted.join();
-        return "De-registration request sent";
+        return deRegisteredCustomerCompleted.join();
+        //return "De-registration request sent";
     }
 
-    public String deRegisterMerchant(DTUPayUser user) {
+    public Boolean deRegisterMerchant(DTUPayUser user) {
         deRegisteredMerchantCompleted = new CompletableFuture<>();
         Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {user.getUniqueId()});
         queue.publish(event);
-        deRegisteredMerchantCompleted.join();
-        return "De-registration request sent";
+        return deRegisteredMerchantCompleted.join();
     }
 
     public AccountResponse registerCustomer(DTUPayUser c) {
@@ -87,11 +98,9 @@ public class CoreService {
 
     public void handleCustomerDeRegistrationCompleted(Event event) {
         deRegisteredCustomer = event.getArgument(0, Boolean.class);
-        if(tokenRemoved) {
-            deRegisteredCustomerCompleted.complete(true);
-        }
+        deRegisteredCustomerCompleted.complete(true);
+        //TODO: check if tokenRemoved is true
     }
-
 
 
     public TokenResponse getToken(TokenRequest t) {

@@ -11,6 +11,16 @@ public class TokenService {
     Set<String> usedTokenPool = new HashSet<String>();
 
     MessageQueue queue;
+    public Map<String, Set<Token>> getAssignedTokens() {
+        return assignedTokens;
+    }
+    public Map<String, String> getTokenToId() {
+        return tokenToId;
+    }
+    public void addToken(String customerID, String tokenID) {
+        assignedTokens.get(customerID).add(new Token(tokenID));
+        tokenToId.put(tokenID,customerID);
+    }
     public TokenService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
@@ -32,6 +42,7 @@ public class TokenService {
     public void handleTokenRequested(Event ev) {
         var s = ev.getArgument(0, TokenRequest.class);
         Event event;
+        boolean error = true;
         TokenResponse response = new TokenResponse();
         if (!assignedTokens.containsKey(s.getCid())) {
             response.setMessage("User does not exist");
@@ -41,15 +52,14 @@ public class TokenService {
             response.setMessage("Less than 1 token requested");
         } else if(s.getAmount() > 5) {
             response.setMessage("More than 5 tokens requested");
-        } else if(assignedTokens.get(s.getCid()).size() + s.getAmount() > 6) {
-            response.setMessage("Not enough tokens available");
         } else {
+            error = false;
             response.setMessage("success");
             response.setTokens(generateTokens(s));
 
         }
 
-        if (response.getMessage() != null) {
+        if (error) {
             event = new Event("TokenRequestFailed", new Object[] { response });
         } else {
             event = new Event("TokenRequestFulfilled", new Object[] { response });

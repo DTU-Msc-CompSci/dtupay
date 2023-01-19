@@ -30,8 +30,13 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deregister")
     public Response deRegisterCustomer(DTUPayUser user) {
-        service.deRegisterCustomer(user);
-        return Response.ok().build();
+        if(service.deRegisterCustomer(user)) {
+            System.out.println("Customer de-registered");
+            return Response.status(200).entity("Success").build();
+        } else {
+            System.out.println("Customer de-registration failed");
+            return Response.status(400).entity("Account does not exist in DTUPay").build();
+        }
     }
 
     @POST

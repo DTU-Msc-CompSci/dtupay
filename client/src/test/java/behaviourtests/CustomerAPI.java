@@ -19,6 +19,20 @@ public class CustomerAPI {
         this.baseUrl = client.target("http://localhost:8091/");
     }
 
+    // deregister customer with given id
+    public Response deregisterCustomer(DTUPayUser user) throws Exception {
+        Response response = baseUrl.path("customer/deregister")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            System.out.println("Normal");
+            return response;
+        } else {
+            System.out.println("EXCEPTIOOOOOOOOON");
+            throw new Exception(response.readEntity(String.class));
+        }
+    }
+
     public DTUPayUser postCustomer(DTUPayUser user) throws Exception {
 
         Response response = baseUrl.path("customer")

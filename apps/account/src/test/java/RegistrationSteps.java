@@ -43,14 +43,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedrsdfvvohn");
-        cost.setLastName("Ramddsdfvfvbo");
-        cost.setCprNumber("12ddfsdvf3123");
+        cost.setFirstName("Jrfedrddsdfvvohnre");
+        cost.setLastName("Ramddsddddfvfvbewo");
+        cost.setCprNumber("12ddfddsdvf31gr23");
 
         User mer = new User();
-        mer.setFirstName("Joddfvsdfvhn");
-        mer.setLastName("Widfdsdfvvck");
-        mer.setCprNumber("321dfsdv3dfv21");
+        mer.setFirstName("Joddfvwwsdfvhwrn");
+        mer.setLastName("Widfdsdwwfvvckrw");
+        mer.setCprNumber("321dfswwdv3dfwrv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -106,6 +106,7 @@ public class RegistrationSteps {
         } else if(userType.equals("Merchant")) {
             event = new Event("MerchantAccountCreated", new Object[]{ new AccountResponse(merchant, "Success")});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -124,10 +125,11 @@ public class RegistrationSteps {
     public void aUserAccountDeRegistrationCompletedPublished(String userType) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationCompleted");
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountDeRegistrationCompleted");
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -139,6 +141,7 @@ public class RegistrationSteps {
         } else if(userType.equals("Merchant")) {
             event = new Event("MerchantAccountCreationFailed", new Object[]{ new AccountResponse(merchant, errorMsg) });
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -192,6 +195,7 @@ public class RegistrationSteps {
         else if(userType.equals("Merchant")) {
             event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant});
         }
+        //q.publish(event);
         verify(q).publish(event);
     }
 
@@ -199,5 +203,16 @@ public class RegistrationSteps {
     public void theServiceReceivesATokenValidatedEvent() {
         Event event = new Event("TokenValidated", new Object[]{  "random id", customer.getUniqueId() });
         service.handleTokenValidated(event);
+    }
+
+    @Then("a {word}AccountDeRegistrationFailed event is published")
+    public void a_customer_account_de_registration_failed_event_is_published(String userType) {
+        Event event = null;
+        if(userType.equals("Customer")) {
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{false});
+        } else if (userType.equals("Merchant")){
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{false});
+        }
+        verify(q).publish(event);
     }
 }
