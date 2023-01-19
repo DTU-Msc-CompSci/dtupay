@@ -251,10 +251,10 @@ public class RegistrationSteps {
     public void a_customer_account_de_registration_failed_event_is_published(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{false});
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{ correlationId, false});
         } else if (userType.equals("Merchant")){
-            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{false});
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{ correlationId, false});
         }
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 }

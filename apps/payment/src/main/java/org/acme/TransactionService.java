@@ -76,13 +76,12 @@ public class TransactionService {
         // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[]{ correlationId, "completed"});
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[]{ correlationId, "Success"});
             queue.publish(transactionCompletedEvent);
         } catch (BankServiceException_Exception e) {
             // error event
         }
         //     transactions.add(transaction);
-
     }
 
     public void addTransaction(Transaction t) {

@@ -87,6 +87,17 @@ public class AccountService {
         return false;
     }
 
+    public boolean doesMerchantExistUniqueId(String unique ){
+        //TODO Ask if this is going to be the uniqueId
+        //Search by bankId which is unique for each account
+        for(DTUPayUser d : merchants) {
+            if(d.getUniqueId().equals(unique)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
         // TODO: I don't think we need to do COrrelation ID here
@@ -159,12 +170,13 @@ public class AccountService {
     public void handleCustomerAccountDeRegistrationRequested(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         var s = ev.getArgument(1, String.class);
+        Event event = null;
         if(doesCustomerExistUniqueId(s) && s != null){
             removeCustomer(s);
-            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { correlationId, true });
         }
         else {
-            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { false });
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { correlationId, false });
         }
         queue.publish(event);
     }
@@ -172,12 +184,13 @@ public class AccountService {
     public void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         var s = ev.getArgument(1, String.class);
+        Event event = null;
         if(doesMerchantExistUniqueId(s)){
             removeMerchant(s);
-            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { correlationId, true });
         }
         else {
-            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { false });
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { correlationId, false });
         }
         queue.publish(event);
     }
