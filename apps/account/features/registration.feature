@@ -29,6 +29,12 @@ Feature: Account Manager
     Then a CustomerAccountDeRegistrationCompleted event is published
     And the "customer" should not exist in the database
 
+
+  Scenario: Failed Customer De-registration
+    Given There is a customer with empty id
+    When the service receives a CustomerAccountDeRegistrationRequested event
+    Then a CustomerAccountDeRegistrationFailed event is published
+
   #Same tests for the merchant
   Scenario: Successful Merchant Registration
     Given There is a merchant with empty id
@@ -43,7 +49,7 @@ Feature: Account Manager
     And the "merchant" should exist in the database
     When the service receives a MerchantAccountCreationRequested event
     Then a MerchantAccountCreationFailed event is published because of "Duplicate User"
-
+#
   Scenario: Reject registration of a merchant with invalid bankId
     Given There is a "merchant" with fake bankId
     When the service receives a MerchantAccountCreationRequested event
@@ -58,6 +64,12 @@ Feature: Account Manager
     When the service receives a MerchantAccountDeRegistrationRequested event
     Then a MerchantAccountDeRegistrationCompleted event is published
     And the "merchant" should not exist in the database
+
+  Scenario: Failed Merchant De-registration
+    Given There is a merchant with empty id
+    When the service receives a MerchantAccountDeRegistrationRequested event
+    Then a MerchantAccountDeRegistrationFailed event is published
+
 
   #Transaction test
   Scenario: Normal transaction scenario.Since we test the registration

@@ -71,6 +71,16 @@ public class AccountService {
         return false;
     }
 
+    public boolean doesCustomerExistUniqueId(String uniqueId){
+        //TODO Ask if this is going to be the uniqueId
+        for(DTUPayUser d : customers) {
+            if(d.getUniqueId().equals(uniqueId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean doesMerchantExist(String bankId ){
         //TODO Ask if this is going to be the uniqueId
         //Search by bankId which is unique for each account
@@ -81,6 +91,19 @@ public class AccountService {
         }
         return false;
     }
+
+    public boolean doesMerchantExistUniqueId(String unique ){
+        //TODO Ask if this is going to be the uniqueId
+        //Search by bankId which is unique for each account
+        for(DTUPayUser d : merchants) {
+            if(d.getUniqueId().equals(unique)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     private void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
@@ -144,16 +167,28 @@ public class AccountService {
     }
 
     public void handleCustomerAccountDeRegistrationRequested(Event ev) {
-        var s = ev.getArgument(0, String.class);
-        removeCustomer(s);
-        Event event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
+        var uniqueId = ev.getArgument(0, String.class);
+        Event event = null;
+        if(doesCustomerExistUniqueId(uniqueId) && uniqueId != null){
+            removeCustomer(uniqueId);
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
+        }
+        else {
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { false });
+        }
         queue.publish(event);
     }
 
     public void handleMerchantAccountDeRegistrationRequested(Event ev) {
         var s = ev.getArgument(0, String.class);
-        removeMerchant(s);
-        Event event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
+        Event event;
+        if(doesMerchantExistUniqueId(s)){
+            removeMerchant(s);
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
+        }
+        else {
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { false });
+        }
         queue.publish(event);
     }
 

@@ -13,6 +13,7 @@ public class CoreService {
     private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
+    private CompletableFuture<Boolean> deRegisteredCustomerCompletedFailed;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
     private boolean deRegisteredCustomer;
 
@@ -33,6 +34,17 @@ public class CoreService {
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
         queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
+        queue.addHandler("CustomerAccountDeRegistrationFailed", this::handleCustomerDeRegistrationFailed);
+        queue.addHandler("MerchantAccountDeRegistrationFailed", this::handleMerchantDeRegistrationFailed);
+    }
+
+    private void handleMerchantDeRegistrationFailed(Event event) {
+        deRegisteredMerchantCompleted.complete(false);
+    }
+
+    private void handleCustomerDeRegistrationFailed(Event event) {
+        var s = event.getArgument(0, Boolean.class);
+        deRegisteredCustomerCompletedFailed.complete(s);
     }
 
     public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {

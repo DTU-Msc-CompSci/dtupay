@@ -34,24 +34,25 @@ public class DeRegisterStepsTest {
     private DTUPayUser registeredCustomer;
     private DTUPayUser registeredMerchant;
     private DTUPayUser deRegisteredCustomer;
+    ErrorMessageHolder errorMessageHolder = new ErrorMessageHolder();
     private Response response;
 
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Aleeerefrsdfsdvtsstgssbrtvrsasdfdfvsssdedeesfdddddd");
-        customer.setLastName("tseftgeersertrvssssstvwsdsdwdfbcfresssed2s3dddddddd");
-        customer.setCprNumber("1vffrtgeberrtwdsssssdwdvt323arflex123ssstees33stdddddddddd");
+        customer.setFirstName("Aleeerefrsds");
+        customer.setLastName("tseftgeerses");
+        customer.setCprNumber("1vffrtgebes");
 
-        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-        merchant.setFirstName("Som3rertgrrtvtssvfrwdwdfererfveO23thersNam3es");
-        merchant.setLastName("ncvrrftgeeftrvrwssddtvedererna3sme23");
-        merchant.setCprNumber("321altgrefrtvrtwssdwedcsdvdfbbrfffereex23s3321test");
+
+        merchant.setFirstName("Som3rertgrrtsv");
+        merchant.setLastName("rwssddtssvedererna3smes23");
+        merchant.setCprNumber("wdwdsqdwdqwdqd");
 
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
-
+        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
     }
 
@@ -79,8 +80,13 @@ public class DeRegisterStepsTest {
     }
 
     @When("the customer de-registers")
-    public void theCustomerDeRegisters() {
-        response = customerAPI.deregisterCustomer(registeredCustomer);
+    public void theCustomerDeRegisters() throws Exception {
+        try {
+            response = customerAPI.deregisterCustomer(registeredCustomer);
+            System.out.println(response.getStatus());
+        } catch (Exception e) {
+            errorMessageHolder.setErrorMessage(e.getMessage());
+        }
     }
 
     @Then("the customer is removed from DTUPay")
@@ -109,5 +115,19 @@ public class DeRegisterStepsTest {
     @Then("the merchant is removed from DTUPay")
     public void theMerchantIsRemovedFromDTUPay() {
         assertEquals(200,response.getStatus());
+    }
+
+    @Given("a customer does not exist in DTUPay")
+    public void aCustomerDoesNotExistInDTUPay() {
+        dtuPayCustomer.setPerson(new Person(customer.getFirstName(), customer.getLastName(), customer.getCprNumber()));
+        dtuPayCustomer.setBankId(new BankId(customerBankId));
+        registeredCustomer = dtuPayCustomer;
+        System.out.println(registeredCustomer.getUniqueId());
+        assertNull(registeredCustomer.getUniqueId());
+    }
+
+    @Then("the customer gets an error message")
+    public void theCustomerGetsAnErrorMessage() {
+        assertEquals("Account does not exist in DTUPay", errorMessageHolder.getErrorMessage());
     }
 }
