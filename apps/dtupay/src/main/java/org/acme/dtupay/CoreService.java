@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class CoreService {
     private MessageQueue queue;
@@ -24,15 +25,18 @@ public class CoreService {
     private Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
     private Map<String, CompletableFuture<TokenResponse>> pendingTokenRequests = new ConcurrentHashMap<>();
     private Map<String, CompletableFuture<String>> pendingTransactions = new ConcurrentHashMap<>();
-    private CompletableFuture<AccountResponse> registeredCustomer;
-    private CompletableFuture<AccountResponse> registeredMerchant;
+//    private CompletableFuture<AccountResponse> registeredCustomer;
+//    private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
-    private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
-    private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
-    private boolean deRegisteredCustomer;
+//    private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
+//    private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
+//    private boolean deRegisteredCustomer;
 
-    private CompletableFuture<TokenResponse> requestedToken;
-    private CompletableFuture<String> requestedTransaction;
+//    private CompletableFuture<TokenResponse> requestedToken;
+//    private CompletableFuture<String> requestedTransaction;
+
+    long timeoutValue = 10;
+    TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
     public CoreService(MessageQueue q) {
         queue = q;
@@ -51,9 +55,14 @@ public class CoreService {
     public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         tokenRemoved = ev.getArgument(1, Boolean.class);
-        if(deRegisteredCustomer) {
-            deRegisteredCustomerCompleted.complete(true);
+        if (tokenRemoved) {
+            pendingDeregisterCustomers.get(correlationId).complete(true);
+        } else {
+            pendingDeregisterCustomers.get(correlationId).complete(false);
         }
+//        if(deRegisteredCustomer) {
+//            deRegisteredCustomerCompleted.complete(true);
+//        }
     }
 
     Map<String, CompletableFuture<AccountResponse>> getPendingCustomers() {
@@ -82,15 +91,18 @@ public class CoreService {
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
     public AccountResponse registerCustomer(DTUPayUser c) {
         CompletableFuture<AccountResponse> registeredCustomerFuture = new CompletableFuture<>();
+        registeredCustomerFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
         pendingCustomers.put(correlationId, registeredCustomerFuture);
         Event event = new Event("CustomerAccountCreationRequested", new Object[] { correlationId, c });
         queue.publish(event);
+        // Might need to migrate to .get() and throw and exception to the caller; might change test steps as a result
         return registeredCustomerFuture.join();
     }
 
     public AccountResponse registerMerchant(DTUPayUser c) {
         CompletableFuture<AccountResponse> registeredMerchantFuture = new CompletableFuture<>();
+        registeredMerchantFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
         Event event = new Event("MerchantAccountCreationRequested", new Object[] { correlationId, c });
         pendingMerchants.put(correlationId, registeredMerchantFuture);
@@ -129,6 +141,7 @@ public class CoreService {
     public TokenResponse getToken(TokenRequest t) {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
+        requestedToken.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TokenRequested", new Object[] { correlationId, t });
         queue.publish(event);
         pendingTokenRequests.put(correlationId, requestedToken);
@@ -151,7 +164,8 @@ public class CoreService {
 
     public String requestTransaction(Transaction t) {
         var correlationId = generateCorrelationId();
-        requestedTransaction = new CompletableFuture<>();
+        var requestedTransaction = new CompletableFuture<String>();
+        requestedTransaction.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TransactionRequested", new Object[] { correlationId, t });
         queue.publish(event);
         pendingTransactions.put(correlationId, requestedTransaction);
@@ -175,11 +189,9 @@ public class CoreService {
         if (completeableFuture != null) {
             completeableFuture.complete(result);
             pendingCustomers.remove(correlationId);
+        } else {
+            throw new RuntimeException("No pending Customer future found for correlationId: " + correlationId);
         }
-        throw new RuntimeException("No pending Customer future found for correlationId: " + correlationId);
-
-//        pendingCustomers.get(correlationId).complete(result);
-//        pendingCustomers.remove(correlationId);
     }
 
     public void completePendingMerchantFutureByCorrelationId(String correlationId, AccountResponse result) {
@@ -187,11 +199,9 @@ public class CoreService {
         if (completeableFuture != null) {
             completeableFuture.complete(result);
             pendingMerchants.remove(correlationId);
+        } else {
+            throw new RuntimeException("No pending Merchant future found for correlationId: " + correlationId);
         }
-        throw new RuntimeException("No pending Merchant future found for correlationId: " + correlationId);
-
-//        pendingCustomers.get(correlationId).complete(result);
-//        pendingCustomers.remove(correlationId);
     }
 
     public void completePendingTransactionFutureByCorrelationId(String correlationId, String result) {
@@ -199,11 +209,9 @@ public class CoreService {
         if (completeableFuture != null) {
             completeableFuture.complete(result);
             pendingTransactions.remove(correlationId);
+        } else {
+            throw new RuntimeException("No pending Transaction future found for correlationId: " + correlationId);
         }
-        throw new RuntimeException("No pending Transaction future found for correlationId: " + correlationId);
-
-//        pendingCustomers.get(correlationId).complete(result);
-//        pendingCustomers.remove(correlationId);
     }
 
 }
