@@ -38,9 +38,12 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
-    public Token postToken(TokenRequest tokenRequest) {
-        System.out.println(tokenRequest.getCid());
-        return service.getToken(tokenRequest);
+    public Response postToken(TokenRequest tokenRequest) {
+        TokenResponse response = service.getToken(tokenRequest);
+        if (!response.getMessage().equals("success")) {
+            return Response.status(400).entity(response.getMessage()).build();
+        }
+        return Response.status(201).entity(response.getTokens()).build();
     }
 
 

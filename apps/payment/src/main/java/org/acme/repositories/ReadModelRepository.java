@@ -11,8 +11,6 @@ import org.acme.events.TransactionCreated;
 
 public class ReadModelRepository {
 
-	private Map<String, Set<TransactionUserView>> merchantPayments = new HashMap<>();
-	private Map<String, Set<TransactionUserView>> customerPayments = new HashMap<>();
 	private Map<String, TransactionManagerView> allPayments = new HashMap<>();
 
 
@@ -22,12 +20,24 @@ public class ReadModelRepository {
 		eventQueue.addHandler("TransactionMerchantInfoAdded", this::handleTransactionMerchantInfoAdded);
 	}
 
-//	public Set<TransactionUserView> getCustomerPayments(String customerId) {
-//		return customerPayments.getOrDefault(customerId, new HashSet<TransactionUserView>());
-//	}
 	//commands
-	public Set<TransactionUserView> getMerchantPayments(String merchantID) {
-		return merchantPayments.getOrDefault(merchantID, new HashSet<TransactionUserView>());
+	public Set<TransactionUserView> getMerchantPayment(String merchantID) {
+		 return ( allPayments.values().stream()
+				.filter((transactionManagerView)-> {
+					return transactionManagerView.getMerchantId().equals(merchantID);
+				}))
+				.map(transactionManagerView -> {
+					return transactionManagerView.toUserView();
+				}).collect(Collectors.toSet());
+	}
+	public Set<TransactionUserView> getCustomerPayment(String customerID) {
+		return ( allPayments.values().stream()
+				.filter((transactionManagerView)-> {
+					return transactionManagerView.getCustomerId().equals(customerID);
+				}))
+				.map(transactionManagerView -> {
+					return transactionManagerView.toUserView();
+				}).collect(Collectors.toSet());
 	}
 	public Set<TransactionManagerView> getAllPayments() {
 
@@ -43,15 +53,11 @@ public class ReadModelRepository {
 		var merchantId = event.getArgument(2, String.class);
 		var amount = event.getArgument(3, BigDecimal.class);
 
-		var transactionUserView = new TransactionUserView(customerToken,merchantId,amount,transactionId);
 		var transactionManagerView = allPayments.getOrDefault(transactionId,new TransactionManagerView());
 		transactionManagerView.setTransactionId(transactionId);
 		transactionManagerView.setAmount(amount);
 		transactionManagerView.setCustomerToken(customerToken);
 		transactionManagerView.setMerchantId(merchantId);
-		var paymentsByMerchant = merchantPayments.getOrDefault(merchantId, new HashSet<TransactionUserView>());
-		paymentsByMerchant.add(transactionUserView);
-		merchantPayments.put(merchantId, paymentsByMerchant);
 		allPayments.put(transactionId,transactionManagerView);
 
 
@@ -61,21 +67,16 @@ public class ReadModelRepository {
 		var transactionId = event.getArgument(0, String.class);
 		var merchantInfo = event.getArgument(1, DTUPayUser.class);
 		var transactionManagerView = allPayments.getOrDefault(transactionId,new TransactionManagerView());
-
 		transactionManagerView.setMerchant(merchantInfo);
 		allPayments.put(transactionId,transactionManagerView);
-
-
 	}
 	public void handleTransactionCustomerInfoAdded (Event event) {
 		var transactionId = event.getArgument(0, String.class);
 		var customerInfo = event.getArgument(1, DTUPayUser.class);
 		var transactionManagerView = allPayments.getOrDefault(transactionId,new TransactionManagerView());
-
 		transactionManagerView.setCustomer(customerInfo);
+		transactionManagerView.setCustomerId(customerInfo.getUniqueId());
 		allPayments.put(transactionId,transactionManagerView);
-
-
 	}
 
 

@@ -6,17 +6,21 @@ sleep 10
 ./build.sh
 
 set +e
-docker-compose build .
 
 #detect docker version
 docker-compose version
 if [ $? != 0 ]; then
     echo "Executing docker compose up -d"
+    docker compose down
+
     docker compose build --no-cache
     docker compose up -d
 else
     echo "Executing docker-compose up -d"
+    docker-compose down
+
     docker-compose build  --no-cache
+
     docker-compose up -d
 fi
 

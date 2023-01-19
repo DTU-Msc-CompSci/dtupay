@@ -16,7 +16,7 @@ public class CoreService {
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
     private boolean deRegisteredCustomer;
 
-    private CompletableFuture<Token> requestedToken;
+    private CompletableFuture<TokenResponse> requestedToken;
     private CompletableFuture<String> requestedTransaction;
 
     public CoreService(MessageQueue q) {
@@ -27,6 +27,8 @@ public class CoreService {
         queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
+        queue.addHandler("TokenRequestFailed", this::handleTokenRequestFailed);
+
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
@@ -92,7 +94,7 @@ public class CoreService {
 
 
 
-    public Token getToken(TokenRequest t) {
+    public TokenResponse getToken(TokenRequest t) {
         requestedToken = new CompletableFuture<>();
         Event event = new Event("TokenRequested", new Object[] { t });
         queue.publish(event);
@@ -100,8 +102,14 @@ public class CoreService {
     }
 
     public void handleRequestedToken(Event e) {
-        var s = e.getArgument(0, Token.class);
+        TokenResponse s = e.getArgument(0, TokenResponse.class);
         requestedToken.complete(s);
+    }
+
+    public void handleTokenRequestFailed(Event ev) {
+        TokenResponse s = ev.getArgument(0, TokenResponse.class);
+        requestedToken.complete(s);
+
     }
 
     public Response requestTransaction(Transaction t) {
@@ -115,7 +123,9 @@ public class CoreService {
     }
 
     public void handleTransactionCompleted(Event e) {
-        var s = e.getArgument(0, String.class);
+        var id = e.getArgument(0, String.class);
+
+        var s = e.getArgument(1, String.class);
         requestedTransaction.complete(s);
         // TODO standardize the response
 

@@ -18,6 +18,7 @@ public class TransactionManagerView implements Serializable {
     private String customerToken;
     private BigDecimal amount;
     private String merchantId;
+    private String customerId;
 
     private DTUPayUser customer;
     private DTUPayUser merchant;
@@ -49,5 +50,9 @@ public class TransactionManagerView implements Serializable {
     public String toString() {
         // uniqueId could potentially be null
         return String.format("Transaction id: %s", transactionId);
+    }
+
+    public TransactionUserView toUserView() {
+        return new TransactionUserView(customerToken,merchantId,merchant,amount,transactionId);
     }
 }

@@ -74,16 +74,16 @@ public class ExampleSteps {
     public void beforeStep() {
         User cost = new User();
 
-        cost.setFirstName("Johneefrrfvfgbdfffvervvrdrfvb");
-        cost.setLastName("Rambeedfrrfrrfvergbfvvffvgfrvo");
-        cost.setCprNumber("12erddffvgbrfvferfvvrffgv3123");
+        cost.setFirstName("Johneefrfvrfvfgbdfffvervvrdrfvb");
+        cost.setLastName("Rambeedfrfvrfrrfvergbfvvffvgfrvo");
+        cost.setCprNumber("12erddfffvvgbrfvferfvvrffgv3123");
         customer = new DTUPayUser();
         customer.setPerson( new Person(cost.getFirstName(),cost.getLastName(),cost.getCprNumber()));
         customer.setUniqueId("uniquecustomerId");
         User mer = new User();
-        mer.setFirstName("Joedrdfefrfvfgbvrvfffvgrvhn");
-        mer.setLastName("Wicedfdfefvfvrgbrfvrffvgrvk");
-        mer.setCprNumber("32erddffeffvrgbfvrrfvfgv1321");
+        mer.setFirstName("Joedrdfeffvrfvfgbvrvfffvgrvhn");
+        mer.setLastName("Wicedfdfefvfvfvrgbrfvrffvgrvk");
+        mer.setCprNumber("32erddffeffvfvrgbfvrrfvfgv1321");
         merchant = new DTUPayUser();
         merchant.setPerson( new Person(mer.getFirstName(),mer.getLastName(),mer.getCprNumber()));
         merchant.setUniqueId("uniquemerchantId");
@@ -132,9 +132,8 @@ public class ExampleSteps {
     }
     @Then("money is only transferred once")
     public void money_is_only_transferred_once() throws BankServiceException_Exception {
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "completed" });
         verify(q,times(1)).publish(transactionCompletedEvent);
-        var aa = readmodel;
 
     }
 
