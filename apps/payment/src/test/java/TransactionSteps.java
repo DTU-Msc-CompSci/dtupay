@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
@@ -19,17 +18,15 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import org.acme.*;
 import org.acme.aggregate.*;
 import org.acme.repositories.PaymentRepository;
 import org.acme.repositories.ReadModelRepository;
 import org.acme.service.TransactionService;
 
-import java.util.*;
 import static org.mockito.Mockito.*;
 
 
-public class ExampleSteps {
+public class TransactionSteps {
     private MessageQueue q = mock(MessageQueue.class);
     //private AccountService service = mock ( AccountService.class , withSettings().useConstructor(q));
     private ReadModelRepository readmodel = new ReadModelRepository(q);
@@ -47,29 +44,6 @@ public class ExampleSteps {
     private int amount= 100;
 
 
-    @Given("A naive scenario")
-    public void naiveScenario() {
-
-        //tests for debugging need to be removed for final hand in
-//         MessageQueue q = mock(MessageQueue.class);
-//         //mo
-//         String customerBankID="customerBankid";
-//         String merchantBankID="merchantbankid";
-//
-//        PaymentRepository pr = new PaymentRepository(q);
-//        Payment payment = pr.getById(transactionID);
-//        payment.addCustomerBankID(transactionID, customerBankID);
-//        payment.addMerchantBankID(transactionID, merchantBankID);
-//        payment.create(transactionID, customerToken,merchantID,amount);
-//        pr.save(payment);
-//        var payment2 = pr.getById(transactionID);
-//        var paymentsdfw = payment2;
-
-
-
-
-
-    }
     @Before
     public void beforeStep() {
         User cost = new User();
@@ -150,11 +124,35 @@ public class ExampleSteps {
         // Write code here that turns the phrase above into concrete actions
     }
 
-    @Then("the repo constains customer information")
-    public void the_repo_constains_customer_information() {
+    @Then("the repo contains customer information")
+    public void the_repo_contains_customer_information() {
         // Write code here that turns the phrase above into concrete actions
         var a = readmodel.getAllPayments();
         var b = a;
 
     }
+
+    @When("invalid transaction data is sent to the service")
+    public void invalidTransactionDataIsSentToTheService() {
+        Token token =  new Token(customerToken);
+        var Transaction =  new Transaction();
+        Transaction.setAmount(2000);
+        Transaction.setCustomerToken(token);
+        Transaction.setMerchantId(merchantID);
+
+        var event1 = new Event( "TransactionRequested", new Object[] {transactionID, Transaction});
+
+        var event2  = new Event("MerchantInfoProvided", new Object[] {transactionID, merchant});
+        var event3  = new Event("CustomerInfoProvided",new Object[] {transactionID, customer});
+        service.handlePayment(event1);
+        service.handlePayment(event2);
+        service.handlePayment(event3);
+    }
+
+    @Then("a transactionFailed event is published")
+    public void aTransactionFailedEventIsPublished() {
+        Event transactionFailedEvent = new Event("TransactionFailed", new Object[] { transactionID, "Transaction failed" });
+        verify(q, times(1)).publish(transactionFailedEvent);
+    }
+
 }

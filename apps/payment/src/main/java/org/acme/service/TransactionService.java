@@ -120,17 +120,14 @@ public class TransactionService {
 
 
     public void initiateTransaction(String customer, String merchant, BigDecimal amount, String id)  {
-        // Right now bankId == DTUPayID but this should change when we add registration service
-        //TODO fetch the bank id from a registration service
-
-        // var customerBankAccountID = transaction.getCustomerId();
-       // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
             Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id,"completed" });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
-            // error event
+            // TODO: Handle this event in dtupay service
+            Event transactionFailedEvent = new Event("TransactionFailed", new Object[] { id, "Transaction failed" });
+            queue.publish(transactionFailedEvent);
         }
 
     }
@@ -141,7 +138,7 @@ public class TransactionService {
         Payment payment = repository.getById(id);
 
         if (payment.complete()){
-            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(),id);
+            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(), id);
 
         }
     }
