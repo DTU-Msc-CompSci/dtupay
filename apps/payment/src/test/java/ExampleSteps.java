@@ -20,9 +20,7 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 import org.acme.*;
-import org.acme.aggregate.Payment;
-import org.acme.aggregate.Token;
-import org.acme.aggregate.Transaction;
+import org.acme.aggregate.*;
 import org.acme.repositories.PaymentRepository;
 import org.acme.repositories.ReadModelRepository;
 import org.acme.service.TransactionService;
@@ -34,11 +32,12 @@ import static org.mockito.Mockito.*;
 public class ExampleSteps {
     private MessageQueue q = mock(MessageQueue.class);
     //private AccountService service = mock ( AccountService.class , withSettings().useConstructor(q));
-    private TransactionService service = new TransactionService(q, new PaymentRepository(q), new ReadModelRepository(q));
+    private ReadModelRepository readmodel = new ReadModelRepository(q);
+    private TransactionService service = new TransactionService(q, new PaymentRepository(q),readmodel );
 
     private BankService bankService =  new BankServiceService().getBankServicePort();
-    private String customerBankAccountId;
-    private String merchantBankAccountId;
+    private DTUPayUser customer;
+    private DTUPayUser merchant;
     private String transactionID ="transactionid";
     private String customerToken ="customertoken";
     private String merchantID="merchantid";
@@ -74,17 +73,24 @@ public class ExampleSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Johneefrrfdfffvervvrdrfvb");
-        cost.setLastName("Rambeedfrrfrrerfvvffvgfrvo");
-        cost.setCprNumber("12erddffvrferfvvrffgv3123");
 
+        cost.setFirstName("Johneefrfvrfvfgbdfffvervvrdrfvb");
+        cost.setLastName("Rambeedfrfvrfrrfvergbfvvffvgfrvo");
+        cost.setCprNumber("12erddfffvvgbrfvferfvvrffgv3123");
+        customer = new DTUPayUser();
+        customer.setPerson( new Person(cost.getFirstName(),cost.getLastName(),cost.getCprNumber()));
+        customer.setUniqueId("uniquecustomerId");
         User mer = new User();
-        mer.setFirstName("Joedrdfefrfvrvfffvgrvhn");
-        mer.setLastName("Wicedfdfefvrrfvrffvgrvk");
-        mer.setCprNumber("32erddffefrfvrrfvfgv1321");
+        mer.setFirstName("Joedrdfeffvrfvfgbvrvfffvgrvhn");
+        mer.setLastName("Wicedfdfefvfvfvrgbrfvrffvgrvk");
+        mer.setCprNumber("32erddffeffvfvrgbfvrrfvfgv1321");
+        merchant = new DTUPayUser();
+        merchant.setPerson( new Person(mer.getFirstName(),mer.getLastName(),mer.getCprNumber()));
+        merchant.setUniqueId("uniquemerchantId");
         try {
-            customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(1000));
-            merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(1000));
+            customer.setBankId(new BankId(bankService.createAccountWithBalance(cost, BigDecimal.valueOf(1000))));
+            merchant.setBankId(new BankId(bankService.createAccountWithBalance(mer, BigDecimal.valueOf(1000))));
+
         } catch (BankServiceException_Exception e) {
             throw new RuntimeException(e);
         }
@@ -92,8 +98,8 @@ public class ExampleSteps {
     @After
     public void afterStep() {
         try {
-            bankService.retireAccount(customerBankAccountId);
-            bankService.retireAccount(merchantBankAccountId);
+            bankService.retireAccount(customer.getBankId().getBankAccountId());
+            bankService.retireAccount(merchant.getBankId().getBankAccountId());
         } catch (BankServiceException_Exception e) {
         }
     }
@@ -109,8 +115,8 @@ public class ExampleSteps {
 
         var event1 = new Event( "TransactionRequested", new Object[] {transactionID, Transaction});
 
-        var event2  = new Event("MerchantInfoProvided", new Object[] {transactionID, merchantBankAccountId});
-        var event3  = new Event("CustomerInfoProvided",new Object[] {transactionID, customerBankAccountId});
+        var event2  = new Event("MerchantInfoProvided", new Object[] {transactionID, merchant});
+        var event3  = new Event("CustomerInfoProvided",new Object[] {transactionID, customer});
         new Thread(() -> { service.handlePayment(event1); done1.complete(true); }).start();
         new Thread(() -> { service.handlePayment(event2); done2.complete(true);}).start();
 
@@ -123,12 +129,32 @@ public class ExampleSteps {
     @When("transaction is initiated")
     public void transaction_is_initiated() {
         // Write code here that turns the phrase above into concrete actions
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
     }
     @Then("money is only transferred once")
     public void money_is_only_transferred_once() throws BankServiceException_Exception {
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "completed" });
         verify(q,times(1)).publish(transactionCompletedEvent);
+
+    }
+
+    @Given("{string} Event")
+    public void event(String string) {
+        // Write code here that turns the phrase above into concrete actions
+        Event transactionCustomerInfoEvent = new Event(string, new Object[] { transactionID, customer });
+        readmodel.handleTransactionCustomerInfoAdded(transactionCustomerInfoEvent);
+
+    }
+
+    @When("info is added to the view")
+    public void info_is_added_to_the_view() {
+        // Write code here that turns the phrase above into concrete actions
+    }
+
+    @Then("the repo constains customer information")
+    public void the_repo_constains_customer_information() {
+        // Write code here that turns the phrase above into concrete actions
+        var a = readmodel.getAllPayments();
+        var b = a;
 
     }
 }

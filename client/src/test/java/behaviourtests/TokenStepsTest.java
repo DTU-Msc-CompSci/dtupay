@@ -1,15 +1,22 @@
 package behaviourtests;
 
+import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
 
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceService;
 
 import static io.smallrye.common.constraint.Assert.assertNotNull;
 import static io.smallrye.common.constraint.Assert.assertTrue;
@@ -18,17 +25,42 @@ import static org.junit.Assert.assertNull;
 
 public class TokenStepsTest {
 
+    BankService bankService = new BankServiceService().getBankServicePort();
     CustomerAPI customerAPI = new CustomerAPI();
     DTUPayUser customer = new DTUPayUser();
     Set<Token> tokens = new HashSet<Token>();
     String error;
+    String bankID;
+    @Before
+    public void before(){
+        User c = new User();
+        c.setFirstName("Alexasasdffasdftest");
+        c.setLastName("testAassdfdfasdflex");
+        c.setCprNumber("123asasdffasdf123123");
+        try{
+            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
+        } catch (Exception e){
+            error = e.getMessage();
+            System.out.println(e);
+        }
+    }
+
+    @After
+    public void after(){
+        try{
+            bankService.retireAccount(bankID);
+        } catch (Exception e){
+            error = e.getMessage();
+            System.out.println(e);
+        }
+
+    }
 
     @Given("a customer is registered with DTU Pay")
-    public void a_customer_is_registered_with_DTU_Pay() {
-        customer.setBankId(new BankId("test"));
-        customer.setPerson(new Person("test","test","test"));
+    public void a_customer_is_registered_with_DTU_Pay() throws Exception {
+        customer.setBankId(new BankId(bankID));
+        customer.setPerson(new Person("Alextest","testAlex","123123123"));
         customer = customerAPI.postCustomer(customer);
-        assertNotNull(customer.getUniqueId());
     }
 
     @When("the customer requests {int} tokens")

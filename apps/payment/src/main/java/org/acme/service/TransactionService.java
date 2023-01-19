@@ -5,6 +5,7 @@ import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.acme.aggregate.DTUPayUser;
 import org.acme.aggregate.Payment;
 import org.acme.aggregate.Transaction;
 import org.acme.repositories.PaymentRepository;
@@ -40,15 +41,44 @@ public class TransactionService {
         this.queue = q;
         this.queue.addHandler("TransactionRequested", this::handlePayment);
         this.queue.addHandler("MerchantInfoProvided", this::handlePayment);
+        this.queue.addHandler("ManagerReportRequested", this::handleManagerReportRequested);
+        this.queue.addHandler("CustomerReportRequested", this::handleCustomerReportRequested);
+        this.queue.addHandler("MerchantReportRequested", this::handleMerchantReportRequested);
         this.queue.addHandler("CustomerInfoProvided", this::handlePayment);
         this.readRepository = readRepository;
         this.repository = repository;
 
 
     }
+    private void handleManagerReportRequested(Event event) {
+        var id = event.getArgument(0, String.class);
+        var resp = readRepository.getAllPayments();
+        Event event2 = new Event("ManagerReportCreated", new Object[]{ id, resp});
+        queue.publish(event2);
+
+    }
+    private void handleCustomerReportRequested(Event event) {
+
+        var id = event.getArgument(0, String.class);
+        var customerId = event.getArgument(1, String.class);
+
+        var resp = readRepository.getCustomerPayment(customerId);
+        Event event2 = new Event("CustomerReportCreated", new Object[]{ id, resp});
+        queue.publish(event2);
+
+    }
+
+    private void handleMerchantReportRequested(Event event) {
+        var id = event.getArgument(0, String.class);
+        var merchantId = event.getArgument(1, String.class);
+        var resp = readRepository.getMerchantPayment(merchantId);
+        Event event2 = new Event("MerchantReportCreated", new Object[]{ id, resp});
+        queue.publish(event2);
+
+    }
 
 
-        // Generate random number to tie event to the request
+    // Generate random number to tie event to the request
         public void handlePayment(Event ev) {
             var id = ev.getArgument(0, String.class);
 
@@ -59,9 +89,9 @@ public class TransactionService {
         Payment payment = repository.getById(id);
         switch (ev.getType()){
             case "CustomerInfoProvided":
-                var customerBankID = ev.getArgument(1, String.class);
+                var customerInfo = ev.getArgument(1, DTUPayUser.class);
 
-                payment.addCustomerBankID(id,customerBankID);
+                payment.addCustomerInfo(id,customerInfo);
                 repository.save(payment);
 
                 break;
@@ -72,9 +102,9 @@ public class TransactionService {
 
                 break;
             case "MerchantInfoProvided":
-                var merchantBankID = ev.getArgument(1, String.class);
+                var merchantInfo = ev.getArgument(1, DTUPayUser.class);
 
-                payment.addMerchantBankID(id,merchantBankID);
+                payment.addMerchantInfo(id,merchantInfo);
                 repository.save(payment);
                 break;
         }
@@ -89,7 +119,7 @@ public class TransactionService {
     }
 
 
-    public void initiateTransaction(String customer, String merchant, BigDecimal amount)  {
+    public void initiateTransaction(String customer, String merchant, BigDecimal amount, String id)  {
         // Right now bankId == DTUPayID but this should change when we add registration service
         //TODO fetch the bank id from a registration service
 
@@ -97,7 +127,7 @@ public class TransactionService {
        // var merchantBankAccountID = transaction.getMerchantId();
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { "completed" });
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id,"completed" });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
             // error event
@@ -111,7 +141,7 @@ public class TransactionService {
         Payment payment = repository.getById(id);
 
         if (payment.complete()){
-            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount());
+            initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(),id);
 
         }
     }

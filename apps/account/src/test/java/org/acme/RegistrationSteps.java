@@ -48,14 +48,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedrfvvohn");
-        cost.setLastName("Ramddfvfvbo");
-        cost.setCprNumber("12ddfvf3123");
+        cost.setFirstName("Jrfedrsdfvvohn");
+        cost.setLastName("Ramddsdfvfvbo");
+        cost.setCprNumber("12ddfsdvf3123");
 
         User mer = new User();
-        mer.setFirstName("Joddfvfvhn");
-        mer.setLastName("Widfdfvvck");
-        mer.setCprNumber("321dfv3dfv21");
+        mer.setFirstName("Joddfvsdfvhn");
+        mer.setLastName("Widfdsdfvvck");
+        mer.setCprNumber("321dfsdv3dfv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -150,9 +150,9 @@ public class RegistrationSteps {
         // TODO: FIXME - This is known to not pass based on discussions with the team and the need to break into new events
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationCompleted");
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountDeRegistrationCompleted");
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
         }
         verify(mockQueue).publish(event);
     }
@@ -235,10 +235,10 @@ public class RegistrationSteps {
     public void aMerchantInfoProvidedEventIsPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerInfoProvided", new Object[]{ corId, customer.getBankId().getBankAccountId()});
+            event = new Event("CustomerInfoProvided", new Object[]{ corId, customer});
         }
         else if(userType.equals("Merchant")) {
-            event = new Event("MerchantInfoProvided", new Object[]{ corId, merchant.getBankId().getBankAccountId()});
+            event = new Event("MerchantInfoProvided", new Object[]{ corId, merchant});
         }
         verify(mockQueue).publish(event);
     }

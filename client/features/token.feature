@@ -5,9 +5,9 @@ Feature: Token
     Then the customer receives 4 tokens
 
   Scenario: User requests more than 5 tokens
-     Given a customer is registered with DTU Pay
-     When the customer requests 7 tokens
-     Then the token request fails and throws an exception "More than 5 tokens requested"
+    Given a customer is registered with DTU Pay
+    When the customer requests 7 tokens
+    Then the token request fails and throws an exception "More than 5 tokens requested"
 
   Scenario: User requests tokens when they have more than 1
     Given a customer is registered with DTU Pay

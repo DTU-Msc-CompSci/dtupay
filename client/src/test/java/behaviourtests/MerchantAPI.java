@@ -18,6 +18,17 @@ public class MerchantAPI {
 
     }
 
+    public Response deregisterMerchant(DTUPayUser user){
+        Response response = baseUrl.path("merchant/deregister")
+                .request()
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            return response;
+        } else {
+            return null;
+        }
+    }
+
     public DTUPayUser postMerchant(DTUPayUser user) throws Exception {
         Response response = baseUrl.path("merchant")
                 .request()

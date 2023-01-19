@@ -1,17 +1,13 @@
-package org.acme;
+package org.acme.aggregate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
+//TODO This xml thing
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TokenResponse {
-
-    private Set<Token> tokens;
-    private String message;
-
+public class BankId {
+    String bankAccountId;
 }

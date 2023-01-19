@@ -8,8 +8,6 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class CustomerAPI {
@@ -19,6 +17,18 @@ public class CustomerAPI {
     public CustomerAPI() {
         Client client = ClientBuilder.newClient();
         this.baseUrl = client.target("http://localhost:8091/");
+    }
+
+    // deregister customer with given id
+    public Response deregisterCustomer(DTUPayUser user){
+        Response response = baseUrl.path("customer/deregister")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            return response;
+        } else {
+            return null;
+        }
     }
 
     public DTUPayUser postCustomer(DTUPayUser user) throws Exception {

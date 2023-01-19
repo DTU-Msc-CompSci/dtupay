@@ -16,9 +16,17 @@ public class TokenService {
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
         this.queue.addHandler("TransactionRequested", this::handleTransactionRequested);
         this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
-        // TODO: Implement this
-//        this.queue.addHandler("InvalidateTokenRequested", this::handleInvalidateTokenRequested);
         this.queue.addHandler("TokenUserRequested", this::handleTokenUserAdd);
+    }
+    public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
+        removeAllTokenFromCustomer(ev.getArgument(0, String.class));
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
+        queue.publish(event);
+    }
+
+    public void handleTokenUserAdd(Event ev) {
+        var s = ev.getArgument(0,String.class);
+        assignedTokens.put(s,new HashSet<Token>());
     }
 
     public void handleTokenRequested(Event ev) {
@@ -36,34 +44,18 @@ public class TokenService {
             response.setMessage("More than 5 tokens requested");
         } else if(assignedTokens.get(s.getCid()).size() + s.getAmount() > 6) {
             response.setMessage("Not enough tokens available");
-        }
-
-
-        if (response.getMessage() != null) {
-            System.out.println("TESTING!!!!!!!!!!!!!!!");
-            queue.publish(new Event("TokenRequestFulfilled", new Object[] { correlationId, response }));
-
         } else {
             response.setMessage("success");
             response.setTokens(generateTokens(s));
-            System.out.println("TESTING!!!!!!!!!!!!!!!");
-            System.out.println(response.getMessage());
-            System.out.println(response.getTokens());
-            queue.publish(new Event("TokenRequestFulfilled", new Object[] { correlationId, response }));
-            System.out.println("HERE");
-        }
-    }
 
-    public void handleTokenUserAdd(Event ev) {
-        var correlationId = ev.getArgument(0, String.class);
-        var s = ev.getArgument(1,String.class);
-        assignedTokens.put(s,new HashSet<Token>());
-        // TODO: This needs a "TokensAddedToUser" event
-    }
-    public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
-        var correlationId = ev.getArgument(0, String.class);
-        removeAllTokenFromCustomer(ev.getArgument(1, String.class));
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {correlationId, true});
+        }
+
+        if (response.getMessage() != null) {
+            event = new Event("TokenRequestFailed", new Object[] { response });
+        } else {
+            event = new Event("TokenRequestFulfilled", new Object[] { response });
+        }
+
         queue.publish(event);
     }
 
@@ -71,7 +63,6 @@ public class TokenService {
         var correlationId = ev.getArgument(0, String.class);
         var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
-        System.out.println(token.getToken());
         tokenToId.remove(token.getToken(),customerId);
         assignedTokens.remove(customerId,token);
         usedTokenPool.add(token.getToken());
@@ -81,13 +72,8 @@ public class TokenService {
     }
 
     public void removeAllTokenFromCustomer(String customerId) {
-        for (Map.Entry<String, Token> entry : assignedTokens.entrySet()) {
-            if (entry.getKey().equals(customerId)) {
-                assignedTokens.remove(entry.getKey());
-                tokenToId.remove(entry.getValue().getToken());
-                usedTokenPool.add(entry.getValue().getToken());
-            }
-        }
+        assignedTokens.remove(customerId);
+        while (tokenToId.values().remove(customerId));
     }
 
     public Set<Token> generateTokens(TokenRequest tokenRequest) {

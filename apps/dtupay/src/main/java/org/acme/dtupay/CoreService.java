@@ -39,6 +39,8 @@ public class CoreService {
 //        queue.addHandler("MerchantAccountCreationFailed", this::handleMerchantRegistration);
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
+        queue.addHandler("TokenRequestFailed", this::handleTokenRequestFailed);
+
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
@@ -56,25 +58,19 @@ public class CoreService {
         return pendingCustomers;
     }
 
-    
-    public String deRegisterCustomer(DTUPayUser user) {
-        var correlationId = generateCorrelationId();
+    public Boolean deRegisterCustomer(DTUPayUser user) {
         deRegisteredCustomerCompleted = new CompletableFuture<>();
         Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
         queue.publish(event);
-        pendingDeregisterCustomers.put(correlationId, deRegisteredCustomerCompleted);
-        deRegisteredCustomerCompleted.join();
-        return "De-registration request sent";
+        return deRegisteredCustomerCompleted.join();
+        //return "De-registration request sent";
     }
 
-    public String deRegisterMerchant(DTUPayUser user) {
-        var correlationId = generateCorrelationId();
+    public Boolean deRegisterMerchant(DTUPayUser user) {
         deRegisteredMerchantCompleted = new CompletableFuture<>();
         Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
         queue.publish(event);
-        pendingDeregisterMerchants.put(correlationId, deRegisteredMerchantCompleted);
-        deRegisteredMerchantCompleted.join();
-        return "De-registration request sent";
+        return deRegisteredMerchantCompleted.join();
     }
 
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
@@ -115,14 +111,16 @@ public class CoreService {
 //        deRegisteredMerchantCompleted.complete(s);
     }
 
-    public void handleCustomerDeRegistrationCompleted(Event e) {
-        var correlationId = e.getArgument(0, String.class);
+    public void handleCustomerDeRegistrationCompleted(Event event) {
+        deRegisteredCustomer = event.getArgument(0, Boolean.class);
+        deRegisteredCustomerCompleted.complete(true);
+        var correlationId = event.getArgument(0, String.class);
         var s = e.getArgument(1, Boolean.class);
         // TODO: Implement the part of the Message object
         pendingDeregisterCustomers.get(correlationId).complete(s);
         pendingDeregisterCustomers.remove(correlationId);
+        //TODO: check if tokenRemoved is true
     }
-
 
 
     public TokenResponse getToken(TokenRequest t) {
@@ -134,10 +132,13 @@ public class CoreService {
 
     public void handleRequestedToken(Event e) {
         TokenResponse s = e.getArgument(0, TokenResponse.class);
-        System.out.println("TESTING!!!!");
-        System.out.println(s.getMessage());
-        System.out.println(s.getTokens());
         requestedToken.complete(s);
+    }
+
+    public void handleTokenRequestFailed(Event ev) {
+        TokenResponse s = ev.getArgument(0, TokenResponse.class);
+        requestedToken.complete(s);
+
     }
 
     public Response requestTransaction(Transaction t) {
@@ -151,7 +152,9 @@ public class CoreService {
     }
 
     public void handleTransactionCompleted(Event e) {
-        var s = e.getArgument(0, String.class);
+        var id = e.getArgument(0, String.class);
+
+        var s = e.getArgument(1, String.class);
         requestedTransaction.complete(s);
         // TODO standardize the response
     }
