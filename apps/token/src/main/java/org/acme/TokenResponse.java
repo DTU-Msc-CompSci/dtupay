@@ -20,8 +20,8 @@ public class TokenResponse {
             return false;
         }
         var c = (TokenResponse) o;
-        return tokens != null && tokens.equals(c.getTokens()) &&
-                message != null && message.equals(c.getMessage());
+        return ((tokens == null && c.getTokens() == null) || tokens.equals(c.getTokens())) &&
+                ((message == null && c.getMessage() == null) || message.equals(c.getMessage()));
     }
 
 }
