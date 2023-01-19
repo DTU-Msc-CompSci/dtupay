@@ -30,7 +30,7 @@ public class TokenSteps {
 
     @And("the id is in the token map")
     public void theIdIsInTheTokenMap() {
-        Event event = new Event("TokenUserRequested", new Object[]{ customerID });
+        Event event = new Event("TokenUserRequested", new Object[]{ correlationID, customerID });
         service.handleTokenUserAdd(event);
         assertTrue(service.getAssignedTokens().keySet().contains(customerID));
     }
@@ -70,7 +70,7 @@ public class TokenSteps {
     public void aTokenRequestFailedEventIsPublishedSaying(String message) {
         TokenResponse response = new TokenResponse();
         response.setMessage(message);
-        Event event = new Event("TokenRequestFailed",new Object[] { response });
+        Event event = new Event("TokenRequestFailed",new Object[] { correlationID, response });
         verify(q).publish(event);
     }
 
@@ -81,7 +81,7 @@ public class TokenSteps {
 
     @When("the service receives a TokenUserRequested event")
     public void theServiceReceivesATokenUserRequestedEvent() {
-        Event event = new Event("TokenUserRequested",new Object[]{ customerID });
+        Event event = new Event("TokenUserRequested",new Object[]{ correlationID, customerID });
         assertNotNull(event);
         service.handleTokenUserAdd(event);
     }
@@ -93,14 +93,14 @@ public class TokenSteps {
 
     @When("the service receives a CustomerAccountDeRegistrationRequested event")
     public void theServiceReceivesACustomerAccountDeRegistrationRequestedEvent() {
-        Event event = new Event("CustomerAccountDeRegistrationRequested",new Object[]{ customerID });
+        Event event = new Event("CustomerAccountDeRegistrationRequested",new Object[]{ correlationID, customerID });
         assertNotNull(event);
         service.handleRemoveAllTokenFromDeRegisteredCustomer(event);
     }
 
     @Then("a AllTokenRemovedFromDeRegisteredCustomer event is published")
     public void aAllTokenRemovedFromDeRegisteredCustomerEventIsPublished() {
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer",new Object[] { true });
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer",new Object[] { correlationID, true });
         verify(q).publish(event);
     }
 

@@ -38,7 +38,7 @@ public class TokenService {
 
     public void handleTokenUserAdd(Event ev) {
         // TODO: I think this is the only event we don't care about Correlation Id
-        var s = ev.getArgument(0,String.class);
+        var s = ev.getArgument(1, String.class);
         assignedTokens.put(s,new HashSet<Token>());
     }
 
@@ -64,10 +64,11 @@ public class TokenService {
         }
 
         // TODO: Check to make sure this is correct
-        if (response.getMessage() == null) {
-            event = new Event("TokenRequestFailed", new Object[] { correlationId, response });
+//        if (response.getMessage() == null) {
+//            event = new Event("TokenRequestFailed", new Object[]{correlationId, response});
+//        }
         if (error) {
-            event = new Event("TokenRequestFailed", new Object[] { response });
+            event = new Event("TokenRequestFailed", new Object[] {correlationId, response });
         } else {
             event = new Event("TokenRequestFulfilled", new Object[] { correlationId, response });
         }

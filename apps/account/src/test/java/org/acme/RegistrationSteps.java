@@ -46,14 +46,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Example");
-        cost.setLastName("Example");
-        cost.setCprNumber("ExampleCPR");
+        cost.setFirstName("Example3");
+        cost.setLastName("Example3");
+        cost.setCprNumber("Example3CPR");
 
         User mer = new User();
-        mer.setFirstName("Example2");
-        mer.setLastName("Example2");
-        mer.setCprNumber("Example2CPR");
+        mer.setFirstName("Example4");
+        mer.setLastName("Example4");
+        mer.setCprNumber("Example4CPR");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -106,9 +106,9 @@ public class RegistrationSteps {
     @Then("a {word}AccountCreated event is published")
     public void aUserAccountCreatedPublished(String userType) {
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreated", new Object[]{correlationId, customer});
+            event = new Event("CustomerAccountCreated", new Object[]{correlationId, new AccountResponse(customer, "Success")});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreated", new Object[]{correlationId, merchant});
+            event = new Event("MerchantAccountCreated", new Object[]{correlationId, new AccountResponse(merchant, "Success")});
         }
         verify(mockQueue).publish(event);
     }
@@ -159,9 +159,9 @@ public class RegistrationSteps {
     public void aUserAccountCreationFailedEventPublished(String userType, String errorMsg) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreationFailed", new Object[]{correlationId, new AccountResponse(null, errorMsg) });
+            event = new Event("CustomerAccountCreationFailed", new Object[]{correlationId, new AccountResponse(customer, errorMsg) });
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreationFailed", new Object[]{correlationId, new AccountResponse(null, errorMsg) });
+            event = new Event("MerchantAccountCreationFailed", new Object[]{correlationId, new AccountResponse(merchant, errorMsg) });
         }
         verify(mockQueue).publish(event);
     }
