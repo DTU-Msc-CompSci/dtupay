@@ -21,12 +21,7 @@ public class TransactionService {
     MessageQueue queue;
 
 //    List<Transaction> transactions = new ArrayList<>();
-    private BankService bankService =  new BankServiceService().getBankServicePort();
-
-    String customerBankId;
-    String merchantBankId;
-
-    BigDecimal amount;
+    private BankService bankService;
 
     public String generateUniqueId() {
         return UUID.randomUUID().toString();
@@ -37,7 +32,7 @@ public class TransactionService {
 
 
 
-    public TransactionService(MessageQueue q, PaymentRepository repository, ReadModelRepository readRepository) {
+    public TransactionService(MessageQueue q, BankService b, PaymentRepository repository, ReadModelRepository readRepository) {
         this.queue = q;
         this.queue.addHandler("TransactionRequested", this::handlePayment);
         this.queue.addHandler("MerchantInfoProvided", this::handlePayment);
@@ -45,19 +40,20 @@ public class TransactionService {
         this.queue.addHandler("CustomerReportRequested", this::handleCustomerReportRequested);
         this.queue.addHandler("MerchantReportRequested", this::handleMerchantReportRequested);
         this.queue.addHandler("CustomerInfoProvided", this::handlePayment);
+        this.bankService = b;
         this.readRepository = readRepository;
         this.repository = repository;
 
 
     }
-    private void handleManagerReportRequested(Event event) {
+    public void handleManagerReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
         var resp = readRepository.getAllPayments();
         Event event2 = new Event("ManagerReportCreated", new Object[]{ id, resp});
         queue.publish(event2);
 
     }
-    private void handleCustomerReportRequested(Event event) {
+    public void handleCustomerReportRequested(Event event) {
 
         var id = event.getArgument(0, String.class);
         var customerId = event.getArgument(1, String.class);
@@ -68,7 +64,7 @@ public class TransactionService {
 
     }
 
-    private void handleMerchantReportRequested(Event event) {
+    public void handleMerchantReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
         var merchantId = event.getArgument(1, String.class);
         var resp = readRepository.getMerchantPayment(merchantId);
