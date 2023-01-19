@@ -43,14 +43,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedrsdfvvohn");
-        cost.setLastName("Ramddsdfvfvbo");
-        cost.setCprNumber("12ddfsdvf3123");
+        cost.setFirstName("Jrfedrserefyudfvvohn");
+        cost.setLastName("Ramddsdefyfufvfvbo");
+        cost.setCprNumber("12ddfeeyufsdvf3123");
 
         User mer = new User();
-        mer.setFirstName("Joddfvsdfvhn");
-        mer.setLastName("Widfdsdfvvck");
-        mer.setCprNumber("321dfsdv3dfv21");
+        mer.setFirstName("Joddfevsyydffvhn");
+        mer.setLastName("Widfdsedeyffvvck");
+        mer.setCprNumber("321dfersefuydv3dfv21");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
