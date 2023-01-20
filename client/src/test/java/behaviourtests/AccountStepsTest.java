@@ -40,7 +40,7 @@ public class AccountStepsTest {
     @Before
     public void init() throws BankServiceException_Exception {
         customer.setFirstName("Ddebra");
-        customer.setLastName("Prdoto");
+        customer.setLastName("Prdotdo");
         customer.setCprNumber("30d1149-1692");
 
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
