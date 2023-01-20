@@ -30,9 +30,9 @@ public class TokenStepsTest {
     @Before
     public void before() {
         User c = new User();
-        c.setFirstName("Suzfanne");
-        c.setLastName("Castfro");
-        c.setCprNumber("14083f9-2779");
+        c.setFirstName("Sudzfanne");
+        c.setLastName("Casdtfro");
+        c.setCprNumber("140d83f9-2779");
         try {
             bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
         } catch (Exception e) {
