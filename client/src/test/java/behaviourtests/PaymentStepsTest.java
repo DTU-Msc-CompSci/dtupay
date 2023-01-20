@@ -17,6 +17,7 @@ import java.util.Set;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PaymentStepsTest {
@@ -91,13 +92,11 @@ public class PaymentStepsTest {
 
     @When("the merchant initiates a payment for {int} kr with the customer token")
     public void the_merchant_requests_a_transaction_with_the_customer_token(int amount) {
-        // Write code here that turns the phrase above into concrete actions
         Transaction transaction = new Transaction(token, registeredMerchant.getUniqueId(), amount, "test");
         try {
             success = merchantAPI.postTransaction(transaction);
 
         } catch (Exception e) {
-            //System.out.println(e.getMessage());
             success = false;
             error = e.getMessage();
         }
