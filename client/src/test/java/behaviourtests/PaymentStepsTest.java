@@ -45,13 +45,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() {
-        customer.setFirstName("Jes2dr23frsdffdff34vdffe2rfdfvdf1ffsdfdfffrey");
-        customer.setLastName("Tedd23fffrffsd2f34dfvrffdfvderfffs1dffdddsdt");
-        customer.setCprNumber("Je32ddf2dsfdf34ffrdfvfrefdfvrfff1dsdfffdrasdeyTest");
+        customer.setFirstName("Jes2dr23frsdffdff34vdffe2rfdfv5df1ffsdfdfffrey");
+        customer.setLastName("Tedd23fffrffsd2f34dfvrffdfvder5fffs1dffdddsdt");
+        customer.setCprNumber("Je32ddf2dsfdf34ff5rdfvfrefdfvrfff1dsdfffdrasdeyTest");
 
-        merchant.setFirstName("Ela222dfsfd34fsdfderffvd1fvrfrffddfddsffdsdlen");
-        merchant.setLastName("Tesa23223f34drfsdfrdferf1dfvvdfffdfddfdfsdffdsdst");
-        merchant.setCprNumber("El22fsdf34ffrfderf2fvfv1dfrfdffsfdfddsdsenTest");
+        merchant.setFirstName("Ela222dfsfd345fsdfderffvd1fvrfrffddfddsffdsdlen");
+        merchant.setLastName("Tesa23223f354drfsdfrdferf1dfvvdfffdfddfdfsdffdsdst");
+        merchant.setCprNumber("El22fsdf354ffrfderf2fvfv1dfrfdffsfdfddsdsenTest");
     }
 
     @After
