@@ -17,7 +17,7 @@ public class ManagerAPI {
 
     public ManagerAPI() {
         Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8091/");
+        this.baseUrl = client.target("http://localhost:8080/");
     }
 
     // deregister customer with given id
