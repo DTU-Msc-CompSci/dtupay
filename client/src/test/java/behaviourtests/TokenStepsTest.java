@@ -28,38 +28,38 @@ public class TokenStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
     CustomerAPI customerAPI = new CustomerAPI();
     DTUPayUser customer = new DTUPayUser();
-    Set<Token> tokens = new HashSet<Token>();
+    Set<Token> tokens; 
     String error;
     String bankID;
-//    @Before
-//    public void before(){
-//        User c = new User();
-//        c.setFirstName("Alexasagsdffassdftest");
-//        c.setLastName("testAassdesdfasdflex");
-//        c.setCprNumber("123asasdfesfasdf123123");
-//        try{
-//            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
-//        } catch (Exception e){
-//            error = e.getMessage();
-//            System.out.println(e);
-//        }
-//    }
-//
-//    @After
-//    public void after(){
-//        try{
-//            bankService.retireAccount(bankID);
-//        } catch (Exception e){
-//            error = e.getMessage();
-//            System.out.println(e);
-//        }
-//
-//    }
+   @Before
+   public void before(){
+       User c = new User();
+       c.setFirstName("Alextest");
+       c.setLastName("testAlex");
+       c.setCprNumber("someRandomStuff");
+       try{
+           bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
+       } catch (Exception e){
+           error = e.getMessage();
+           System.out.println(e);
+       }
+   }
+
+   @After
+   public void after(){
+       try{
+           bankService.retireAccount(bankID);
+       } catch (Exception e){
+           error = e.getMessage();
+           System.out.println(e);
+       }
+
+   }
 
     @Given("a customer is registered with DTU Pay")
     public void a_customer_is_registered_with_DTU_Pay() throws Exception {
         customer.setBankId(new BankId(bankID));
-        customer.setPerson(new Person("Alextest","testAlex","123123123"));
+        customer.setPerson(new Person("Alextest","testAlex","someRandomStuff"));
         customer = customerAPI.postCustomer(customer);
     }
 

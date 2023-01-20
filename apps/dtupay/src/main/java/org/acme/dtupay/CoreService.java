@@ -37,7 +37,6 @@ public class CoreService {
 
     long timeoutValue = 10;
     TimeUnit timeoutUnit = TimeUnit.SECONDS;
-
     public CoreService(MessageQueue q) {
         queue = q;
         queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
@@ -49,6 +48,8 @@ public class CoreService {
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
+        queue.addHandler("CustomerAccountDeRegistrationFailed", this::handleCustomerDeRegistrationCompleted);
+        queue.addHandler("MerchantAccountDeRegistrationFailed", this::handleMerchantDeRegistrationCompleted);
         queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
     }
 
@@ -138,14 +139,14 @@ public class CoreService {
     }
 
 
-    public TokenResponse getToken(TokenRequest t) {
+    public TokenResponse getToken(TokenRequest t) throws Exception {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
         requestedToken.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TokenRequested", new Object[] { correlationId, t });
         queue.publish(event);
         pendingTokenRequests.put(correlationId, requestedToken);
-        return requestedToken.join();
+        return requestedToken.get();
     }
 
     public void handleRequestedToken(Event e) {

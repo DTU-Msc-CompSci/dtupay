@@ -44,11 +44,18 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
     public Response postToken(TokenRequest tokenRequest) {
-        TokenResponse response = service.getToken(tokenRequest);
-        if (!response.getMessage().equals("success")) {
-            return Response.status(400).entity(response.getMessage()).build();
+        try{
+            TokenResponse response = service.getToken(tokenRequest);
+            if (!response.getMessage().equals("success")) {
+                return Response.status(400).entity(response.getMessage()).build();
+            }
+            return Response.status(201).entity(response.getTokens()).build();
         }
-        return Response.status(201).entity(response.getTokens()).build();
+        catch(Exception e){
+            System.out.println("CompletableFuture timeouted.");
+            System.out.println(e.getMessage());
+            return Response.status(500).entity(e.getMessage()).build();
+        }
     }
 
 

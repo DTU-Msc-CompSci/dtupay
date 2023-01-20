@@ -25,10 +25,8 @@ public class CustomerAPI {
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(user, MediaType.APPLICATION_JSON));
         if (response.getStatus() == 200 || response.getStatus() == 201) {
-            System.out.println("Normal");
             return response;
         } else {
-            System.out.println("EXCEPTIOOOOOOOOON");
             throw new Exception(response.readEntity(String.class));
         }
     }
@@ -39,7 +37,7 @@ public class CustomerAPI {
                 .request()
                 .post(Entity.entity(user,MediaType.APPLICATION_JSON));
 
-        if (response.getStatus() == 201) {
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
             return response.readEntity(DTUPayUser.class);
         } else {
             throw new Exception(response.readEntity(String.class));
@@ -48,11 +46,12 @@ public class CustomerAPI {
 
     public Set<Token> requestToken(String cid, int amount) throws Exception { //Customer requests token
         TokenRequest tokenRequest = new TokenRequest(cid, amount);
+        System.out.println(tokenRequest);
         Response response = baseUrl.path("customer/token")
                 .request()
                 .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
         System.out.println(response.getStatus());
-        if (response.getStatus() == 201) {
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
             return response.readEntity(new GenericType<>() {});
         } else {
             throw new Exception(response.readEntity(String.class));

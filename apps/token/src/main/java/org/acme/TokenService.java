@@ -48,7 +48,7 @@ public class TokenService {
         Event event;
         boolean error = true;
         TokenResponse response = new TokenResponse();
-        if (!assignedTokens.containsKey(s.getCid())) {
+        if (s.getCid() == null || !assignedTokens.containsKey(s.getCid())) {
             response.setMessage("User does not exist");
         } else if (assignedTokens.get(s.getCid()).size() > 1) {
             response.setMessage("User already has more than 1 token");

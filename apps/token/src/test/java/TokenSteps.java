@@ -7,6 +7,7 @@ import org.acme.Token;
 import org.acme.TokenRequest;
 import org.acme.TokenResponse;
 import org.acme.TokenService;
+import org.acme.Transaction;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -30,7 +31,7 @@ public class TokenSteps {
 
     @And("the id is in the token map")
     public void theIdIsInTheTokenMap() {
-        Event event = new Event("TokenUserRequested", new Object[]{ correlationID, customerID });
+        Event event = new Event("TokenUserRequested", new Object[]{ customerID });
         service.handleTokenUserAdd(event);
         assertTrue(service.getAssignedTokens().containsKey(customerID));
     }
@@ -81,7 +82,7 @@ public class TokenSteps {
 
     @When("the service receives a TokenUserRequested event")
     public void theServiceReceivesATokenUserRequestedEvent() {
-        Event event = new Event("TokenUserRequested",new Object[]{ correlationID, customerID });
+        Event event = new Event("TokenUserRequested",new Object[]{ customerID });
         assertNotNull(event);
         service.handleTokenUserAdd(event);
     }
@@ -123,11 +124,19 @@ public class TokenSteps {
     }
 
 
-//    @When("the service receives a TransactionRequested event")
-//    public void theServiceReceivesATransactionRequestedEvent() {
-//        Event event = new Event("TransactionRequested",new Object[]{ new TokenRequest(customerID,amount)});
-//        assertNotNull(event);
-//        service.handleTokenRequested(event);
-//
-//    }
+   @When("the service receives a TransactionRequested event")
+   public void theServiceReceivesATransactionRequestedEvent() {
+        Transaction transaction = new Transaction(new Token(this.tokenID), "test", this.amount, correlationID);
+        System.out.println(transaction);
+        Event event = new Event("TransactionRequested", new Object[] { correlationID, transaction });
+        assertNotNull(event);
+        service.handleTransactionRequested(event);
+
+   }
+
+   @Then("a TokenValidated event is published containing the customer id")
+   public void aTokenValidatedEventIsPublished() {
+        Event event = new Event("TokenValidated", new Object[] { correlationID, customerID });
+        verify(q).publish(event);
+   }
 }
