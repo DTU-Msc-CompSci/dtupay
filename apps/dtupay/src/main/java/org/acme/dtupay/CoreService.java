@@ -194,6 +194,14 @@ public class CoreService {
     public void handleRequestedToken(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, TokenResponse.class);
+
+        System.out.println("CORRELATION ID");
+        System.out.println(correlationId);
+        System.out.println("TOKEN RESPONSE");
+        System.out.println(s);
+        System.out.println("pendingTokenRequests");
+        System.out.println(pendingTokenRequests.get(correlationId));
+
         pendingTokenRequests.get(correlationId).complete(s);
         pendingTokenRequests.remove(correlationId);
     }
@@ -201,10 +209,7 @@ public class CoreService {
     public void handleTokenRequestFailed(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         TokenResponse s = ev.getArgument(1, TokenResponse.class);
-        System.out.println("CORRELATION ID");
-        System.out.println(correlationId);
-        System.out.println("TOKEN RESPONSE");
-        System.out.println(s);
+
 
         pendingTokenRequests.get(correlationId).complete(s);
         pendingTokenRequests.remove(correlationId);
