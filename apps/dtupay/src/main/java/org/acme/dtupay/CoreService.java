@@ -2,12 +2,11 @@ package org.acme.dtupay;
 
 import messaging.Event;
 import messaging.MessageQueue;
-import java.util.UUID;
+
+import java.util.*;
 
 import javax.ws.rs.core.Response;
-import java.util.Map;
 import java.util.UUID;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +24,11 @@ public class CoreService {
     private Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
     private Map<String, CompletableFuture<TokenResponse>> pendingTokenRequests = new ConcurrentHashMap<>();
     private Map<String, CompletableFuture<String>> pendingTransactions = new ConcurrentHashMap<>();
-//    private CompletableFuture<AccountResponse> registeredCustomer;
+    private Map<String, CompletableFuture<ReportManagerResponse>> pendingManagerReport = new ConcurrentHashMap<>();
+    private Map<String, CompletableFuture<ReportUserResponse>> pendingCustomerReport = new ConcurrentHashMap<>();
+    private Map<String, CompletableFuture<ReportUserResponse>> pendingMerchantReport = new ConcurrentHashMap<>();
+
+    //    private CompletableFuture<AccountResponse> registeredCustomer;
 //    private CompletableFuture<AccountResponse> registeredMerchant;
     private boolean tokenRemoved;
 //    private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
@@ -44,6 +47,9 @@ public class CoreService {
 
         queue.addHandler("TokenRequestFulfilled", this::handleRequestedToken);
         queue.addHandler("TokenRequestFailed", this::handleTokenRequestFailed);
+        queue.addHandler("ManagerReportCreated", this::handleManagerReportCreated);
+        queue.addHandler("CustomerReportCreated", this::handleCustomerReportCreated);
+        queue.addHandler("MerchantReportCreated", this::handleMerchantReportCreated);
 
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
@@ -53,6 +59,27 @@ public class CoreService {
         queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
     }
 
+    public void handleManagerReportCreated(Event ev) {
+        var correlationId = ev.getArgument(0, String.class);
+
+        var report = ev.getArgument(1, ReportManagerResponse.class);
+        pendingManagerReport.get(correlationId).complete(report);
+
+    }
+    public void handleCustomerReportCreated(Event ev) {
+        var correlationId = ev.getArgument(0, String.class);
+
+        var report = ev.getArgument(1, ReportUserResponse.class);
+        pendingCustomerReport.get(correlationId).complete(report);
+
+    }
+    public void handleMerchantReportCreated(Event ev) {
+        var correlationId = ev.getArgument(0, String.class);
+
+        var report = ev.getArgument(1, ReportUserResponse.class);
+        pendingMerchantReport.get(correlationId).complete(report);
+
+    }
     public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         tokenRemoved = ev.getArgument(1, Boolean.class);
@@ -64,6 +91,39 @@ public class CoreService {
 //        if(deRegisteredCustomer) {
 //            deRegisteredCustomerCompleted.complete(true);
 //        }
+    }
+    public ReportManagerResponse getManagerReports(){
+        var correlationId = generateCorrelationId();
+        Event event = new Event("ManagerReportRequested", new Object[] {correlationId});
+        CompletableFuture<ReportManagerResponse> managerReport = new CompletableFuture<>();
+        pendingManagerReport.put(correlationId, managerReport);
+
+        queue.publish(event);
+
+        return managerReport.join();
+
+    }
+    public ReportUserResponse getCustomerReports(String customerId){
+        var correlationId = generateCorrelationId();
+        Event event = new Event("CustomerReportRequested", new Object[] {correlationId,customerId });
+        CompletableFuture<ReportUserResponse> customerReport = new CompletableFuture<>();
+        pendingCustomerReport.put(correlationId, customerReport);
+
+        queue.publish(event);
+
+        return customerReport.join();
+
+    }
+    public ReportUserResponse getMerchantReports(String merchantId){
+        var correlationId = generateCorrelationId();
+        Event event = new Event("MerchantReportRequested", new Object[] {correlationId,merchantId });
+        CompletableFuture<ReportUserResponse> merchantReport = new CompletableFuture<>();
+        pendingMerchantReport.put(correlationId, merchantReport);
+
+        queue.publish(event);
+
+        return merchantReport.join();
+
     }
 
     Map<String, CompletableFuture<AccountResponse>> getPendingCustomers() {

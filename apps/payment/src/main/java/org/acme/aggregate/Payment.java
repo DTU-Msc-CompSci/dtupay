@@ -45,7 +45,7 @@ public class Payment {
 		//var transactionId = UUID.randomUUID().toString();
 		//var payment = new Payment();
         //payment.transactionID = transactionId;
-		appliedEvents.add( (PaymentEvent)new TransactionCreated(transactionId, customerToken, customerToken,amount));
+		appliedEvents.add( (PaymentEvent)new TransactionCreated(transactionId, customerToken, merchantID,amount));
 
 		applyEvents(appliedEvents.stream());
 

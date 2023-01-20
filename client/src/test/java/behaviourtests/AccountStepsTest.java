@@ -41,15 +41,15 @@ public class AccountStepsTest {
 
    @Before
    public void init() throws BankServiceException_Exception {
-       customer.setFirstName("alex");
-       customer.setLastName("Travolta");
-       customer.setCprNumber("masteCPRvalue");
+       customer.setFirstName("alttgtggrfex");
+       customer.setLastName("Travtgtrfgtgolta");
+       customer.setCprNumber("masttgrfgttgeCPRvalue");
 
        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-       merchant.setFirstName("Voldemor");
-       merchant.setLastName("_");
-       merchant.setCprNumber("_");
+       merchant.setFirstName("Volttgrfgtgdemor");
+       merchant.setLastName("_tgrtgftg");
+       merchant.setCprNumber("_tttgrfgg");
 
        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
    }

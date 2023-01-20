@@ -5,12 +5,10 @@ package org.acme.dtupay;
 //import jakarta.ws.rs.core.MediaType;
 //import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 @Path("/merchant")
 public class MerchantResource {
@@ -49,6 +47,16 @@ public class MerchantResource {
     public Response deRegisterMerchant(DTUPayUser user) {
         service.deRegisterMerchant(user);
         return Response.ok().build();
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/report/{id}")
+    public Response getManagerReport(@PathParam("id") String id ) {
+        Set<TransactionUserView> reports = service.getMerchantReports(id).getReports();
+        if (reports.size() == 0) {
+            return Response.status(400).entity("No reports available").build();
+        }
+        return Response.status(201).entity(reports).build();
     }
 
 

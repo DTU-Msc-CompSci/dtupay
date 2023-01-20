@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,9 +58,16 @@ public class CustomerAPI {
             throw new Exception(response.readEntity(String.class));
         }
     }
-//    public List<Transaction> getReport(String cid) {
-//        return baseUrl.path("customer/transactions")
-//                .request()
-//                .get(List<Transaction>)
-//    }
+    public Set<TransactionUserView> getReport(String id) throws Exception {
+        Response response = baseUrl.path("customer/report/"+id)
+                .request(MediaType.APPLICATION_JSON)
+                .get()
+                ;
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+
+            return response.readEntity(new GenericType<>() {});
+        } else {
+            throw new Exception(response.readEntity(String.class));
+        }
+    }
 }

@@ -184,7 +184,9 @@ public class TransactionSteps {
     @Then("the correct report is sent to the merchant")
     public void theCorrectReportIsSentToTheMerchant() {
         var report = readmodel.getMerchantPayment(merchantID);
-        Event merchantReportEvent = new Event("MerchantReportCreated", new Object[] { transactionID, report });
+        ReportUserResponse resp = new ReportUserResponse();
+        resp.setReports(report);
+        Event merchantReportEvent = new Event("MerchantReportCreated", new Object[] { transactionID, resp });
         verify(q, times(1)).publish(merchantReportEvent);
     }
 
@@ -198,7 +200,9 @@ public class TransactionSteps {
     @Then("the correct report is sent to the customer")
     public void theCorrectReportIsSentToTheCustomer() {
         var report = readmodel.getCustomerPayment(merchantID);
-        Event customerReportEvent = new Event("CustomerReportCreated", new Object[] { transactionID, report });
+        ReportUserResponse resp = new ReportUserResponse();
+        resp.setReports(report);
+        Event customerReportEvent = new Event("CustomerReportCreated", new Object[] { transactionID, resp });
         verify(q, times(1)).publish(customerReportEvent);
     }
 
@@ -212,7 +216,9 @@ public class TransactionSteps {
     @Then("the correct report is sent to the manager")
     public void theCorrectReportIsSentToTheManager() {
         var report = readmodel.getAllPayments();
-        Event managerReportEvent = new Event("ManagerReportCreated", new Object[] { transactionID, report });
+        ReportManagerResponse resp = new ReportManagerResponse();
+        resp.setReports(report);
+        Event managerReportEvent = new Event("ManagerReportCreated", new Object[] { transactionID, resp });
         verify(q, times(1)).publish(managerReportEvent);
     }
 

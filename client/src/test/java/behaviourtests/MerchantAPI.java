@@ -8,6 +8,9 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class MerchantAPI {
 
     private final WebTarget baseUrl;
@@ -51,5 +54,16 @@ public class MerchantAPI {
             throw new Exception("Transaction failed");
         }
         
+    }
+    public Set<TransactionUserView> getReport(String id) throws Exception {
+        Response response = baseUrl.path("merchant/report/"+id)
+                .request(MediaType.APPLICATION_JSON)
+                .get()
+                ;
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            return response.readEntity(new GenericType<>() {});
+        } else {
+            throw new Exception(response.readEntity(String.class));
+        }
     }
 }
