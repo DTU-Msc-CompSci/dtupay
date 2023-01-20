@@ -116,7 +116,7 @@
               <mainClass>org.acme.StartUp</mainClass>
             </manifest>
           </archive>
-          <finalName>paymentService</finalName>
+          <finalName>transactionService</finalName>
         </configuration>
       </plugin>
       <plugin>

@@ -5,4 +5,4 @@ WORKDIR ${APP_DIR}
 COPY target ${APP_DIR}
 
 CMD java -Xmx64m \
-        -jar paymentService.jar
+        -jar transactionService.jar
