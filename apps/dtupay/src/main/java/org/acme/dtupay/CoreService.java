@@ -184,10 +184,10 @@ public class CoreService {
     public TokenResponse getToken(TokenRequest t) throws Exception {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
-        requestedToken.orTimeout(timeoutValue, timeoutUnit);
+        pendingTokenRequests.put(correlationId, requestedToken);
+        //requestedToken.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TokenRequested", new Object[]{correlationId, t});
         queue.publish(event);
-        pendingTokenRequests.put(correlationId, requestedToken);
         return requestedToken.join(); // ??????
     }
 

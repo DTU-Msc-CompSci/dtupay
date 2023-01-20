@@ -40,15 +40,15 @@ public class AccountStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("adlffffdfv2s4d3ferg64efrgtdrgbrffdfd1fsfsdx5");
-        customer.setLastName("Tradffvffdfds3dfer46gerfgrtdf1rsffddd5sosdlta");
-        customer.setCprNumber("mdasfffsdff32dder46gfrft5bvfv1rfrssteCsdPRvalue");
+        customer.setFirstName("adlffffdfv2s4d3ferg64efrdrgbrffdfd1fsfsdx5");
+        customer.setLastName("Tradffvffdfds3dfer46gerfgrt1rsffddd5sosdlta");
+        customer.setCprNumber("mdasfffsdff32dder46gffv1rfrssteCsdPRvalue");
 
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-        merchant.setFirstName("Volfdd2sdfd3er364gfvrtd1fvsrfrfdff5dffsdemor");
-        merchant.setLastName("_sdfd5f2s2dfder64gffrdgb1dfvsrfrfffdd");
-        merchant.setCprNumber("_sf5fd2sd5fferv64dfvfdgb1drfrfffffsdsd");
+        merchant.setFirstName("Volfdd2sdfd3er364gfvrtd1fvsrfrf5dffsdemor");
+        merchant.setLastName("_sdfd5f2s2dfder64gffrdgb1dfvffdd");
+        merchant.setCprNumber("_sf5fd2sd5fferv64dfvfdgb1fffffsdsd");
 
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
     }
