@@ -8,7 +8,6 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.List;
 import java.util.Set;
 
 public class CustomerAPI {
@@ -60,9 +59,4 @@ public class CustomerAPI {
             }
         }
     }
-//    public List<Transaction> getReport(String cid) {
-//        return baseUrl.path("customer/transactions")
-//                .request()
-//                .get(List<Transaction>)
-//    }
 }

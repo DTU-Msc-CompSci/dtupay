@@ -15,16 +15,20 @@ public class TokenService {
     Set<String> usedTokenPool = new HashSet<>();
 
     MessageQueue queue;
+
     public Map<String, Set<Token>> getAssignedTokens() {
         return assignedTokens;
     }
+
     public Map<String, String> getTokenToId() {
         return tokenToId;
     }
+
     public void addToken(String customerID, String tokenID) {
         assignedTokens.get(customerID).add(new Token(tokenID));
-        tokenToId.put(tokenID,customerID);
+        tokenToId.put(tokenID, customerID);
     }
+
     public TokenService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
@@ -32,17 +36,18 @@ public class TokenService {
         this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleRemoveAllTokenFromDeRegisteredCustomer);
         this.queue.addHandler("TokenUserRequested", this::handleTokenUserAdd);
     }
+
     public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         removeAllTokenFromCustomer(ev.getArgument(1, String.class));
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] { correlationId, true});
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[]{correlationId, true});
         queue.publish(event);
     }
 
     public void handleTokenUserAdd(Event ev) {
         // TODO: I think this is the only event we don't care about Correlation Id
         var s = ev.getArgument(0, String.class);
-        assignedTokens.put(s,new HashSet<Token>());
+        assignedTokens.put(s, new HashSet<Token>());
     }
 
     public void handleTokenRequested(Event ev) {
@@ -57,7 +62,7 @@ public class TokenService {
             response.setMessage("User already has more than 1 token");
         } else if (s.getAmount() <= 0) {
             response.setMessage("Less than 1 token requested");
-        } else if(s.getAmount() > 5) {
+        } else if (s.getAmount() > 5) {
             response.setMessage("More than 5 tokens requested");
         } else {
             error = false;
@@ -67,9 +72,9 @@ public class TokenService {
         }
 
         if (error) {
-            event = new Event("TokenRequestFailed", new Object[] {correlationId, response });
+            event = new Event("TokenRequestFailed", new Object[]{correlationId, response});
         } else {
-            event = new Event("TokenRequestFulfilled", new Object[] { correlationId, response });
+            event = new Event("TokenRequestFulfilled", new Object[]{correlationId, response});
         }
 
         queue.publish(event);
@@ -79,17 +84,17 @@ public class TokenService {
         var correlationId = ev.getArgument(0, String.class);
         var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
-        tokenToId.remove(token.getToken(),customerId);
+        tokenToId.remove(token.getToken(), customerId);
         assignedTokens.remove(customerId);
         usedTokenPool.add(token.getToken());
         System.out.println(customerId);
-        Event customerInfoEvent = new Event("TokenValidated", new Object[] { correlationId, customerId });
+        Event customerInfoEvent = new Event("TokenValidated", new Object[]{correlationId, customerId});
         queue.publish(customerInfoEvent);
     }
 
     public void removeAllTokenFromCustomer(String customerId) {
         assignedTokens.remove(customerId);
-        while (tokenToId.values().remove(customerId));
+        while (tokenToId.values().remove(customerId)) ;
     }
 
     public Set<Token> generateTokens(TokenRequest tokenRequest) {
@@ -103,7 +108,7 @@ public class TokenService {
             }
             Token t = new Token(tokenId);
             assignedTokens.get(tokenRequest.getCid()).add(t);
-            tokenToId.put(t.getToken(),tokenRequest.getCid());
+            tokenToId.put(t.getToken(), tokenRequest.getCid());
             requestTokens.add(t);
         }
         return requestTokens;

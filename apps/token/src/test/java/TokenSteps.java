@@ -24,6 +24,7 @@ public class TokenSteps {
     String correlationID = UUID.randomUUID().toString();
 
     String tokenID;
+
     @Given("a customer id {string}")
     public void aCustomerId(String customerID) {
         this.customerID = customerID;
@@ -31,7 +32,7 @@ public class TokenSteps {
 
     @And("the id is in the token map")
     public void theIdIsInTheTokenMap() {
-        Event event = new Event("TokenUserRequested", new Object[]{ customerID });
+        Event event = new Event("TokenUserRequested", new Object[]{customerID});
         service.handleTokenUserAdd(event);
         assertTrue(service.getAssignedTokens().containsKey(customerID));
     }
@@ -43,15 +44,15 @@ public class TokenSteps {
 
     @When("the service receives a TokenRequested event")
     public void theServiceReceivesATokenRequestedEvent() {
-        Event event = new Event("TokenRequested",new Object[]{ correlationID, new TokenRequest(customerID,amount)});
+        Event event = new Event("TokenRequested", new Object[]{correlationID, new TokenRequest(customerID, amount)});
         assertNotNull(event);
         service.handleTokenRequested(event);
     }
 
     @Then("a TokenRequestFulfilled event is published")
     public void aTokenRequestFulfilledEventIsPublished() {
-        TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID),"success");
-        Event event = new Event("TokenRequestFulfilled", new Object[] { correlationID, response });
+        TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID), "success");
+        Event event = new Event("TokenRequestFulfilled", new Object[]{correlationID, response});
         verify(mockQueue).publish(event);
     }
 
@@ -69,18 +70,18 @@ public class TokenSteps {
     public void aTokenRequestFailedEventIsPublishedSaying(String message) {
         TokenResponse response = new TokenResponse();
         response.setMessage(message);
-        Event event = new Event("TokenRequestFailed",new Object[] { correlationID, response });
+        Event event = new Event("TokenRequestFailed", new Object[]{correlationID, response});
         verify(mockQueue).publish(event);
     }
 
     @And("the customer has {int} tokens")
     public void theCustomerHasTokens(int amount) {
-        service.generateTokens(new TokenRequest(customerID,amount));
+        service.generateTokens(new TokenRequest(customerID, amount));
     }
 
     @When("the service receives a TokenUserRequested event")
     public void theServiceReceivesATokenUserRequestedEvent() {
-        Event event = new Event("TokenUserRequested",new Object[]{ customerID });
+        Event event = new Event("TokenUserRequested", new Object[]{customerID});
         assertNotNull(event);
         service.handleTokenUserAdd(event);
     }
@@ -92,14 +93,14 @@ public class TokenSteps {
 
     @When("the service receives a CustomerAccountDeRegistrationRequested event")
     public void theServiceReceivesACustomerAccountDeRegistrationRequestedEvent() {
-        Event event = new Event("CustomerAccountDeRegistrationRequested",new Object[]{ correlationID, customerID });
+        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[]{correlationID, customerID});
         assertNotNull(event);
         service.handleRemoveAllTokenFromDeRegisteredCustomer(event);
     }
 
     @Then("a AllTokenRemovedFromDeRegisteredCustomer event is published")
     public void aAllTokenRemovedFromDeRegisteredCustomerEventIsPublished() {
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer",new Object[] { correlationID, true });
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[]{correlationID, true});
         verify(mockQueue).publish(event);
     }
 
@@ -118,23 +119,23 @@ public class TokenSteps {
         this.amount = amount;
         this.tokenID = tokenID;
 
-        service.addToken(customerID,tokenID);
+        service.addToken(customerID, tokenID);
     }
 
 
-   @When("the service receives a TransactionRequested event")
-   public void theServiceReceivesATransactionRequestedEvent() {
+    @When("the service receives a TransactionRequested event")
+    public void theServiceReceivesATransactionRequestedEvent() {
         Transaction transaction = new Transaction(new Token(this.tokenID), "test", this.amount, correlationID);
         System.out.println(transaction);
-        Event event = new Event("TransactionRequested", new Object[] { correlationID, transaction });
+        Event event = new Event("TransactionRequested", new Object[]{correlationID, transaction});
         assertNotNull(event);
         service.handleTransactionRequested(event);
 
-   }
+    }
 
-   @Then("a TokenValidated event is published containing the customer id")
-   public void aTokenValidatedEventIsPublished() {
-        Event event = new Event("TokenValidated", new Object[] { correlationID, customerID });
+    @Then("a TokenValidated event is published containing the customer id")
+    public void aTokenValidatedEventIsPublished() {
+        Event event = new Event("TokenValidated", new Object[]{correlationID, customerID});
         verify(mockQueue).publish(event);
-   }
+    }
 }

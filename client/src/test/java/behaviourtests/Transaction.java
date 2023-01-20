@@ -19,6 +19,7 @@ public class Transaction implements Serializable {
     private int amount;
 
     String transactionId;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Transaction)) {
@@ -32,7 +33,7 @@ public class Transaction implements Serializable {
 
     @Override
     public int hashCode() {
-        return  transactionId == null ? 0 : transactionId.hashCode();
+        return transactionId == null ? 0 : transactionId.hashCode();
     }
 
     @Override

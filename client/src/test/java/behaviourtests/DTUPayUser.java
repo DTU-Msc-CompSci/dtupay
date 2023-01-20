@@ -17,6 +17,7 @@ public class DTUPayUser implements Serializable {
     BankId bankId;
 
     String uniqueId;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof DTUPayUser)) {
@@ -27,12 +28,12 @@ public class DTUPayUser implements Serializable {
                 person.getLastName() != null && person.getLastName().equals(c.getPerson().getLastName()) &&
                 person.getCprNumber() != null && person.getCprNumber().equals(c.getPerson().getCprNumber()) &&
                 bankId != null && bankId.equals(c.getBankId()) &&
-                ( (uniqueId == null && c.getUniqueId() == null) || (uniqueId != null && uniqueId.equals(c.getUniqueId()) ));
+                ((uniqueId == null && c.getUniqueId() == null) || (uniqueId != null && uniqueId.equals(c.getUniqueId())));
     }
 
     @Override
     public int hashCode() {
-        return  bankId.getBankAccountId()== null ? 0 : bankId.getBankAccountId().hashCode();
+        return bankId.getBankAccountId() == null ? 0 : bankId.getBankAccountId().hashCode();
     }
 
     @Override

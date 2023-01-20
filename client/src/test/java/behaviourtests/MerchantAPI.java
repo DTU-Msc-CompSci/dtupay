@@ -18,7 +18,7 @@ public class MerchantAPI {
 
     }
 
-    public Response deregisterMerchant(DTUPayUser user){
+    public Response deregisterMerchant(DTUPayUser user) {
         Response response = baseUrl.path("merchant/deregister")
                 .request()
                 .post(Entity.entity(user, MediaType.APPLICATION_JSON));
@@ -44,14 +44,15 @@ public class MerchantAPI {
     }
 
     public boolean postTransaction(Transaction transaction) throws Exception {
-        Response response = baseUrl.path("merchant/transaction")
+        try (Response response = baseUrl.path("merchant/transaction")
                 .request()
-                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
-            return response.getStatus() == 201 || response.getStatus() != 200;
-        }  else {       
-            throw new Exception("Transaction failed");
+                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON))) {
+            if (response.getStatus() == 200 || response.getStatus() == 201) {
+                return response.getStatus() == 201 || response.getStatus() != 200;
+            } else {
+                throw new Exception("Transaction failed");
+            }
         }
-        
+
     }
 }

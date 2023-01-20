@@ -2,41 +2,27 @@ package org.acme.dtupay;
 
 import messaging.Event;
 import messaging.MessageQueue;
-import java.util.UUID;
 
-import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class CoreService {
-    private MessageQueue queue;
+    private final MessageQueue queue;
 
+    private final Map<String, CompletableFuture<AccountResponse>> pendingCustomers = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<AccountResponse>> pendingMerchants = new ConcurrentHashMap<>();
 
-    // TODO: Migrate these concurrent-safe collection
-    private Map<String, CompletableFuture<AccountResponse>> pendingCustomers = new ConcurrentHashMap<>();
-    private Map<String, CompletableFuture<AccountResponse>> pendingMerchants = new ConcurrentHashMap<>();
-
-    // All the things that are pending from Core Service as Origin and expects some response
-    private Map<String, CompletableFuture<Boolean>> pendingDeregisterCustomers = new ConcurrentHashMap<>();
-    private Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
-    private Map<String, CompletableFuture<TokenResponse>> pendingTokenRequests = new ConcurrentHashMap<>();
-    private Map<String, CompletableFuture<String>> pendingTransactions = new ConcurrentHashMap<>();
-//    private CompletableFuture<AccountResponse> registeredCustomer;
-//    private CompletableFuture<AccountResponse> registeredMerchant;
-    private boolean tokenRemoved;
-//    private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
-//    private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
-//    private boolean deRegisteredCustomer;
-
-//    private CompletableFuture<TokenResponse> requestedToken;
-//    private CompletableFuture<String> requestedTransaction;
+    private final Map<String, CompletableFuture<Boolean>> pendingDeregisterCustomers = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<Boolean>> pendingDeregisterMerchants = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<TokenResponse>> pendingTokenRequests = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<String>> pendingTransactions = new ConcurrentHashMap<>();
 
     long timeoutValue = 10;
     TimeUnit timeoutUnit = TimeUnit.SECONDS;
+
     public CoreService(MessageQueue q) {
         queue = q;
         queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
@@ -55,15 +41,12 @@ public class CoreService {
 
     public void handleAllTokenRemovedFromDeRegisteredCustomer(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
-        tokenRemoved = ev.getArgument(1, Boolean.class);
+        boolean tokenRemoved = ev.getArgument(1, Boolean.class);
         if (tokenRemoved) {
             pendingDeregisterCustomers.get(correlationId).complete(true);
         } else {
             pendingDeregisterCustomers.get(correlationId).complete(false);
         }
-//        if(deRegisteredCustomer) {
-//            deRegisteredCustomerCompleted.complete(true);
-//        }
     }
 
     Map<String, CompletableFuture<AccountResponse>> getPendingCustomers() {
@@ -73,17 +56,16 @@ public class CoreService {
     public Boolean deRegisterCustomer(DTUPayUser user) {
         var correlationId = generateCorrelationId();
         CompletableFuture<Boolean> deRegisteredCustomerCompleted = new CompletableFuture<>();
-        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
+        Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[]{correlationId, user.getUniqueId()});
         pendingDeregisterCustomers.put(correlationId, deRegisteredCustomerCompleted);
         queue.publish(event);
         return deRegisteredCustomerCompleted.join();
-        //return "De-registration request sent";
     }
 
     public Boolean deRegisterMerchant(DTUPayUser user) {
         var correlationId = generateCorrelationId();
         CompletableFuture<Boolean> deRegisteredMerchantCompleted = new CompletableFuture<>();
-        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[] {correlationId, user.getUniqueId()});
+        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{correlationId, user.getUniqueId()});
         pendingDeregisterMerchants.put(correlationId, deRegisteredMerchantCompleted);
         queue.publish(event);
         return deRegisteredMerchantCompleted.join();
@@ -95,9 +77,8 @@ public class CoreService {
         registeredCustomerFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
         pendingCustomers.put(correlationId, registeredCustomerFuture);
-        Event event = new Event("CustomerAccountCreationRequested", new Object[] { correlationId, c });
+        Event event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, c});
         queue.publish(event);
-        // Might need to migrate to .get() and throw and exception to the caller; might change test steps as a result
         return registeredCustomerFuture.join();
     }
 
@@ -105,7 +86,7 @@ public class CoreService {
         CompletableFuture<AccountResponse> registeredMerchantFuture = new CompletableFuture<>();
         registeredMerchantFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
-        Event event = new Event("MerchantAccountCreationRequested", new Object[] { correlationId, c });
+        Event event = new Event("MerchantAccountCreationRequested", new Object[]{correlationId, c});
         pendingMerchants.put(correlationId, registeredMerchantFuture);
         queue.publish(event);
         return registeredMerchantFuture.join();
@@ -114,16 +95,15 @@ public class CoreService {
     public void handleCustomerRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, AccountResponse.class);
-        // TODO: I don't think this is returning anything, and probably should be
         completePendingCustomerFutureByCorrelationId(correlationId, s);
     }
 
     public void handleMerchantRegistered(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, AccountResponse.class);
-        // TODO: I don't think this is returning anything, and probably should be
         completePendingMerchantFutureByCorrelationId(correlationId, s);
     }
+
     public void handleMerchantDeRegistrationCompleted(Event e) {
         var correlationId = e.getArgument(0, String.class);
         var s = e.getArgument(1, Boolean.class);
@@ -143,7 +123,7 @@ public class CoreService {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
         requestedToken.orTimeout(timeoutValue, timeoutUnit);
-        Event event = new Event("TokenRequested", new Object[] { correlationId, t });
+        Event event = new Event("TokenRequested", new Object[]{correlationId, t});
         queue.publish(event);
         pendingTokenRequests.put(correlationId, requestedToken);
         return requestedToken.get();
@@ -167,7 +147,7 @@ public class CoreService {
         var correlationId = generateCorrelationId();
         var requestedTransaction = new CompletableFuture<String>();
         requestedTransaction.orTimeout(timeoutValue, timeoutUnit);
-        Event event = new Event("TransactionRequested", new Object[] { correlationId, t });
+        Event event = new Event("TransactionRequested", new Object[]{correlationId, t});
         queue.publish(event);
         pendingTransactions.put(correlationId, requestedTransaction);
         return requestedTransaction.join();
@@ -177,10 +157,8 @@ public class CoreService {
         var id = e.getArgument(0, String.class);
         var s = e.getArgument(1, String.class);
         completePendingTransactionFutureByCorrelationId(id, s);
-        // TODO standardize the response
     }
 
-    // Helper functions
     public String generateCorrelationId() {
         return UUID.randomUUID().toString();
     }

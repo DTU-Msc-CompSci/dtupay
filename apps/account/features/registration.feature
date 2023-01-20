@@ -41,7 +41,6 @@ Feature: Account Manager
     When the service receives a CustomerAccountDeRegistrationRequested event
     Then a CustomerAccountDeRegistrationFailed event is published
 
-  #Same tests for the merchant
   Scenario: Successful Merchant Registration
     Given There is a merchant with empty id
     When the service receives a MerchantAccountCreationRequested event
@@ -84,12 +83,8 @@ Feature: Account Manager
             focus on the transaction related events.
     Given There is a customer with empty id
     When the service receives a CustomerAccountCreationRequested event
-    #Then a CustomerAccountCreated event is published
-    #And the "customer" should exist in the database
     Given There is a merchant with empty id
     When the service receives a MerchantAccountCreationRequested event
-    #Then a MerchantAccountCreated event is published
-    #And the "merchant" should exist in the database
     When the service receives a TransactionRequested event
     Then a MerchantInfoProvided event is published
     When the service receives a TokenValidated event

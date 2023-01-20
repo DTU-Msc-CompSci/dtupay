@@ -38,31 +38,30 @@ public class AccountStepsTest {
     private Response response;
 
 
+    @Before
+    public void init() throws BankServiceException_Exception {
+        customer.setFirstName("alex");
+        customer.setLastName("Travolta");
+        customer.setCprNumber("masteCPRvalue");
 
-   @Before
-   public void init() throws BankServiceException_Exception {
-       customer.setFirstName("alex");
-       customer.setLastName("Travolta");
-       customer.setCprNumber("masteCPRvalue");
+        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-       customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
+        merchant.setFirstName("Voldemor");
+        merchant.setLastName("_");
+        merchant.setCprNumber("_");
 
-       merchant.setFirstName("Voldemor");
-       merchant.setLastName("_");
-       merchant.setCprNumber("_");
+        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
+    }
 
-       merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
-   }
-
-   @After
-   public void tearDown() {
-       try {
-           bankService.retireAccount(customerBankId);
-           bankService.retireAccount(merchantBankId);
-       } catch (BankServiceException_Exception e) {
-           //throw new RuntimeException(e);
-       }
-   }
+    @After
+    public void tearDown() {
+        try {
+            bankService.retireAccount(customerBankId);
+            bankService.retireAccount(merchantBankId);
+        } catch (BankServiceException_Exception e) {
+            //throw new RuntimeException(e);
+        }
+    }
 
     @Given("a customer exists in DTUPay")
     public void aCustomerExistsInDTUPay() {
@@ -89,7 +88,7 @@ public class AccountStepsTest {
 
     @Then("the customer is removed from DTUPay")
     public void theCustomerIsRemovedFromDTUPay() {
-        assertEquals(200,response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     @Given("a merchant exists in DTUPay")
@@ -112,7 +111,7 @@ public class AccountStepsTest {
 
     @Then("the merchant is removed from DTUPay")
     public void theMerchantIsRemovedFromDTUPay() {
-        assertEquals(200,response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     @Given("a customer does not exist in DTUPay")
@@ -131,7 +130,7 @@ public class AccountStepsTest {
 
     @Given("a customer with the first name {string}, last name {string}, and CPR number {string}")
     public void aCustomerWithTheFirstNameLastNameAndCPRNumber(String first, String last, String cpr) {
-        dtuPayCustomer.setPerson(new Person(first,last,cpr));
+        dtuPayCustomer.setPerson(new Person(first, last, cpr));
 
     }
 
@@ -152,7 +151,7 @@ public class AccountStepsTest {
 
     @Given("a merchant with the first name {string}, last name {string}, and CPR number {string}")
     public void aMerchantWithTheFirstNameLastNameAndCPRNumber(String first, String last, String cpr) {
-        dtuPayMerchant.setPerson(new Person(first,last,cpr));
+        dtuPayMerchant.setPerson(new Person(first, last, cpr));
     }
 
     @And("a bank account for the merchant")
