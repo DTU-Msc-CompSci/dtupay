@@ -45,13 +45,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() {
-        customer.setFirstName("Natddalia");
-        customer.setLastName("Gornddey");
-        customer.setCprNumber("030dd787-4636");
+        customer.setFirstName("Barbara");
+        customer.setLastName("McAlpine");
+        customer.setCprNumber("180978-3428");
 
-        merchant.setFirstName("Louddis");
-        merchant.setLastName("Varddgas");
-        merchant.setCprNumber("22d0d767-4969");
+        merchant.setFirstName("Sara");
+        merchant.setLastName("Bilodeau");
+        merchant.setCprNumber("190455-2034");
     }
 
     @After
