@@ -45,13 +45,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() {
-        customer.setFirstName("Jea3fs2ddffdfffsdffffrey");
-        customer.setLastName("Ted322dffffdffsdffddsdt");
-        customer.setCprNumber("Je3sf2ddfdffffdsdfffrasdeyTest");
+        customer.setFirstName("Jea3fs2drfrsdffdfvdfferfdfvdfffsdffffrey");
+        customer.setLastName("Ted322dfffrfsdfdfvrffdfvderfffsdffddsdt");
+        customer.setCprNumber("Je3sf2ddfdsdfffrdfvfrefdfvrfffdsdfffrasdeyTest");
 
-        merchant.setFirstName("Ela23ffdfsdffddfdsffdsdlen");
-        merchant.setLastName("Tesa23ffdfdfdfdfsdffdsdst");
-        merchant.setCprNumber("El2lafdsffdffsfdfdsdsenTest");
+        merchant.setFirstName("Ela23ffdfsdfsdfderffvdfvrfrffddfdsffdsdlen");
+        merchant.setLastName("Tesa23ffdrfsdfrdferfdfvvdfffdfdfdfsdffdsdst");
+        merchant.setCprNumber("El2lafdsfsdffrfderffvfvdfrfdffsfdfdsdsenTest");
     }
 
     @After

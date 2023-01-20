@@ -51,17 +51,17 @@ public class ReportingStepsTest {
 
     @Before
     public void init() throws Exception {
-        customer.setFirstName("Bobdcdfvd345tgtrfgfryrf1");
-        customer.setLastName("Lemorddt345gtgcrffvdfrfny1");
-        customer.setCprNumber("Lemordt345gtgrfcdfvdfvfrnOrangy1");
+        customer.setFirstName("Bobdcdfvd3desdfrfvfvdtrybtbderffvfv4ervr5tgtrfgfryrf1");
+        customer.setLastName("Lemorddt345ersdfvdfvdtbtbddferfvfvfvgervervtgcrffvdfrfny1");
+        customer.setCprNumber("Lemordt345sdfervdfvdtbtbdfferfgervervtgrfcdfvdfvfrnOrangy1");
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(20000));
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
 
-        merchant.setFirstName("Alrrtgt345grffddcfvdfvic1y");
-        merchant.setLastName("Pea1rttg345grffrdcdfvdfvry");
-        merchant.setCprNumber("Apprftgt345rfgldcredfvfPe1ary");
+        merchant.setFirstName("Alrrtgt34sdfervdfvddrtbrtbferfvfv5grervervffddcfvdfvic1y");
+        merchant.setLastName("Pea1rttg3dsdfervfvdfvrtbrtbdferfv45grfervervfrdcdfvdfvry");
+        merchant.setCprNumber("Apprftdfvdsdfervfdfvrtbrtbvgerft345rfervergldcredfvfPe1ary");
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(10000));
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
@@ -111,12 +111,19 @@ public class ReportingStepsTest {
     @Then("the transaction is in the report")
     public void the_transaction_is_in_the_report() {
         // Write code here that turns the phrase above into concrete actions
-        assertTrue(1 == managerReport.stream().filter((transactionManagerView -> transactionManagerView.getCustomer().equals(registeredCustomer)
+        assertTrue(1 == managerReport.stream().filter((transactionManagerView -> transactionManagerView.getCustomer() != null
+                && transactionManagerView.getCustomer().equals(registeredCustomer)
+                && transactionManagerView.getMerchant() != null
+                && transactionManagerView.getCustomerToken() != null
                 &&  transactionManagerView.getMerchant().equals(registeredMerchant)
                 &&  transactionManagerView.getCustomerToken().equals(token.getToken()))).collect(Collectors.toSet()).size());
-        assertTrue(1 ==  customerReport.stream().filter((transaction -> transaction.getMerchant().equals(registeredMerchant)
+        assertTrue(1 ==  customerReport.stream().filter((transaction ->
+                  transaction.getMerchant() != null &&transaction.getCustomerToken()!= null &&
+                transaction.getMerchant().equals(registeredMerchant)
                 &&  transaction.getCustomerToken().equals(token.getToken()))).collect(Collectors.toSet()).size());
         assertTrue(1 == merchantReport.stream().filter((transaction -> transaction.getMerchant().equals(registeredMerchant)
+                && transaction.getMerchant() != null &&transaction.getCustomerToken()!= null
+
                 &&  transaction.getCustomerToken().equals(token.getToken()))).collect(Collectors.toSet()).size());
 
     }

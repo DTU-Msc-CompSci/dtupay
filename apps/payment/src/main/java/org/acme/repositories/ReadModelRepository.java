@@ -28,7 +28,7 @@ public class ReadModelRepository {
     public Set<TransactionUserView> getMerchantPayment(String merchantID) {
         return (allPayments.values().stream()
                 .filter((transactionManagerView) -> {
-                    return transactionManagerView.getMerchantId().equals(merchantID);
+                    return transactionManagerView.getMerchantId() != null &&transactionManagerView.getMerchantId().equals(merchantID);
                 }))
                 .map(TransactionManagerView::toUserView).collect(Collectors.toSet());
     }
@@ -36,7 +36,7 @@ public class ReadModelRepository {
     public Set<TransactionUserView> getCustomerPayment(String customerID) {
         return (allPayments.values().stream()
                 .filter((transactionManagerView) -> {
-                    return transactionManagerView.getCustomerId().equals(customerID);
+                    return  transactionManagerView.getCustomerId() != null && transactionManagerView.getCustomerId().equals(customerID);
                 }))
                 .map(TransactionManagerView::toUserView).collect(Collectors.toSet());
     }

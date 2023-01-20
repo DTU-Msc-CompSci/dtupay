@@ -81,19 +81,21 @@ public class TransactionService {
 
     }
 
-    public synchronized void handlePaymentForOnePayment(Event ev, String id) {
+    public synchronized Void handlePaymentForOnePayment(Event ev, String id) {
         Payment payment = repository.getById(id);
         switch (ev.getType()) {
             case "CustomerInfoProvided":
                 var customerInfo = ev.getArgument(1, DTUPayUser.class);
-                if (customerInfo == null || customerInfo.equals("")) {
+                if (customerInfo == null || customerInfo.equals("") || customerInfo.getUniqueId() == null) {
                     Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Invalid token"});
                     queue.publish(transactionFailedEvent);
-                    return;
+                    return null;
+                }else{
+                    payment.addCustomerInfo(id, customerInfo);
+                    repository.save(payment);
                 }
 
-                payment.addCustomerInfo(id, customerInfo);
-                repository.save(payment);
+
 
                 break;
             case "TransactionRequested":
@@ -101,7 +103,7 @@ public class TransactionService {
                 if(transaction.getAmount() <= 1) {
                     Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Must request a payment of at least 1 kr"});
                     queue.publish(transactionFailedEvent);
-                    return;
+                    return null;
                 }
                 payment.create(id, transaction.getCustomerToken().getToken(), transaction.getMerchantId(), BigDecimal.valueOf(transaction.getAmount()));
                 repository.save(payment);
@@ -112,7 +114,7 @@ public class TransactionService {
                 if (merchantInfo == null || merchantInfo.equals("")) {
                     Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Merchant does not exist"});
                     queue.publish(transactionFailedEvent);
-                    return;
+                    return null;
                 }
 
                 payment.addMerchantInfo(id, merchantInfo);
@@ -126,6 +128,7 @@ public class TransactionService {
         }
 
         checkTransactionInfo(id);
+        return null;
 
     }
 
