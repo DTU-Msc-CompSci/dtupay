@@ -53,7 +53,7 @@ services:
         condition: service_started
 
   rabbitmq-service:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-alpine
     restart: on-failure
     hostname: rabbitmq
     networks:

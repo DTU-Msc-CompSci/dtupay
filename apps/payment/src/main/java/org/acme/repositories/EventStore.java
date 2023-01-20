@@ -43,28 +43,27 @@ public class EventStore {
         store.get(event.getTransactionID()).add(event);
         var globalEvent = new Event("TransactionCreated", new Object[]{event.getTransactionID(), event.getCustomerToken(), event.getMerchantID(), event.getAmount()});
 
-        eventBus.publish(event);
-    }
+		eventBus.publish(globalEvent);
+	}
+	public void addEvent(String id, TransactionCustomerInfoAdded event) {
+		if (!store.containsKey(event.getTransactionID())) {
+			store.put(event.getTransactionID(), new ArrayList<PaymentEvent>());
+		}
+		store.get(event.getTransactionID()).add(event);
 
-    public void addEvent(String id, TransactionCustomerInfoAdded event) {
-        if (!store.containsKey(event.getTransactionID())) {
-            store.put(event.getTransactionID(), new ArrayList<>());
-        }
-        store.get(event.getTransactionID()).add(event);
-        var globalEvent = new Event("TransactionCustomerInfoAdded", new Object[]{event.getTransactionID(), event.getCustomerInfo()});
+		Event globalEvent = new Event("TransactionCustomerInfoAdded", new Object[] { event.getTransactionID(), event.getCustomerInfo() });
 
-        eventBus.publish(event);
-    }
+		eventBus.publish(globalEvent);
+	}
+	public void addEvent(String id, TransactionMerchantInfoAdded event) {
+		if (!store.containsKey(event.getTransactionID())) {
+			store.put(event.getTransactionID(), new ArrayList<PaymentEvent>());
+		}
+		store.get(event.getTransactionID()).add(event);
+		var globalEvent = new Event("TransactionMerchantInfoAdded", new Object[] { event.getTransactionID(), event.getMerchantInfo() });
 
-    public void addEvent(String id, TransactionMerchantInfoAdded event) {
-        if (!store.containsKey(event.getTransactionID())) {
-            store.put(event.getTransactionID(), new ArrayList<PaymentEvent>());
-        }
-        store.get(event.getTransactionID()).add(event);
-        var globalEvent = new Event("TransactionMerchantBankIDAdded", new Object[]{event.getTransactionID(), event.getMerchantInfo()});
-
-        eventBus.publish(event);
-    }
+		eventBus.publish(globalEvent);
+	}
 
     public Stream<PaymentEvent> getEventsFor(String id) {
         if (!store.containsKey(id)) {

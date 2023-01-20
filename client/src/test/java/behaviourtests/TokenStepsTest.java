@@ -55,7 +55,7 @@ public class TokenStepsTest {
     @Given("a customer is registered with DTU Pay")
     public void a_customer_is_registered_with_DTU_Pay() throws Exception {
         customer.setBankId(new BankId(bankID));
-        customer.setPerson(new Person("Alextest", "testAlex", "someRandomStuff"));
+        customer.setPerson(new Person("Alex234234tefest", "testA234234eflex", "somef23424eRandomStuff"));
         customer = customerAPI.postCustomer(customer);
     }
 

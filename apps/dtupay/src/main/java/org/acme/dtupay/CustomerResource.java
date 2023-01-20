@@ -1,12 +1,10 @@
 package org.acme.dtupay;
 
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 @Path("/customer")
 public class CustomerResource {
@@ -57,5 +55,18 @@ public class CustomerResource {
         }
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/report/{id}")
+    public Response getManagerReport(@PathParam("id") String id ) {
+        Set<TransactionUserView> reports = service.getCustomerReports(id).getReports();
+        for (TransactionUserView d : reports){
+            System.out.println(d);
+        }
+        if (reports.size() == 0) {
+            return Response.status(400).entity("No reports available").build();
+        }
+        return Response.status(201).entity(reports).build();
+    }
 
 }
