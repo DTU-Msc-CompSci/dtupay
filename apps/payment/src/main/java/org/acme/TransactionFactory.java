@@ -28,8 +28,8 @@ public class TransactionFactory {
         var mq = new RabbitMqQueue("rabbitmq");
         var repository = new PaymentRepository(mq);
         var readRepository = new ReadModelRepository(mq);
-        var bankService =  new BankServiceService().getBankServicePort();
-        transactionService = new TransactionService(mq,bankService,repository,readRepository);
+        var bankService = new BankServiceService().getBankServicePort();
+        transactionService = new TransactionService(mq, bankService, repository, readRepository);
 
         return transactionService;
     }

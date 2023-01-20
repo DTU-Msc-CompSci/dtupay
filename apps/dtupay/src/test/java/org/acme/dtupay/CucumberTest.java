@@ -6,8 +6,8 @@ import io.cucumber.junit.CucumberOptions.SnippetType;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin="summary"
-        , publish= false
+@CucumberOptions(plugin = "summary"
+        , publish = false
         , features = "features"  // directory of the feature files
         , snippets = SnippetType.CAMELCASE
 )

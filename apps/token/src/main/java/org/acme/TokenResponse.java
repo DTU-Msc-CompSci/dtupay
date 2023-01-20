@@ -16,7 +16,7 @@ public class TokenResponse {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof TokenResponse)) {
+        if (!(o instanceof TokenResponse)) {
             return false;
         }
         var c = (TokenResponse) o;

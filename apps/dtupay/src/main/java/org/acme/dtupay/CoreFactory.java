@@ -23,7 +23,6 @@ public class CoreFactory {
         // without sending actual messages to RabbitMq.
         var mq = new RabbitMqQueue("rabbitmq");
         service = new CoreService(mq);
-//		new StudentRegistrationServiceAdapter(service, mq);
         return service;
     }
 }

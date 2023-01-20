@@ -8,7 +8,6 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.List;
 import java.util.Set;
 
 public class CustomerAPI {
@@ -20,7 +19,6 @@ public class CustomerAPI {
         this.baseUrl = client.target("http://localhost:8091/");
     }
 
-    // deregister customer with given id
     public Response deregisterCustomer(DTUPayUser user) throws Exception {
         Response response = baseUrl.path("customer/deregister")
                 .request(MediaType.APPLICATION_JSON)
@@ -34,32 +32,31 @@ public class CustomerAPI {
 
     public DTUPayUser postCustomer(DTUPayUser user) throws Exception {
 
-        Response response = baseUrl.path("customer")
+        try (Response response = baseUrl.path("customer")
                 .request()
-                .post(Entity.entity(user,MediaType.APPLICATION_JSON));
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON))) {
 
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
-            return response.readEntity(DTUPayUser.class);
-        } else {
-            throw new Exception(response.readEntity(String.class));
+            if (response.getStatus() == 200 || response.getStatus() == 201) {
+                return response.readEntity(DTUPayUser.class);
+            } else {
+                throw new Exception(response.readEntity(String.class));
+            }
         }
     }
 
-    public Set<Token> requestToken(String cid, int amount) throws Exception { //Customer requests token
+    public Set<Token> requestToken(String cid, int amount) throws Exception {
         TokenRequest tokenRequest = new TokenRequest(cid, amount);
         System.out.println(tokenRequest);
-        Response response = baseUrl.path("customer/token")
+        try (Response response = baseUrl.path("customer/token")
                 .request()
-                .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
-            return response.readEntity(new GenericType<>() {});
-        } else {
-            throw new Exception(response.readEntity(String.class));
+                .post(Entity.entity(tokenRequest, MediaType.APPLICATION_JSON))) {
+            System.out.println(response.getStatus());
+            if (response.getStatus() == 200 || response.getStatus() == 201) {
+                return response.readEntity(new GenericType<>() {
+                });
+            } else {
+                throw new Exception(response.readEntity(String.class));
+            }
         }
     }
-//    public List<Transaction> getReport(String cid) {
-//        return baseUrl.path("customer/transactions")
-//                .request()
-//                .get(List<Transaction>)
-//    }
 }
