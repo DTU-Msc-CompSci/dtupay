@@ -3,13 +3,16 @@ package org.acme;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
-    Map<String, Set<Token>> assignedTokens = new ConcurrentHashMap<String,Set<Token>>();
-    Map<String, String> tokenToId = new ConcurrentHashMap<String,String>();
-    Set<String> usedTokenPool = new HashSet<String>();
+    Map<String, Set<Token>> assignedTokens = new ConcurrentHashMap<>();
+    Map<String, String> tokenToId = new ConcurrentHashMap<>();
+    Set<String> usedTokenPool = new HashSet<>();
 
     MessageQueue queue;
     public Map<String, Set<Token>> getAssignedTokens() {
@@ -63,10 +66,6 @@ public class TokenService {
 
         }
 
-        // TODO: Check to make sure this is correct
-//        if (response.getMessage() == null) {
-//            event = new Event("TokenRequestFailed", new Object[]{correlationId, response});
-//        }
         if (error) {
             event = new Event("TokenRequestFailed", new Object[] {correlationId, response });
         } else {
@@ -98,7 +97,6 @@ public class TokenService {
         Set<Token> requestTokens = new HashSet<>();
 
         for (int i = 0; i < tokenRequest.getAmount(); i++) {
-            //Set<Token> ts = assignedTokens.get(tokenRequest.getCid());
             String tokenId = UUID.randomUUID().toString();
             while (usedTokenPool.contains(tokenId)) {
                 tokenId = UUID.randomUUID().toString();

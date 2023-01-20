@@ -1,22 +1,17 @@
 package behaviourtests;
 
-import dtu.ws.fastmoney.BankServiceException_Exception;
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceService;
 import dtu.ws.fastmoney.User;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.java.Before;
-import io.cucumber.java.After;
-
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import dtu.ws.fastmoney.BankService;
-import dtu.ws.fastmoney.BankServiceService;
 
 import static io.smallrye.common.constraint.Assert.assertNotNull;
 import static io.smallrye.common.constraint.Assert.assertTrue;
@@ -41,7 +36,7 @@ public class TokenStepsTest {
            bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
        } catch (Exception e){
            error = e.getMessage();
-           System.out.println(e);
+           System.out.println(error);
        }
    }
 
@@ -51,7 +46,7 @@ public class TokenStepsTest {
            bankService.retireAccount(bankID);
        } catch (Exception e){
            error = e.getMessage();
-           System.out.println(e);
+           System.out.println(error);
        }
 
    }
@@ -64,7 +59,7 @@ public class TokenStepsTest {
     }
 
     @When("the customer requests {int} tokens")
-    public void a_customer_requests_tokens(int amount) throws Exception {
+    public void a_customer_requests_tokens(int amount) {
         try {
             tokens = customerAPI.requestToken(customer.getUniqueId(),amount);
         } catch (Exception e){

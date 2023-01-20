@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-//TODO This xml thing
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction implements Serializable {
-    // Might need to change the number depending on the User being referenced
     private static final long serialVersionUID = 9023222281284906610L;
 
     private Token customerToken;
@@ -39,7 +37,6 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        // uniqueId could potentially be null
         return String.format("Transaction id: %s", transactionId);
     }
 }

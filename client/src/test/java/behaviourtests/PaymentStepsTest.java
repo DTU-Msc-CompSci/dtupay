@@ -15,12 +15,14 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
-    private CustomerAPI customerAPI = new CustomerAPI();
-    private MerchantAPI merchantAPI = new MerchantAPI();
+    private final CustomerAPI customerAPI = new CustomerAPI();
+    private final MerchantAPI merchantAPI = new MerchantAPI();
 
     User customer = new User();
     User merchant = new User();
@@ -40,7 +42,7 @@ public class PaymentStepsTest {
 
 
     @Before
-    public void init() throws BankServiceException_Exception {
+    public void init() {
         customer.setFirstName("Jeffrey");
         customer.setLastName("Test");
         customer.setCprNumber("JeffreyTest");
@@ -65,7 +67,6 @@ public class PaymentStepsTest {
             registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            //assertFalse(true);
         }
         assertNotNull(registeredCustomer.getUniqueId());
     }
@@ -88,7 +89,6 @@ public class PaymentStepsTest {
     }
     @When("the merchant requests a transaction with the customer token")
     public void the_merchant_requests_a_transaction_with_the_customer_token() {
-        // Write code here that turns the phrase above into concrete actions
         Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), 100, "test");
         success = merchantAPI.postTransaction(transaction);
     }
@@ -103,7 +103,7 @@ public class PaymentStepsTest {
         try {
             assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayCustomer.getBankId().getBankAccountId()).getBalance());
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -112,7 +112,7 @@ public class PaymentStepsTest {
         try {
             assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayMerchant.getBankId().getBankAccountId()).getBalance());
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -123,7 +123,7 @@ public class PaymentStepsTest {
             dtuPayCustomer.setBankId(new BankId(customerBankId));
             dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -134,7 +134,7 @@ public class PaymentStepsTest {
             dtuPayMerchant.setBankId(new BankId(merchantBankId));
             dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 

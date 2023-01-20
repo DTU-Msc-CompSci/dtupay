@@ -26,15 +26,6 @@ Feature: Token
    Then the token request fails and throws an exception "Less than 1 token requested"
 
 
-#TODO DELETE THE NEXT SCENARIO 
-#This Scenario I think it doesn't hold because the User has 4 token and cannot ask for more
-#The message I receive is " expected:<[Not enough tokens available]> but was:<[User already has more than 1 token]> "
-  # Scenario: Request more tokens than available
-  #   Given a customer is registered with DTU Pay
-  #   And the customer has already requested 4 unused tokens
-  #   When the customer requests 4 tokens
-  #   Then the token request fails and throws an exception "Not enough tokens available"
-
 
 
 

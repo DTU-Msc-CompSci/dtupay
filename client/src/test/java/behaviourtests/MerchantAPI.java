@@ -30,21 +30,24 @@ public class MerchantAPI {
     }
 
     public DTUPayUser postMerchant(DTUPayUser user) throws Exception {
-        Response response = baseUrl.path("merchant")
+        try (Response response = baseUrl.path("merchant")
                 .request()
-                .post(Entity.entity(user,MediaType.APPLICATION_JSON));
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON))) {
 
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
-            return response.readEntity(new GenericType<>() {});
-        } else {
-            throw new Exception(response.readEntity(String.class));
+            if (response.getStatus() == 200 || response.getStatus() == 201) {
+                return response.readEntity(new GenericType<>() {
+                });
+            } else {
+                throw new Exception(response.readEntity(String.class));
+            }
         }
     }
 
     public boolean postTransaction(Transaction transaction) {
-        Response response = baseUrl.path("merchant/transaction")
+        try (Response response = baseUrl.path("merchant/transaction")
                 .request()
-                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
-        return response.getStatus() == 200 || response.getStatus() == 201;
+                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON))) {
+            return response.getStatus() == 200 || response.getStatus() == 201;
+        }
     }
 }

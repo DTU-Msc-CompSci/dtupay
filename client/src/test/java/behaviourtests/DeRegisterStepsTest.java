@@ -12,15 +12,14 @@ import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DeRegisterStepsTest {
 
     BankService bankService = new BankServiceService().getBankServicePort();
-    private CustomerAPI customerAPI = new CustomerAPI();
-    private MerchantAPI merchantAPI = new MerchantAPI();
+    private final CustomerAPI customerAPI = new CustomerAPI();
+    private final MerchantAPI merchantAPI = new MerchantAPI();
 
     User customer = new User();
     User merchant = new User();
@@ -80,7 +79,7 @@ public class DeRegisterStepsTest {
     }
 
     @When("the customer de-registers")
-    public void theCustomerDeRegisters() throws Exception {
+    public void theCustomerDeRegisters() {
         try {
             response = customerAPI.deregisterCustomer(registeredCustomer);
             System.out.println(response.getStatus());

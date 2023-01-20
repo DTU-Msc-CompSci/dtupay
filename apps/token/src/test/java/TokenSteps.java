@@ -17,8 +17,8 @@ import messaging.MessageQueue;
 import java.util.UUID;
 
 public class TokenSteps {
-    private MessageQueue q = mock(MessageQueue.class);
-    private TokenService service = new TokenService(q);
+    private final MessageQueue mockQueue = mock(MessageQueue.class);
+    private final TokenService service = new TokenService(mockQueue);
     String customerID;
     int amount;
     String correlationID = UUID.randomUUID().toString();
@@ -50,11 +50,9 @@ public class TokenSteps {
 
     @Then("a TokenRequestFulfilled event is published")
     public void aTokenRequestFulfilledEventIsPublished() {
-        //Event event = new Event("TokenRequestFulfilled", new Object[] { new TokenResponse(service.getAssignedTokens().get(customerID),"success")});
         TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID),"success");
         Event event = new Event("TokenRequestFulfilled", new Object[] { correlationID, response });
-        //q.publish(event);
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @And("{int} tokens should exist for the user")
@@ -72,7 +70,7 @@ public class TokenSteps {
         TokenResponse response = new TokenResponse();
         response.setMessage(message);
         Event event = new Event("TokenRequestFailed",new Object[] { correlationID, response });
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @And("the customer has {int} tokens")
@@ -102,7 +100,7 @@ public class TokenSteps {
     @Then("a AllTokenRemovedFromDeRegisteredCustomer event is published")
     public void aAllTokenRemovedFromDeRegisteredCustomerEventIsPublished() {
         Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer",new Object[] { correlationID, true });
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @And("assignedTokens does not contain the customer id")
@@ -137,6 +135,6 @@ public class TokenSteps {
    @Then("a TokenValidated event is published containing the customer id")
    public void aTokenValidatedEventIsPublished() {
         Event event = new Event("TokenValidated", new Object[] { correlationID, customerID });
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
    }
 }
