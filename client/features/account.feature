@@ -1,12 +1,16 @@
-Feature: DeRegister customer and merchant
-  Description: DeRegister customer and merchant
-  Actors: Customer, Merchant
+Feature: Account Service
 
- Scenario: Customer de-register successfully
-   Given a customer exists in DTUPay
-   When the customer de-registers
-   Then the customer is removed from DTUPay
+  Scenario: Customer registration successful
+    Given a customer with the first name "First", last name "Last", and CPR number "123456-7890"
+    And a bank account for the customer
+    When the customer tries to register
+    Then registration is successful for the customer
 
+  Scenario: Merchant registration successful
+    Given a merchant with the first name "First", last name "Last", and CPR number "123456-7890"
+    And a bank account for the merchant
+    When the merchant tries to register
+    Then registration is successful for the merchant
 
  Scenario: Merchant de-register successfully
    Given a merchant exists in DTUPay

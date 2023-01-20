@@ -26,6 +26,7 @@ public class TokenStepsTest {
     Set<Token> tokens; 
     String error;
     String bankID;
+
    @Before
    public void before(){
        User c = new User();

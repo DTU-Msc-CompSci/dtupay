@@ -43,11 +43,15 @@ public class MerchantAPI {
         }
     }
 
-    public boolean postTransaction(Transaction transaction) {
-        try (Response response = baseUrl.path("merchant/transaction")
+    public boolean postTransaction(Transaction transaction) throws Exception {
+        Response response = baseUrl.path("merchant/transaction")
                 .request()
-                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON))) {
-            return response.getStatus() == 200 || response.getStatus() == 201;
+                .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
+            return response.getStatus() == 201 || response.getStatus() != 200;
+        }  else {       
+            throw new Exception("Transaction failed");
         }
+        
     }
 }

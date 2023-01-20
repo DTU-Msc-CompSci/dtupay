@@ -6,6 +6,7 @@ import dtu.ws.fastmoney.BankServiceService;
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DeRegisterStepsTest {
+public class AccountStepsTest {
 
     BankService bankService = new BankServiceService().getBankServicePort();
     private final CustomerAPI customerAPI = new CustomerAPI();
@@ -51,8 +52,6 @@ public class DeRegisterStepsTest {
        merchant.setCprNumber("_");
 
        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
-
-
    }
 
    @After
@@ -101,7 +100,7 @@ public class DeRegisterStepsTest {
         try {
             registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
         assertNotNull(registeredMerchant.getUniqueId());
     }
@@ -126,7 +125,48 @@ public class DeRegisterStepsTest {
 
     @Then("the customer gets an error message")
     public void theCustomerGetsAnErrorMessage() {
-        System.out.println(errorMessageHolder.getErrorMessage());
+        //System.out.println(errorMessageHolder.getErrorMessage());
         assertEquals("Account does not exist in DTUPay", errorMessageHolder.getErrorMessage());
+    }
+
+    @Given("a customer with the first name {string}, last name {string}, and CPR number {string}")
+    public void aCustomerWithTheFirstNameLastNameAndCPRNumber(String first, String last, String cpr) {
+        dtuPayCustomer.setPerson(new Person(first,last,cpr));
+
+    }
+
+    @And("a bank account for the customer")
+    public void aBankAccountWithABalanceOf() {
+        dtuPayCustomer.setBankId(new BankId(customerBankId));
+    }
+
+    @When("the customer tries to register")
+    public void theCustomerTriesToRegister() throws Exception {
+        registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
+    }
+
+    @Then("registration is successful for the customer")
+    public void registrationIsSuccessful() {
+        assertNotNull(registeredCustomer.getUniqueId());
+    }
+
+    @Given("a merchant with the first name {string}, last name {string}, and CPR number {string}")
+    public void aMerchantWithTheFirstNameLastNameAndCPRNumber(String first, String last, String cpr) {
+        dtuPayMerchant.setPerson(new Person(first,last,cpr));
+    }
+
+    @And("a bank account for the merchant")
+    public void aBankAccountForTheMerchant() {
+        dtuPayMerchant.setBankId(new BankId(merchantBankId));
+    }
+
+    @When("the merchant tries to register")
+    public void theMerchantTriesToRegister() throws Exception {
+        registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
+    }
+
+    @Then("registration is successful for the merchant")
+    public void registrationIsSuccessfulForTheMerchant() {
+        assertNotNull(registeredMerchant.getUniqueId());
     }
 }
