@@ -15,12 +15,15 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PaymentStepsTest {
     BankService bankService = new BankServiceService().getBankServicePort();
-    private CustomerAPI customerAPI = new CustomerAPI();
-    private MerchantAPI merchantAPI = new MerchantAPI();
+    private final CustomerAPI customerAPI = new CustomerAPI();
+    private final MerchantAPI merchantAPI = new MerchantAPI();
 
     User customer = new User();
     User merchant = new User();
@@ -41,10 +44,10 @@ public class PaymentStepsTest {
 
 
     @Before
-    public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Jefftgrey");
-        customer.setLastName("Testgt");
-        customer.setCprNumber("JetgffreyTest");
+    public void init() {
+        customer.setFirstName("Jeffrey");
+        customer.setLastName("Test");
+        customer.setCprNumber("JeffreyTest");
 
         merchant.setFirstName("Eltglen");
         merchant.setLastName("Testgt");
@@ -60,15 +63,17 @@ public class PaymentStepsTest {
             //throw new RuntimeException(e);
         }
     }
+
     @Given("a customer registered with DTU Pay")
     public void aCustomerRegisteredWithDTUPay() {
         try {
             registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
         } catch (Exception e) {
-            //System.out.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
         assertNotNull(registeredCustomer.getUniqueId());
     }
+
     @Given("a merchant registered with DTU Pay")
     public void aMerchantRegisteredWithDTUPay() {
         try {
@@ -81,19 +86,17 @@ public class PaymentStepsTest {
 
     @Given("a token associated with the customer")
     public void a_token_associated_with_the_customer() throws Exception {
-        Set<Token> tokens = customerAPI.requestToken(registeredCustomer.getUniqueId(),1);
+        Set<Token> tokens = customerAPI.requestToken(registeredCustomer.getUniqueId(), 1);
         token = tokens.iterator().next();
     }
 
     @When("the merchant initiates a payment for {int} kr with the customer token")
     public void the_merchant_requests_a_transaction_with_the_customer_token(int amount) {
-        // Write code here that turns the phrase above into concrete actions
-        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test");
-        try{
+        Transaction transaction = new Transaction(token, registeredMerchant.getUniqueId(), amount, "test");
+        try {
             success = merchantAPI.postTransaction(transaction);
-    
-        } catch(Exception e){
-            //System.out.println(e.getMessage());
+
+        } catch (Exception e) {
             success = false;
             error = e.getMessage();
         }
@@ -109,7 +112,7 @@ public class PaymentStepsTest {
         try {
             assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayCustomer.getBankId().getBankAccountId()).getBalance());
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -118,7 +121,7 @@ public class PaymentStepsTest {
         try {
             assertEquals(BigDecimal.valueOf(arg0), bankService.getAccount(dtuPayMerchant.getBankId().getBankAccountId()).getBalance());
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -127,9 +130,9 @@ public class PaymentStepsTest {
         try {
             customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(arg0));
             dtuPayCustomer.setBankId(new BankId(customerBankId));
-            dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
+            dtuPayCustomer.setPerson(new Person(customer.getFirstName(), customer.getLastName(), customer.getCprNumber()));
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -138,9 +141,9 @@ public class PaymentStepsTest {
         try {
             merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(amount));
             dtuPayMerchant.setBankId(new BankId(merchantBankId));
-            dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
+            dtuPayMerchant.setPerson(new Person(merchant.getFirstName(), merchant.getLastName(), merchant.getCprNumber()));
         } catch (BankServiceException_Exception e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -152,6 +155,6 @@ public class PaymentStepsTest {
 
     @And("throws an exception {string}")
     public void throwsAnException(String error) {
-        assertEquals(error,this.error);
+        assertEquals(error, this.error);
     }
 }

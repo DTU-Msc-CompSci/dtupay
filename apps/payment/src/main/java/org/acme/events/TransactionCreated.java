@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = false)
 public class TransactionCreated extends PaymentEvent {
 
-	private static final long serialVersionUID = -1599019626118724482L;
+    private static final long serialVersionUID = -1599019626118724482L;
     private String transactionID;
-    private String customerToken ;
+    private String customerToken;
     private String merchantID;
     private BigDecimal amount;
 }

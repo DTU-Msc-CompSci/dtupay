@@ -28,7 +28,7 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deregister")
     public Response deRegisterCustomer(DTUPayUser user) {
-        if(service.deRegisterCustomer(user)) {
+        if (service.deRegisterCustomer(user)) {
             System.out.println("Customer de-registered");
             return Response.status(200).entity("Success").build();
         } else {
@@ -42,15 +42,14 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/token")
     public Response postToken(TokenRequest tokenRequest) {
-        try{
+        try {
             TokenResponse response = service.getToken(tokenRequest);
             if (!response.getMessage().equals("success")) {
                 return Response.status(400).entity(response.getMessage()).build();
             }
             return Response.status(201).entity(response.getTokens()).build();
-        }
-        catch(Exception e){
-            System.out.println("CompletableFuture timeouted.");
+        } catch (Exception e) {
+            System.out.println("CompletableFuture timeout.");
             System.out.println(e.getMessage());
             return Response.status(500).entity(e.getMessage()).build();
         }

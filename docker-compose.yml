@@ -7,8 +7,6 @@ services:
       dockerfile: ./Dockerfile
     hostname: account
     restart: always
-#    ports:
-#      - "8090:8080"
     networks:
       - dtupay-network
     depends_on:
@@ -22,7 +20,7 @@ services:
     hostname: dtupay
     restart: always
     ports:
-      - "8091:8080"
+      - "8080:8080"
     networks:
       - dtupay-network
     depends_on:
@@ -36,8 +34,6 @@ services:
       dockerfile: ./Dockerfile
     hostname: payment
     restart: always
-#    ports:
-#      - "8092:8080"
     networks:
       - dtupay-network
     depends_on:
@@ -50,8 +46,6 @@ services:
       dockerfile: ./Dockerfile
     hostname: token
     restart: always
-#    ports:
-#      - "8093:8080"
     networks:
       - dtupay-network
     depends_on:
@@ -62,9 +56,6 @@ services:
     image: rabbitmq:3-management
     restart: on-failure
     hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     networks:
       - dtupay-network
     healthcheck:

@@ -1,9 +1,7 @@
-
-import org.junit.runner.RunWith;
-
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import io.cucumber.junit.CucumberOptions.SnippetType;
+import org.junit.runner.RunWith;
 
 /* Important:
 For Cucumber tests to be recognized by Maven, the class name has to have
@@ -12,8 +10,8 @@ For example, the class name CucumberTestExample will be ignored by Maven.
 */
 
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin="summary"
-        , publish= false
+@CucumberOptions(plugin = "summary"
+        , publish = false
         , features = "features"  // directory of the feature files
         , snippets = SnippetType.CAMELCASE
 )

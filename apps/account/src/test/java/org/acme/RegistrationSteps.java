@@ -25,15 +25,14 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 public class RegistrationSteps {
-    private MessageQueue mockQueue = mock(MessageQueue.class);
+    private final MessageQueue mockQueue = mock(MessageQueue.class);
 
-//    private AccountService service = new AccountService(q);
-    private AccountService accountServiceMockQueue = new AccountService(mockQueue);
+    private final AccountService accountServiceMockQueue = new AccountService(mockQueue);
 
-    private DTUPayUser customer = new DTUPayUser();
-    private DTUPayUser merchant = new DTUPayUser();
+    private final DTUPayUser customer = new DTUPayUser();
+    private final DTUPayUser merchant = new DTUPayUser();
 
-    private BankService bankService =  new BankServiceService().getBankServicePort();
+    private final BankService bankService =  new BankServiceService().getBankServicePort();
     private String customerBankAccountId;
     private String merchantBankAccountId;
     Event event;
@@ -67,6 +66,7 @@ public class RegistrationSteps {
             bankService.retireAccount(customerBankAccountId);
             bankService.retireAccount(merchantBankAccountId);
         } catch (BankServiceException_Exception e) {
+            //throw new RuntimeException(e);
         }
     }
 
@@ -89,7 +89,6 @@ public class RegistrationSteps {
     @When("the service receives a {word}AccountCreationRequested event")
     public void theServiceReceivesUserAccountCreationRequestedEvent(String userType){
         boolean flag = false;
-        // This should technically be a library function
         correlationId = accountServiceMockQueue.generateCorrelationId();
         if(userType.equals("Customer")) {
             var event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, customer});
@@ -145,7 +144,6 @@ public class RegistrationSteps {
 
     @Then("a {word}AccountDeRegistrationCompleted event is published")
     public void aUserAccountDeRegistrationCompletedPublished(String userType) {
-        // TODO: FIXME - This is known to not pass based on discussions with the team and the need to break into new events
         Event event = null;
         if (userType.equals("Customer")) {
             event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { correlationId, true});
@@ -203,12 +201,10 @@ public class RegistrationSteps {
 
     @Given("the service received a {word}AccountCreationRequested event")
     public void theServiceReceivedACustomerAccountCreationRequestedEvent(String userType) {
-        // Because of how the tests are structured, customer does not have default values at this step
         Person person = new Person("John", "Rambo", "123123");
         customer.setPerson(person);
         customer.setBankId(new BankId("exampleId"));
         boolean flag = false;
-        // This should technically be a library function
         correlationId = accountServiceMockQueue.generateCorrelationId();
         if (userType.equals("Customer")) {
             var event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, customer});

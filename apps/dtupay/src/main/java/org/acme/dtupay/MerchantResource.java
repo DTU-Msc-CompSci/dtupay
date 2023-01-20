@@ -1,9 +1,5 @@
 package org.acme.dtupay;
 
-//import jakarta.transaction.Transaction;
-//import jakarta.ws.rs.Path;
-//import jakarta.ws.rs.core.MediaType;
-//import jakarta.ws.rs.core.Response;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -36,8 +32,6 @@ public class MerchantResource {
             return Response.status(400).entity(transactionResult).build();
         }
         return Response.status(201).entity(transactionResult).build();
-
-//        return service.requestTransaction(transaction);
     }
 
     @POST

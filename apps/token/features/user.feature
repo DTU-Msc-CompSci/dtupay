@@ -22,6 +22,3 @@ Feature: User management
    And the customer has 1 token with the id "dummyID"
    When the service receives a TransactionRequested event
    Then a TokenValidated event is published containing the customer id
-  #  And assignedTokens does not contain "dummyID"
-  #  And tokenToId does not contain "dummyID"
-  #  And usedTokenPool contains "dummyID"
