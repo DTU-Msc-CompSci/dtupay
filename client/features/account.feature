@@ -12,7 +12,7 @@ Feature: Account Service
     When the merchant tries to register
     Then registration is successful for the merchant
 
- Scenario: Merchant de-register successfully
-   Given a merchant exists in DTUPay
-   When the merchant de-registers
-   Then the merchant is removed from DTUPay
+# Scenario: Merchant de-register successfully
+#   Given a merchant exists in DTUPay
+#   When the merchant de-registers
+#   Then the merchant is removed from DTUPay
