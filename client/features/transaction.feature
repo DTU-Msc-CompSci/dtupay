@@ -1,5 +1,5 @@
-Feature: Payment
-	Scenario: Successful Payment
+Feature: Transaction
+	Scenario: Successful Transaction
 		Given a customer with a bank account with balance 1000
 		And a customer registered with DTU Pay
 		And a token associated with the customer
@@ -38,7 +38,7 @@ Feature: Payment
 		Then the transaction is unsuccessful
 		And throws an exception "Merchant does not exist"
 
-	Scenario: Payment amount is 0 or less
+	Scenario: Transaction amount is 0 or less
 		Given a customer with a bank account with balance 1000
 		And a customer registered with DTU Pay
 		And a token associated with the customer

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 
 public class CorrelationIdSteps {
     MessageQueue mockQueue = mock(RabbitMqQueue.class);
-    private final CoreService coreServiceMockRabbit = new CoreService(mockQueue);
+    private final DTUPayService coreServiceMockRabbit = new DTUPayService(mockQueue);
     private DTUPayUser customer;
 
     @Given("existing customer with bank ID {string}")

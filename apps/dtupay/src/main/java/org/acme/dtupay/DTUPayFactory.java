@@ -2,10 +2,10 @@ package org.acme.dtupay;
 
 import messaging.implementations.RabbitMqQueue;
 
-public class CoreFactory {
-    static CoreService service = null;
+public class DTUPayFactory {
+    static DTUPayService service = null;
 
-    public synchronized CoreService getService() {
+    public synchronized DTUPayService getService() {
         // The singleton pattern.
         // Ensure that there is at most
         // one instance of a PaymentService
@@ -22,7 +22,7 @@ public class CoreFactory {
         // At the end, we can use the PaymentService in tests
         // without sending actual messages to RabbitMq.
         var mq = new RabbitMqQueue("rabbitmq");
-        service = new CoreService(mq);
+        service = new DTUPayService(mq);
         return service;
     }
 }

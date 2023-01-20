@@ -9,7 +9,7 @@ import java.util.Set;
 @Path("/customer")
 public class CustomerResource {
 
-    CoreService service = new CoreFactory().getService();
+    DTUPayService service = new DTUPayFactory().getService();
 
 
     @POST

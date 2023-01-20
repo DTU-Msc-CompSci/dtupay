@@ -9,7 +9,7 @@ import java.util.Set;
 @Path("/merchant")
 public class MerchantResource {
 
-    CoreService service = new CoreFactory().getService();
+    DTUPayService service = new DTUPayFactory().getService();
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

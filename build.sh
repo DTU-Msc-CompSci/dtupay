@@ -27,7 +27,7 @@ pushd dtupay
 ./build.sh
 popd
 
-pushd payment
+pushd transaction
 ./build.sh
 popd
 

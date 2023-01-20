@@ -9,7 +9,7 @@ import java.util.Set;
 @Path("/manager")
 public class ManagerResource {
 
-    CoreService service = new CoreFactory().getService();
+    DTUPayService service = new DTUPayFactory().getService();
 
 
     @GET

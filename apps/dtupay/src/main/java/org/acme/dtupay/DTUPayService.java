@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class CoreService {
+public class DTUPayService {
     private final MessageQueue queue;
 
     private final Map<String, CompletableFuture<AccountResponse>> pendingCustomers = new ConcurrentHashMap<>();
@@ -26,7 +26,7 @@ public class CoreService {
     long timeoutValue = 20;
     TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
-    public CoreService(MessageQueue q) {
+    public DTUPayService(MessageQueue q) {
         queue = q;
         queue.addHandler("CustomerAccountCreated", this::handleCustomerRegistered);
         queue.addHandler("MerchantAccountCreated", this::handleMerchantRegistered);
