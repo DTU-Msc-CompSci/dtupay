@@ -35,13 +35,13 @@ public class CustomerAPI {
     }
 
     public Response deregisterCustomer(DTUPayUser user) throws Exception {
-        Response response = baseUrl.path("customer/deregister")
+        Response response = baseUrl.path("customer/deregister/"+ user.getUniqueId())
                 .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
+                .delete();
+        if (response.getStatus() == 204) {
             return response;
         } else {
-            throw new Exception(response.readEntity(String.class));
+            throw new Exception("Account does not exist in DTUPay");
         }
     }
 

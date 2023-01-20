@@ -51,17 +51,17 @@ public class ReportingStepsTest {
 
     @Before
     public void init() throws Exception {
-        customer.setFirstName("Dallas");
-        customer.setLastName("Ellis");
-        customer.setCprNumber("090974-2293");
+        customer.setFirstName("Justin");
+        customer.setLastName("Knupp");
+        customer.setCprNumber("100697-3929");
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(20000));
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
 
-        merchant.setFirstName("Devin");
-        merchant.setLastName("Moreau");
-        merchant.setCprNumber("100751-0450");
+        merchant.setFirstName("Barbara");
+        merchant.setLastName("Bennett");
+        merchant.setCprNumber("070442-0080");
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(10000));
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
