@@ -35,8 +35,8 @@ public class CustomerAPI {
     }
 
     public Response deregisterCustomer(DTUPayUser user) throws Exception {
-        Response response = baseUrl.path("customer/deregister/"+ user.getUniqueId())
-                .request(MediaType.APPLICATION_JSON)
+        Response response = baseUrl.path("customer/"+ user.getUniqueId())
+                .request()
                 .delete();
         if (response.getStatus() == 204) {
             return response;

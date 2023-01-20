@@ -32,16 +32,17 @@ public class CustomerResource {
         return Response.status(201).entity(response.getUser()).build();
     }
 
-    @POST
+    @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/deregister/{id}")
+    @Path("/{id}")
+    @APIResponses({
+            @APIResponse(responseCode = "204", description = "Merchant de-registered successfully", content = @Content(mediaType = "application/json")),
+    })
     public Response deRegisterCustomer(@PathParam("id") String id) {
         if (service.deRegisterCustomer(id)) {
-            System.out.println("Customer de-registered");
             return Response.status(204).build();
         } else {
-            System.out.println("Customer de-registration failed");
             return Response.status(400).build();
         }
     }

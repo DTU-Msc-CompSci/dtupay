@@ -39,15 +39,15 @@ public class AccountStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("William");
-        customer.setLastName("Duncan");
-        customer.setCprNumber("151173-2707");
+        customer.setFirstName("Debra");
+        customer.setLastName("Proto");
+        customer.setCprNumber("301149-1692");
 
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-        merchant.setFirstName("Clarissa");
-        merchant.setLastName("Campbell");
-        merchant.setCprNumber("150466-4232");
+        merchant.setFirstName("Sean");
+        merchant.setLastName("Leach");
+        merchant.setCprNumber("240803-6669");
 
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
     }
@@ -89,7 +89,7 @@ public class AccountStepsTest {
 
     @Then("the customer is removed from DTUPay")
     public void theCustomerIsRemovedFromDTUPay() {
-        assertEquals(200, response.getStatus());
+        assertEquals(204, response.getStatus());
     }
 
     @Given("a merchant exists in DTUPay")
@@ -112,7 +112,7 @@ public class AccountStepsTest {
 
     @Then("the merchant is removed from DTUPay")
     public void theMerchantIsRemovedFromDTUPay() {
-        assertEquals(200, response.getStatus());
+        assertEquals(204, response.getStatus());
     }
 
     @Given("a customer does not exist in DTUPay")

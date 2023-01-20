@@ -124,10 +124,10 @@ public class DTUPayService {
         return deRegisteredCustomerCompleted.join();
     }
 
-    public Boolean deRegisterMerchant(DTUPayUser user) {
+    public Boolean deRegisterMerchant(String userID) {
         var correlationId = generateCorrelationId();
         CompletableFuture<Boolean> deRegisteredMerchantCompleted = new CompletableFuture<>();
-        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{correlationId, user.getUniqueId()});
+        Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{correlationId, userID});
         pendingDeregisterMerchants.put(correlationId, deRegisteredMerchantCompleted);
         queue.publish(event);
         return deRegisteredMerchantCompleted.join();

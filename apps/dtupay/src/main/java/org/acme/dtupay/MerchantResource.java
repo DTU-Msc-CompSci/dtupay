@@ -47,16 +47,19 @@ public class MerchantResource {
         return Response.status(201).entity(transactionResult).build();
     }
 
-    @POST
+    @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/deregister")
+    @Path("/{id}")
     @APIResponses({
-            @APIResponse(responseCode = "200", description = "Merchant de-registered successfully", content = @Content(mediaType = "application/json")),
+            @APIResponse(responseCode = "204", description = "Merchant de-registered successfully", content = @Content(mediaType = "application/json")),
     })
-    public Response deRegisterMerchant(DTUPayUser user) {
-        service.deRegisterMerchant(user);
-        return Response.ok().build();
+    public Response deRegisterMerchant(@PathParam("id") String id) {
+        if (service.deRegisterMerchant(id)) {
+            return Response.status(204).build();
+        } else {
+            return Response.status(400).build();
+        }
     }
 
     @GET

@@ -34,10 +34,10 @@ public class MerchantAPI {
     }
 
     public Response deregisterMerchant(DTUPayUser user) {
-        Response response = baseUrl.path("merchant/deregister")
+        Response response = baseUrl.path("merchant/"+ user.getUniqueId())
                 .request()
-                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
-        if (response.getStatus() == 200 || response.getStatus() == 201) {
+                .delete();
+        if (response.getStatus() == 204) {
             return response;
         } else {
             return null;
