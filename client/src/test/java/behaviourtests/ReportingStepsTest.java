@@ -51,17 +51,17 @@ public class ReportingStepsTest {
 
     @Before
     public void init() throws Exception {
-        customer.setFirstName("Bobdcdfvdtgtrfgfryrf1");
-        customer.setLastName("Lemorddtgtgcrffvdfrfny1");
-        customer.setCprNumber("LemordtgtgrfcdfvdfvfrnOrangy1");
+        customer.setFirstName("Bobdcdfvd345tgtrfgfryrf1");
+        customer.setLastName("Lemorddt345gtgcrffvdfrfny1");
+        customer.setCprNumber("Lemordt345gtgrfcdfvdfvfrnOrangy1");
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(20000));
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
 
-        merchant.setFirstName("Alrrtgtgrffddcfvdfvic1y");
-        merchant.setLastName("Pea1rttggrffrdcdfvdfvry");
-        merchant.setCprNumber("ApprftgtrfgldcredfvfPe1ary");
+        merchant.setFirstName("Alrrtgt345grffddcfvdfvic1y");
+        merchant.setLastName("Pea1rttg345grffrdcdfvdfvry");
+        merchant.setCprNumber("Apprftgt345rfgldcredfvfPe1ary");
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(10000));
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));

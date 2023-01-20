@@ -181,7 +181,7 @@ public class TransactionSteps {
         ReportUserResponse resp = new ReportUserResponse();
         resp.setReports(report);
         Event merchantReportEvent = new Event("MerchantReportCreated", new Object[] { transactionID, resp });
-        verify(q, times(1)).publish(merchantReportEvent);
+        verify(mockQueue, times(1)).publish(merchantReportEvent);
     }
 
     @When("the customer report is requested")
@@ -197,7 +197,7 @@ public class TransactionSteps {
         ReportUserResponse resp = new ReportUserResponse();
         resp.setReports(report);
         Event customerReportEvent = new Event("CustomerReportCreated", new Object[] { transactionID, resp });
-        verify(q, times(1)).publish(customerReportEvent);
+        verify(mockQueue, times(1)).publish(customerReportEvent);
     }
 
     @When("the manager report is requested")
@@ -213,7 +213,7 @@ public class TransactionSteps {
         ReportManagerResponse resp = new ReportManagerResponse();
         resp.setReports(report);
         Event managerReportEvent = new Event("ManagerReportCreated", new Object[] { transactionID, resp });
-        verify(q, times(1)).publish(managerReportEvent);
+        verify(mockQueue, times(1)).publish(managerReportEvent);
     }
 
     @When("the service receives events for two transactions interleaved")
