@@ -1,6 +1,11 @@
 package org.acme.dtupay;
 
 
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -14,6 +19,10 @@ public class MerchantResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses({
+            @APIResponse(responseCode = "201", description = "Merchant created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DTUPayUser.class))),
+            @APIResponse(responseCode = "400", description = "Merchant already exists")
+    })
     public Response postMerchant(DTUPayUser user) {
         AccountResponse response = service.registerMerchant(user);
         if (!response.getMessage().equals("Success")) {
@@ -26,6 +35,10 @@ public class MerchantResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/transaction")
+    @APIResponses({
+            @APIResponse(responseCode = "201", description = "Transaction successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @APIResponse(responseCode = "400", description = "Transaction failed")
+    })
     public Response postTransaction(Transaction transaction) {
         String transactionResult = service.requestTransaction(transaction);
         if (!transactionResult.equals("Success")) {
@@ -38,13 +51,21 @@ public class MerchantResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deregister")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Merchant de-registered successfully", content = @Content(mediaType = "application/json")),
+    })
     public Response deRegisterMerchant(DTUPayUser user) {
         service.deRegisterMerchant(user);
         return Response.ok().build();
     }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/report/{id}")
+    @APIResponses({
+            @APIResponse(responseCode = "201", description = "Returns all transactions for Merchant", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TransactionUserView.class))),
+            @APIResponse(responseCode = "404", description = "No Transactions available for Merchant")
+    })
     public Response getManagerReport(@PathParam("id") String id ) {
         Set<TransactionUserView> reports = service.getMerchantReports(id).getReports();
         if (reports.size() == 0) {
