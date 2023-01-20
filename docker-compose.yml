@@ -58,9 +58,6 @@ services:
     hostname: rabbitmq
     networks:
       - dtupay-network
-    resources:
-      limits:
-        cpus: '1'
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
       interval: 30s

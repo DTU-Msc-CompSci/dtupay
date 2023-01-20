@@ -23,7 +23,7 @@ public class CoreService {
     private final Map<String, CompletableFuture<ReportUserResponse>> pendingCustomerReport = new ConcurrentHashMap<>();
     private final Map<String, CompletableFuture<ReportUserResponse>> pendingMerchantReport = new ConcurrentHashMap<>();
 
-    long timeoutValue = 10;
+    long timeoutValue = 20;
     TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
     public CoreService(MessageQueue q) {
