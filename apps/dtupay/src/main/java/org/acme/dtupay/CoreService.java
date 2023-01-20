@@ -136,22 +136,22 @@ public class CoreService {
     // TODO: All the events that are going to be generating the Correlation ID need to follow this pattern
     public AccountResponse registerCustomer(DTUPayUser c) {
         CompletableFuture<AccountResponse> registeredCustomerFuture = new CompletableFuture<>();
-        registeredCustomerFuture.orTimeout(timeoutValue, timeoutUnit);
+        //registeredCustomerFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
         pendingCustomers.put(correlationId, registeredCustomerFuture);
         Event event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, c});
         queue.publish(event);
-        return registeredCustomerFuture.join();
+        return registeredCustomerFuture.orTimeout(timeoutValue, timeoutUnit).join();
     }
 
     public AccountResponse registerMerchant(DTUPayUser c) {
         CompletableFuture<AccountResponse> registeredMerchantFuture = new CompletableFuture<>();
-        registeredMerchantFuture.orTimeout(timeoutValue, timeoutUnit);
+        //registeredMerchantFuture.orTimeout(timeoutValue, timeoutUnit);
         var correlationId = generateCorrelationId();
         Event event = new Event("MerchantAccountCreationRequested", new Object[]{correlationId, c});
         pendingMerchants.put(correlationId, registeredMerchantFuture);
         queue.publish(event);
-        return registeredMerchantFuture.join();
+        return registeredMerchantFuture.orTimeout(timeoutValue, timeoutUnit).join();
     }
 
     public void handleCustomerRegistered(Event e) {
@@ -185,10 +185,10 @@ public class CoreService {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
         pendingTokenRequests.put(correlationId, requestedToken);
-        requestedToken.orTimeout(timeoutValue, timeoutUnit);
+        //requestedToken.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TokenRequested", new Object[]{correlationId, t});
         queue.publish(event);
-        return requestedToken.join(); // ??????
+        return requestedToken.orTimeout(timeoutValue, timeoutUnit).join();
     }
 
     public void handleRequestedToken(Event e) {
@@ -218,11 +218,11 @@ public class CoreService {
     public String requestTransaction(Transaction t) {
         var correlationId = generateCorrelationId();
         var requestedTransaction = new CompletableFuture<String>();
-        requestedTransaction.orTimeout(timeoutValue, timeoutUnit);
+        //requestedTransaction.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TransactionRequested", new Object[]{correlationId, t});
         queue.publish(event);
         pendingTransactions.put(correlationId, requestedTransaction);
-        return requestedTransaction.join();
+        return requestedTransaction.orTimeout(timeoutValue, timeoutUnit).join();
     }
 
     public void handleTransactionCompleted(Event e) {
