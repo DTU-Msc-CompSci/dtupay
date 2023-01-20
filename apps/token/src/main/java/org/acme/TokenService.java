@@ -84,9 +84,11 @@ public class TokenService {
         var correlationId = ev.getArgument(0, String.class);
         var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
-        tokenToId.remove(token.getToken(), customerId);
-        assignedTokens.remove(customerId);
-        usedTokenPool.add(token.getToken());
+        if (customerId != null) {
+            tokenToId.remove(token.getToken(), customerId);
+            assignedTokens.remove(customerId);
+            usedTokenPool.add(token.getToken());
+        }
         System.out.println(customerId);
         Event customerInfoEvent = new Event("TokenValidated", new Object[]{correlationId, customerId});
         queue.publish(customerInfoEvent);

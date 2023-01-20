@@ -45,19 +45,22 @@ public class PaymentStepsTest {
 
     @Before
     public void init() {
-        customer.setFirstName("Jeffrey");
-        customer.setLastName("Test");
-        customer.setCprNumber("JeffreyTest");
+        customer.setFirstName("Jea3fs2ddffdfffsdffffrey");
+        customer.setLastName("Ted322dffffdffsdffddsdt");
+        customer.setCprNumber("Je3sf2ddfdffffdsdfffrasdeyTest");
 
-        merchant.setFirstName("Ellen");
-        merchant.setLastName("Test");
-        merchant.setCprNumber("EllenTest");
+        merchant.setFirstName("Ela23ffdfsdffddfdsffdsdlen");
+        merchant.setLastName("Tesa23ffdfdfdfdfsdffdsdst");
+        merchant.setCprNumber("El2lafdsffdffsfdfdsdsenTest");
     }
 
     @After
     public void tearDown() {
         try {
             bankService.retireAccount(customerBankId);
+        } catch (BankServiceException_Exception e) {
+        }
+        try {
             bankService.retireAccount(merchantBankId);
         } catch (BankServiceException_Exception e) {
             //throw new RuntimeException(e);
@@ -156,5 +159,16 @@ public class PaymentStepsTest {
     @And("throws an exception {string}")
     public void throwsAnException(String error) {
         assertEquals(error, this.error);
+    }
+
+    @And("a customer token with the id {string}")
+    public void aCustomerTokenWithTheId(String tokenID) {
+        token = new Token(tokenID);
+    }
+
+    @Given("a merchant id {string}")
+    public void aMerchantId(String id) {
+        dtuPayMerchant.setUniqueId(id);
+        registeredMerchant = dtuPayMerchant;
     }
 }

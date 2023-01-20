@@ -30,6 +30,9 @@ public class AccountService {
     }
 
     private DTUPayUser getCustomerInfo(String uniqueId) {
+        if (uniqueId == null || uniqueId.isEmpty()) {
+            return null;
+        }
         DTUPayUser customer = null;
         for (DTUPayUser d : customers) {
             if (d.getUniqueId().equals(uniqueId)) {

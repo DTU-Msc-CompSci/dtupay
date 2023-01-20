@@ -32,6 +32,8 @@ public class CoreService {
         queue.addHandler("TokenRequestFailed", this::handleTokenRequestFailed);
 
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
+        queue.addHandler("TransactionFailed", this::handleTransactionCompleted);
+
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
         queue.addHandler("CustomerAccountDeRegistrationFailed", this::handleCustomerDeRegistrationCompleted);

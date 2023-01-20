@@ -50,7 +50,7 @@ public class MerchantAPI {
             if (response.getStatus() == 200 || response.getStatus() == 201) {
                 return response.getStatus() == 201 || response.getStatus() != 200;
             } else {
-                throw new Exception("Transaction failed");
+                throw new Exception(response.readEntity(String.class));
             }
         }
 

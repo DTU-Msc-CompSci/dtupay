@@ -78,6 +78,11 @@ public class TransactionService {
         switch (ev.getType()) {
             case "CustomerInfoProvided":
                 var customerInfo = ev.getArgument(1, DTUPayUser.class);
+                if (customerInfo == null || customerInfo.equals("")) {
+                    Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Invalid token"});
+                    queue.publish(transactionFailedEvent);
+                    return;
+                }
 
                 payment.addCustomerInfo(id, customerInfo);
                 repository.save(payment);
@@ -85,12 +90,22 @@ public class TransactionService {
                 break;
             case "TransactionRequested":
                 var transaction = ev.getArgument(1, Transaction.class);
+                if(transaction.getAmount() <= 1) {
+                    Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Must request a payment of at least 1 kr"});
+                    queue.publish(transactionFailedEvent);
+                    return;
+                }
                 payment.create(id, transaction.getCustomerToken().getToken(), transaction.getMerchantId(), BigDecimal.valueOf(transaction.getAmount()));
                 repository.save(payment);
 
                 break;
             case "MerchantInfoProvided":
                 var merchantInfo = ev.getArgument(1, DTUPayUser.class);
+                if (merchantInfo == null || merchantInfo.equals("")) {
+                    Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Merchant does not exist"});
+                    queue.publish(transactionFailedEvent);
+                    return;
+                }
 
                 payment.addMerchantInfo(id, merchantInfo);
                 repository.save(payment);
@@ -123,8 +138,27 @@ public class TransactionService {
         Payment payment = repository.getById(id);
 
         if (payment.complete()) {
+//            String customerID = payment.getCustomerID();
+//            String merchantID = payment.getMerchantID();
+//            BigDecimal amount = payment.getAmount();
+//
+//            System.out.println("CUSTOMER ID");
+//            System.out.println(customerID);
+//            System.out.println("MERCHANT ID");
+//            System.out.println(merchantID);
+//            System.out.println("AMOUNT");
+//            System.out.println(amount);
+//
+//            if(customerID == null || customerID.isEmpty()) {
+//                System.out.println("I AM HERE!!!!");
+//                Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Invalid token"});
+//                queue.publish(transactionFailedEvent);
+//            } else if(merchantID.equals("")) {
+//                Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Merchant does not exist"});
+//                queue.publish(transactionFailedEvent);
+//            }
+            System.out.println("I SKIPPED IT!!!!!");
             initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(), id);
-
         }
     }
 

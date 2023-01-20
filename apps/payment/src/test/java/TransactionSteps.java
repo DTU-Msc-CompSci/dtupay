@@ -164,7 +164,7 @@ public class TransactionSteps {
 
     @Then("a transactionFailed event is published")
     public void aTransactionFailedEventIsPublished() {
-        Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{"123", "Transaction failed"});
+        Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{"123", "Must request a payment of at least 1 kr"});
         verify(mockQueue, times(1)).publish(transactionFailedEvent);
     }
 
