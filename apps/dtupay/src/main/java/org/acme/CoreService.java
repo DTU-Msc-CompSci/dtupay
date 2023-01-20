@@ -2,6 +2,8 @@ package org.acme;
 
 import messaging.Event;
 import messaging.MessageQueue;
+
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -15,6 +17,7 @@ public class CoreService {
     private CompletableFuture<Boolean> deRegisteredCustomerCompleted;
     private CompletableFuture<Boolean> deRegisteredCustomerCompletedFailed;
     private CompletableFuture<Boolean> deRegisteredMerchantCompleted;
+    private CompletableFuture<List<Transaction>> requestedCustomerReport;
     private boolean deRegisteredCustomer;
 
     private CompletableFuture<TokenResponse> requestedToken;
@@ -31,12 +34,26 @@ public class CoreService {
         queue.addHandler("TokenRequestFailed", this::handleTokenRequestFailed);
 
         queue.addHandler("TransactionCompleted", this::handleTransactionCompleted);
+        queue.addHandler("TransactionFailed", this::handleTransactionFailed);
         queue.addHandler("CustomerAccountDeRegistrationCompleted", this::handleCustomerDeRegistrationCompleted);
         queue.addHandler("MerchantAccountDeRegistrationCompleted", this::handleMerchantDeRegistrationCompleted);
         queue.addHandler("AllTokenRemovedFromDeRegisteredCustomer", this::handleAllTokenRemovedFromDeRegisteredCustomer);
         queue.addHandler("CustomerAccountDeRegistrationFailed", this::handleCustomerDeRegistrationFailed);
         queue.addHandler("MerchantAccountDeRegistrationFailed", this::handleMerchantDeRegistrationFailed);
+
+        //queue.addHandler("CustomerReportCreated", this::handleCustomerReportCreated);
     }
+
+    public List<Transaction> getCustomerReport(String customerID) {
+        requestedCustomerReport = new CompletableFuture<>();
+        Event event = new Event("CustomerReportRequested", new Object[] { "0", customerID });
+        queue.publish(event);
+        return requestedCustomerReport.join();
+    }
+//    private void handleCustomerReportCreated(Event event) {
+//        var s = event.getArgument(0, Boolean.class);
+//         s = event.getArgument(1,Object.class);
+//    }
 
     private void handleMerchantDeRegistrationFailed(Event event) {
         deRegisteredMerchantCompleted.complete(false);
@@ -125,10 +142,11 @@ public class CoreService {
         requestedTransaction = new CompletableFuture<>();
         Event event = new Event("TransactionRequested", new Object[] { UUID.randomUUID() ,t });
         queue.publish(event);
-        if (requestedTransaction.join().equals("completed")){
-            return Response.status(Response.Status.CREATED).build();
+        String response = requestedTransaction.join();
+        if (response.equals("completed")){
+            return Response.status(201).build();
         }
-        return Response.status(Response.Status.FORBIDDEN).build();
+        return Response.status(400).entity(response).build();
     }
 
     public void handleTransactionCompleted(Event e) {
@@ -138,6 +156,14 @@ public class CoreService {
         requestedTransaction.complete(s);
         // TODO standardize the response
 
+    }
+
+    public void handleTransactionFailed(Event e) {
+        var id = e.getArgument(0, String.class);
+
+        var s = e.getArgument(1, String.class);
+        requestedTransaction.complete(s);
+        // TODO standardize the response
     }
 
 }

@@ -24,19 +24,6 @@ Feature: Token
     Given a customer is registered with DTU Pay
     When the customer requests -3 tokens
     Then the token request fails and throws an exception "Less than 1 token requested"
-#
-#   Scenario: Request more tokens than available
-#     Given a customer is registered with DTU Pay
-#     And the customer has already requested 4 unused tokens
-#     When the customer requests 4 tokens
-#     Then the token request fails and throws an exception "Not enough tokens available"
-#
-
-#
-
-#
-
-#
 
 
 

@@ -37,16 +37,17 @@ public class PaymentStepsTest {
     Token token;
 
     boolean success;
+    String error;
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Alesseerefrvttgbrtvrsasdfdfvdedf");
-        customer.setLastName("tseftgeeresssssrtrvtvfbcfrd23");
-        customer.setCprNumber("1vffrtgeberrtsssvt323arflex123test");
-        merchant.setFirstName("Som3rertgrrtssvtvfrfererfveO23therNames");
-        merchant.setLastName("ncvrrftgeeftrvrsstvederername23");
-        merchant.setCprNumber("321altgrefrtvrtessdcsdvdfbbrfffereex23321test");
+        customer.setFirstName("Alesseeefrfvttgbrtvrsasdfdfvdedf");
+        customer.setLastName("tseftgeesfsssrtrvtvfbcfrd23");
+        customer.setCprNumber("1vffrtgeferrtsssvt323arflex123test");
+        merchant.setFirstName("Som3rrtssfvtvfrfererfveO23therNames");
+        merchant.setLastName("ncvrrfftrvrfsstvederername23");
+        merchant.setCprNumber("321altgrfssdcsdvdfbbrfffereex23321test");
     }
 
     @After
@@ -85,12 +86,16 @@ public class PaymentStepsTest {
         Set<Token> tokens = customerAPI.requestToken(registeredCustomer.getUniqueId(),1);
         token = tokens.iterator().next();
     }
-    @When("the merchant requests a transaction with the customer token")
-    public void the_merchant_requests_a_transaction_with_the_customer_token() {
-        // Write code here that turns the phrase above into concrete actions
-        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), 100, "test");
-        success = merchantAPI.postTransaction(transaction);
-    }
+//    @When("the merchant requests a transaction with the customer token")
+//    public void the_merchant_requests_a_transaction_with_the_customer_token() {
+//        // Write code here that turns the phrase above into concrete actions
+//        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), 100, "test");
+//        try {
+//            success = merchantAPI.postTransaction(transaction);
+//        } catch (Exception e) {
+//            error = e.getMessage();
+//        }
+//    }
 
     @Then("the transaction is successful")
     public void theTransactionIsSuccessful() {
@@ -140,6 +145,22 @@ public class PaymentStepsTest {
     @When("the merchant initiates a payment for {int} kr with the customer token")
     public void theMerchantInitiatesAPaymentForKrWithTheCustomerToken(int amount) {
         Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test1");
-        success = merchantAPI.postTransaction(transaction);
+        try {
+            success = merchantAPI.postTransaction(transaction);
+        } catch (Exception e) {
+            success = false;
+            error = e.getMessage();
+        }
+    }
+
+    @Then("the transaction is unsuccessful")
+    public void theTransactionIsUnsuccessful() {
+        assertFalse(success);
+    }
+
+
+    @And("throws an exception {string}")
+    public void throwsAnException(String error) {
+        assertEquals(error,this.error);
     }
 }

@@ -41,10 +41,13 @@ public class MerchantAPI {
         }
     }
 
-    public boolean postTransaction(Transaction transaction) {
+    public boolean postTransaction(Transaction transaction) throws Exception {
         Response response = baseUrl.path("merchant/transaction")
                 .request()
                 .post(Entity.entity(transaction, MediaType.APPLICATION_JSON));
+        if (response.getStatus() != 201) {
+            throw new Exception(response.readEntity(String.class));
+        }
         return response.getStatus() == 201;
     }
 }
