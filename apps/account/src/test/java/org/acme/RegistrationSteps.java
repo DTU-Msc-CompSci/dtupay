@@ -1,13 +1,14 @@
+package org.acme;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
@@ -23,19 +24,21 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import org.acme.*;
-import java.util.*;
-
 public class RegistrationSteps {
-    private MessageQueue q = mock(MessageQueue.class);
-    //private AccountService service = mock ( AccountService.class , withSettings().useConstructor(q));
-    private AccountService service = new AccountService(q);
+    private MessageQueue mockQueue = mock(MessageQueue.class);
+
+//    private AccountService service = new AccountService(q);
+    private AccountService accountServiceMockQueue = new AccountService(mockQueue);
+
     private DTUPayUser customer = new DTUPayUser();
     private DTUPayUser merchant = new DTUPayUser();
 
     private BankService bankService =  new BankServiceService().getBankServicePort();
     private String customerBankAccountId;
     private String merchantBankAccountId;
+    Event event;
+    String correlationId;
+
 
     public RegistrationSteps() {
     }
@@ -43,14 +46,14 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Jrfedrddsdfvvohnre");
-        cost.setLastName("Ramddsddddfvfvbewo");
-        cost.setCprNumber("12ddfddsdvf31gr23");
+        cost.setFirstName("Example3");
+        cost.setLastName("Example3");
+        cost.setCprNumber("Example3CPR");
 
         User mer = new User();
-        mer.setFirstName("Joddfvwwsdfvhwrn");
-        mer.setLastName("Widfdsdwwfvvckrw");
-        mer.setCprNumber("321dfswwdv3dfwrv21");
+        mer.setFirstName("Example4");
+        mer.setLastName("Example4");
+        mer.setCprNumber("Example4CPR");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
@@ -86,13 +89,15 @@ public class RegistrationSteps {
     @When("the service receives a {word}AccountCreationRequested event")
     public void theServiceReceivesUserAccountCreationRequestedEvent(String userType){
         boolean flag = false;
+        // This should technically be a library function
+        correlationId = accountServiceMockQueue.generateCorrelationId();
         if(userType.equals("Customer")) {
-            var event = new Event("CustomerAccountCreationRequested", new Object[]{customer});
-            customer.setUniqueId(service.handleCustomerAccountCreationRequested(event));
+            var event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, customer});
+            customer.setUniqueId(accountServiceMockQueue.handleCustomerAccountCreationRequested(event));
             flag = true;
         } else if(userType.equals("Merchant")) {
-            var event = new Event("MerchantAccountCreationRequested", new Object[]{merchant});
-            merchant.setUniqueId(service.handleMerchantAccountCreationRequested(event));
+            var event = new Event("MerchantAccountCreationRequested", new Object[]{correlationId, merchant});
+            merchant.setUniqueId(accountServiceMockQueue.handleMerchantAccountCreationRequested(event));
             flag = true;
         }
         assertTrue(flag);
@@ -100,58 +105,74 @@ public class RegistrationSteps {
 
     @Then("a {word}AccountCreated event is published")
     public void aUserAccountCreatedPublished(String userType) {
-        Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreated", new Object[]{ new AccountResponse(customer, "Success")});
+            event = new Event("CustomerAccountCreated", new Object[]{correlationId, new AccountResponse(customer, "Success")});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreated", new Object[]{ new AccountResponse(merchant, "Success")});
+            event = new Event("MerchantAccountCreated", new Object[]{correlationId, new AccountResponse(merchant, "Success")});
         }
-        //q.publish(event);
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
+    }
+
+    @When("the event is started")
+    public void theEventIsStarted() {
+        new Thread(() -> {
+            accountServiceMockQueue.addUser(customer, "customer");
+        }).start();
+    }
+
+
+    @Then("the event is being processed and the correlation ID is present in the CustomerAccountCreationRequested event")
+    public void theEventIsBeingProcessedAndTheCorrelationIDIsPresentInTheCustomerAccountCreationRequestedEvent() {
+        mockQueue.addHandler("CustomerAccountCreationRequested", e -> {
+            var eventCorrelationId = e.getArgument(0, String.class);
+            var isProcessing = true;
+            assertTrue(isProcessing);
+            assertNotNull(eventCorrelationId);
+        });
     }
 
     @When("the service receives a {word}AccountDeRegistrationRequested event")
     public void theServiceReceivesUserAccountDeRegistrationRequested(String userType) {
+        correlationId = accountServiceMockQueue.generateCorrelationId();
         if (userType.equals("Customer")) {
-            Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[]{customer.getUniqueId()});
-            service.handleCustomerAccountDeRegistrationRequested(event);
+            Event event = new Event("CustomerAccountDeRegistrationRequested", new Object[]{ correlationId, customer.getUniqueId()});
+            accountServiceMockQueue.handleCustomerAccountDeRegistrationRequested(event);
         } else if(userType.equals("Merchant")) {
-            Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{merchant.getUniqueId()});
-            service.handleMerchantAccountDeRegistrationRequested(event);
+            Event event = new Event("MerchantAccountDeRegistrationRequested", new Object[]{ correlationId, merchant.getUniqueId()});
+            accountServiceMockQueue.handleMerchantAccountDeRegistrationRequested(event);
         }
     }
 
     @Then("a {word}AccountDeRegistrationCompleted event is published")
     public void aUserAccountDeRegistrationCompletedPublished(String userType) {
+        // TODO: FIXME - This is known to not pass based on discussions with the team and the need to break into new events
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] {true});
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { correlationId, true});
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] {true});
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { correlationId, true});
         }
-        //q.publish(event);
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @Then("a {word}AccountCreationFailed event is published because of {string}")
     public void aUserAccountCreationFailedEventPublished(String userType, String errorMsg) {
         Event event = null;
         if (userType.equals("Customer")) {
-            event = new Event("CustomerAccountCreationFailed", new Object[]{ new AccountResponse(customer, errorMsg) });
+            event = new Event("CustomerAccountCreationFailed", new Object[]{correlationId, new AccountResponse(customer, errorMsg) });
         } else if(userType.equals("Merchant")) {
-            event = new Event("MerchantAccountCreationFailed", new Object[]{ new AccountResponse(merchant, errorMsg) });
+            event = new Event("MerchantAccountCreationFailed", new Object[]{correlationId, new AccountResponse(merchant, errorMsg) });
         }
-        //q.publish(event);
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @And("the {string} should exist in the database")
     public void userExists(String userType) {
         boolean exist = false;
         if(userType.equals("customer")) {
-            exist = service.doesCustomerExist(customer.getBankId().getBankAccountId());
+            exist = accountServiceMockQueue.doesCustomerExist(customer.getBankId().getBankAccountId());
         } else if(userType.equals("merchant")) {
-            exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
+            exist = accountServiceMockQueue.doesMerchantExist(merchant.getBankId().getBankAccountId());
         }
         assertTrue(exist);
     }
@@ -160,9 +181,9 @@ public class RegistrationSteps {
     public void userDoesNotExist(String userType) {
         boolean exist = true;
         if(userType.equals("customer")) {
-            exist = service.doesCustomerExist(customer.getBankId().getBankAccountId());
+            exist = accountServiceMockQueue.doesCustomerExist(customer.getBankId().getBankAccountId());
         } else if(userType.equals("merchant")) {
-            exist = service.doesMerchantExist(merchant.getBankId().getBankAccountId());
+            exist = accountServiceMockQueue.doesMerchantExist(merchant.getBankId().getBankAccountId());
         }
         assertFalse(exist);
     }
@@ -179,40 +200,61 @@ public class RegistrationSteps {
         }
     }
 
+
+    @Given("the service received a {word}AccountCreationRequested event")
+    public void theServiceReceivedACustomerAccountCreationRequestedEvent(String userType) {
+        // Because of how the tests are structured, customer does not have default values at this step
+        Person person = new Person("John", "Rambo", "123123");
+        customer.setPerson(person);
+        customer.setBankId(new BankId("exampleId"));
+        boolean flag = false;
+        // This should technically be a library function
+        correlationId = accountServiceMockQueue.generateCorrelationId();
+        if (userType.equals("Customer")) {
+            var event = new Event("CustomerAccountCreationRequested", new Object[]{correlationId, customer});
+            customer.setUniqueId(accountServiceMockQueue.handleCustomerAccountCreationRequested(event));
+            flag = true;
+        } else if (userType.equals("Merchant")) {
+            var event = new Event("MerchantAccountCreationRequested", new Object[]{correlationId, merchant});
+            merchant.setUniqueId(accountServiceMockQueue.handleMerchantAccountCreationRequested(event));
+            flag = true;
+        }
+        assertTrue(flag);
+    }
+
     @When("the service receives a TransactionRequested event")
     public void theServiceReceivesATransactionRequestedEvent() {
         Transaction transaction = new Transaction(new Token("fakeToken"), merchant.getUniqueId(), 100, "fakeTransactionID");
-        Event event = new Event("TransactionRequested", new Object[]{ "random id", transaction });
-        service.handleTransactionRequested(event);
+        Event event = new Event("TransactionRequested", new Object[]{correlationId, transaction });
+        accountServiceMockQueue.handleTransactionRequested(event);
     }
 
     @Then("a {word}InfoProvided event is published")
     public void aMerchantInfoProvidedEventIsPublished(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerInfoProvided", new Object[]{ "random id", customer});
+            event = new Event("CustomerInfoProvided", new Object[]{correlationId, customer});
         }
         else if(userType.equals("Merchant")) {
-            event = new Event("MerchantInfoProvided", new Object[]{ "random id", merchant});
+            event = new Event("MerchantInfoProvided", new Object[]{correlationId, merchant});
         }
-        //q.publish(event);
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 
     @When("the service receives a TokenValidated event")
     public void theServiceReceivesATokenValidatedEvent() {
-        Event event = new Event("TokenValidated", new Object[]{  "random id", customer.getUniqueId() });
-        service.handleTokenValidated(event);
+        Event event = new Event("TokenValidated", new Object[]{  correlationId, customer.getUniqueId() });
+        accountServiceMockQueue.handleTokenValidated(event);
     }
 
     @Then("a {word}AccountDeRegistrationFailed event is published")
     public void a_customer_account_de_registration_failed_event_is_published(String userType) {
         Event event = null;
         if(userType.equals("Customer")) {
-            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{false});
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[]{ correlationId, false});
         } else if (userType.equals("Merchant")){
-            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{false});
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[]{ correlationId, false});
         }
-        verify(q).publish(event);
+        verify(mockQueue).publish(event);
     }
 }

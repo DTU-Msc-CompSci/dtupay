@@ -87,6 +87,11 @@
             <artifactId>bank-service</artifactId>
             <version>SNAPSHOT-0.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.21</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -134,7 +139,6 @@
                 <configuration>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 

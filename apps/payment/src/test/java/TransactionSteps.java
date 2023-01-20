@@ -125,7 +125,7 @@ public class TransactionSteps {
     }
     @Then("money is only transferred once")
     public void money_is_only_transferred_once() throws BankServiceException_Exception {
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "completed" });
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "Success" });
         verify(q,times(1)).publish(transactionCompletedEvent);
 
     }
@@ -260,8 +260,8 @@ public class TransactionSteps {
 
     @Then("two transactionCompleted events are sent with correct values")
     public void twoTransactionCompletedEventsAreSentWithCorrectValues() {
-        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "completed" });
-        Event transactionCompletedEvent2 = new Event("TransactionCompleted", new Object[] { transactionID2, "completed" });
+        Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { transactionID, "Success" });
+        Event transactionCompletedEvent2 = new Event("TransactionCompleted", new Object[] { transactionID2, "Success" });
         verify(q).publish(transactionCompletedEvent);
         verify(q).publish(transactionCompletedEvent2);
     }

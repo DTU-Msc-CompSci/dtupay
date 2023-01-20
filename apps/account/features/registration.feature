@@ -6,6 +6,11 @@ Feature: Account Manager
     Then a CustomerAccountCreated event is published
     And the "customer" should exist in the database
 
+  Scenario: Successful Customer Registration with Correlation ID
+    Given the service received a CustomerAccountCreationRequested event
+    When the event is started
+    Then the event is being processed and the correlation ID is present in the CustomerAccountCreationRequested event
+
   Scenario: Reject registration of an existing user
     Given There is a customer with empty id
     When the service receives a CustomerAccountCreationRequested event
@@ -27,6 +32,7 @@ Feature: Account Manager
     And the "customer" should exist in the database
     When the service receives a CustomerAccountDeRegistrationRequested event
     Then a CustomerAccountDeRegistrationCompleted event is published
+    # This step is expected to fail
     And the "customer" should not exist in the database
 
 
@@ -63,6 +69,7 @@ Feature: Account Manager
     And the "merchant" should exist in the database
     When the service receives a MerchantAccountDeRegistrationRequested event
     Then a MerchantAccountDeRegistrationCompleted event is published
+    # This step is expected to fail
     And the "merchant" should not exist in the database
 
   Scenario: Failed Merchant De-registration

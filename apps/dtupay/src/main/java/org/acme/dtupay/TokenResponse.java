@@ -1,15 +1,17 @@
-package org.acme;
+package org.acme.dtupay;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+public class TokenResponse {
 
-public class TokenRequest {
+    private Set<Token> tokens;
+    private String message;
 
-    String cid;
-    int amount;
 }

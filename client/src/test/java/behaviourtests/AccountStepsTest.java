@@ -39,32 +39,30 @@ public class AccountStepsTest {
 
 
 
-    @Before
-    public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Aleeerfrsds");
-        customer.setLastName("tseftgeees");
-        customer.setCprNumber("1vffres");
+   @Before
+   public void init() throws BankServiceException_Exception {
+       customer.setFirstName("alex");
+       customer.setLastName("Travolta");
+       customer.setCprNumber("masteCPRvalue");
 
+       customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
+       merchant.setFirstName("Voldemor");
+       merchant.setLastName("_");
+       merchant.setCprNumber("_");
 
-        merchant.setFirstName("Som3rertgtsv");
-        merchant.setLastName("rwssddtssvererna3smes23");
-        merchant.setCprNumber("wdwdsqqwdqd");
+       merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
+   }
 
-        merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
-        customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
-
-    }
-
-    @After
-    public void tearDown() {
-        try {
-            bankService.retireAccount(customerBankId);
-            bankService.retireAccount(merchantBankId);
-        } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
-        }
-    }
+   @After
+   public void tearDown() {
+       try {
+           bankService.retireAccount(customerBankId);
+           bankService.retireAccount(merchantBankId);
+       } catch (BankServiceException_Exception e) {
+           //throw new RuntimeException(e);
+       }
+   }
 
     @Given("a customer exists in DTUPay")
     public void aCustomerExistsInDTUPay() {
@@ -102,7 +100,7 @@ public class AccountStepsTest {
         try {
             registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
         assertNotNull(registeredMerchant.getUniqueId());
     }
@@ -122,12 +120,12 @@ public class AccountStepsTest {
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(), customer.getLastName(), customer.getCprNumber()));
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         registeredCustomer = dtuPayCustomer;
-        System.out.println(registeredCustomer.getUniqueId());
         assertNull(registeredCustomer.getUniqueId());
     }
 
     @Then("the customer gets an error message")
     public void theCustomerGetsAnErrorMessage() {
+        //System.out.println(errorMessageHolder.getErrorMessage());
         assertEquals("Account does not exist in DTUPay", errorMessageHolder.getErrorMessage());
     }
 

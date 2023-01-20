@@ -4,10 +4,11 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
-    Map<String, Set<Token>> assignedTokens = new HashMap<String,Set<Token>>();
-    Map<String, String> tokenToId = new HashMap<String,String>();
+    Map<String, Set<Token>> assignedTokens = new ConcurrentHashMap<String,Set<Token>>();
+    Map<String, String> tokenToId = new ConcurrentHashMap<String,String>();
     Set<String> usedTokenPool = new HashSet<String>();
 
     MessageQueue queue;
@@ -29,22 +30,25 @@ public class TokenService {
         this.queue.addHandler("TokenUserRequested", this::handleTokenUserAdd);
     }
     public void handleRemoveAllTokenFromDeRegisteredCustomer(Event ev) {
-        removeAllTokenFromCustomer(ev.getArgument(0, String.class));
-        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] {true});
+        var correlationId = ev.getArgument(0, String.class);
+        removeAllTokenFromCustomer(ev.getArgument(1, String.class));
+        Event event = new Event("AllTokenRemovedFromDeRegisteredCustomer", new Object[] { correlationId, true});
         queue.publish(event);
     }
 
     public void handleTokenUserAdd(Event ev) {
-        var s = ev.getArgument(0,String.class);
+        // TODO: I think this is the only event we don't care about Correlation Id
+        var s = ev.getArgument(0, String.class);
         assignedTokens.put(s,new HashSet<Token>());
     }
 
     public void handleTokenRequested(Event ev) {
-        var s = ev.getArgument(0, TokenRequest.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, TokenRequest.class);
         Event event;
         boolean error = true;
         TokenResponse response = new TokenResponse();
-        if (!assignedTokens.containsKey(s.getCid())) {
+        if (s.getCid() == null || !assignedTokens.containsKey(s.getCid())) {
             response.setMessage("User does not exist");
         } else if (assignedTokens.get(s.getCid()).size() > 1) {
             response.setMessage("User already has more than 1 token");
@@ -59,23 +63,28 @@ public class TokenService {
 
         }
 
+        // TODO: Check to make sure this is correct
+//        if (response.getMessage() == null) {
+//            event = new Event("TokenRequestFailed", new Object[]{correlationId, response});
+//        }
         if (error) {
-            event = new Event("TokenRequestFailed", new Object[] { response });
+            event = new Event("TokenRequestFailed", new Object[] {correlationId, response });
         } else {
-            event = new Event("TokenRequestFulfilled", new Object[] { response });
+            event = new Event("TokenRequestFulfilled", new Object[] { correlationId, response });
         }
 
         queue.publish(event);
     }
 
     public void handleTransactionRequested(Event ev) {
-        var id =ev.getArgument(0, String.class);
+        var correlationId = ev.getArgument(0, String.class);
         var token = ev.getArgument(1, Transaction.class).getCustomerToken();
         var customerId = tokenToId.get(token.getToken());
         tokenToId.remove(token.getToken(),customerId);
-        assignedTokens.remove(customerId,token);
+        assignedTokens.remove(customerId);
         usedTokenPool.add(token.getToken());
-        Event customerInfoEvent = new Event("TokenValidated", new Object[] { id, customerId });
+        System.out.println(customerId);
+        Event customerInfoEvent = new Event("TokenValidated", new Object[] { correlationId, customerId });
         queue.publish(customerInfoEvent);
     }
 
@@ -86,7 +95,7 @@ public class TokenService {
 
     public Set<Token> generateTokens(TokenRequest tokenRequest) {
 
-        Set<Token> requestTokens = new HashSet<Token>();
+        Set<Token> requestTokens = new HashSet<>();
 
         for (int i = 0; i < tokenRequest.getAmount(); i++) {
             //Set<Token> ts = assignedTokens.get(tokenRequest.getCid());

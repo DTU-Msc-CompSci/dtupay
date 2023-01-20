@@ -42,12 +42,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("Alesseeefrfvttgbrtvrsasdfdfvdedf");
-        customer.setLastName("tseftgeesfsssrtrvtvfbcfrd23");
-        customer.setCprNumber("1vffrtgeferrtsssvt323arflex123test");
-        merchant.setFirstName("Som3rrtssfvtvfrfererfveO23therNames");
-        merchant.setLastName("ncvrrfftrvrfsstvederername23");
-        merchant.setCprNumber("321altgrfssdcsdvdfbbrfffereex23321test");
+        customer.setFirstName("Jeffrey");
+        customer.setLastName("Test");
+        customer.setCprNumber("JeffreyTest");
+
+        merchant.setFirstName("Ellen");
+        merchant.setLastName("Test");
+        merchant.setCprNumber("EllenTest");
     }
 
     @After
@@ -59,24 +60,21 @@ public class PaymentStepsTest {
             //throw new RuntimeException(e);
         }
     }
-    @Given("^a customer registered with DTU Pay$")
+    @Given("a customer registered with DTU Pay")
     public void aCustomerRegisteredWithDTUPay() {
         try {
             registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            //assertFalse(true);
+            //System.out.println(e.getMessage());
         }
         assertNotNull(registeredCustomer.getUniqueId());
     }
-    @Given("^a merchant registered with DTU Pay$")
+    @Given("a merchant registered with DTU Pay")
     public void aMerchantRegisteredWithDTUPay() {
-        dtuPayMerchant.setBankId(new BankId(merchantBankId));
-        dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
         try {
             registeredMerchant = merchantAPI.postMerchant(dtuPayMerchant);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
         assertNotNull(registeredMerchant.getUniqueId());
     }
@@ -86,16 +84,20 @@ public class PaymentStepsTest {
         Set<Token> tokens = customerAPI.requestToken(registeredCustomer.getUniqueId(),1);
         token = tokens.iterator().next();
     }
-//    @When("the merchant requests a transaction with the customer token")
-//    public void the_merchant_requests_a_transaction_with_the_customer_token() {
-//        // Write code here that turns the phrase above into concrete actions
-//        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), 100, "test");
-//        try {
-//            success = merchantAPI.postTransaction(transaction);
-//        } catch (Exception e) {
-//            error = e.getMessage();
-//        }
-//    }
+
+    @When("the merchant initiates a payment for {int} kr with the customer token")
+    public void the_merchant_requests_a_transaction_with_the_customer_token(int amount) {
+        // Write code here that turns the phrase above into concrete actions
+        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test");
+        try{
+            success = merchantAPI.postTransaction(transaction);
+    
+        } catch(Exception e){
+            //System.out.println(e.getMessage());
+            success = false;
+            error = e.getMessage();
+        }
+    }
 
     @Then("the transaction is successful")
     public void theTransactionIsSuccessful() {
@@ -139,17 +141,6 @@ public class PaymentStepsTest {
             dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
         } catch (BankServiceException_Exception e) {
             assertTrue(false);
-        }
-    }
-
-    @When("the merchant initiates a payment for {int} kr with the customer token")
-    public void theMerchantInitiatesAPaymentForKrWithTheCustomerToken(int amount) {
-        Transaction transaction = new Transaction(token,registeredMerchant.getUniqueId(), amount, "test1");
-        try {
-            success = merchantAPI.postTransaction(transaction);
-        } catch (Exception e) {
-            success = false;
-            error = e.getMessage();
         }
     }
 

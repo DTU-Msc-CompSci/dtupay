@@ -1,3 +1,4 @@
+package org.acme;
 
 import org.junit.runner.RunWith;
 

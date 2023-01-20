@@ -7,12 +7,11 @@ import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AccountService {
 
@@ -36,7 +35,6 @@ public class AccountService {
         this.queue.addHandler("TokenValidated", this::handleTokenValidated);
         this.queue.addHandler("CustomerAccountDeRegistrationRequested", this::handleCustomerAccountDeRegistrationRequested);
         this.queue.addHandler("MerchantAccountDeRegistrationRequested", this::handleMerchantAccountDeRegistrationRequested);
-
     }
 
     private DTUPayUser getCustomerInfo(String uniqueId) {
@@ -62,7 +60,6 @@ public class AccountService {
     }
 
     public boolean doesCustomerExist(String bankId){
-        //TODO Ask if this is going to be the uniqueId
         for(DTUPayUser d : customers) {
             if(d.getBankId().getBankAccountId().equals(bankId)) {
                 return true;
@@ -82,8 +79,6 @@ public class AccountService {
     }
 
     public boolean doesMerchantExist(String bankId ){
-        //TODO Ask if this is going to be the uniqueId
-        //Search by bankId which is unique for each account
         for(DTUPayUser d : merchants) {
             if(d.getBankId().getBankAccountId().equals(bankId)) {
                 return true;
@@ -103,14 +98,15 @@ public class AccountService {
         return false;
     }
 
-
-
-    private void addUser(DTUPayUser user, String userType) {
+    void addUser(DTUPayUser user, String userType) {
         user.setUniqueId(generateUniqueId());
+        // TODO: I don't think we need to do COrrelation ID here
+//        var correlationId = generateCorrelationId();
+
         if(userType.equals("customer")){
-            customers.add(user);
-            Event event = new Event("TokenUserRequested", new Object[] { user.getUniqueId() });
-            queue.publish(event);
+          customers.add(user);
+          Event event = new Event("TokenUserRequested", new Object[] { user.getUniqueId() });
+          queue.publish(event);
         }
         else if(userType.equals("merchant")){ merchants.add(user); }
         System.out.println("DTU Pay User added to service");
@@ -128,83 +124,93 @@ public class AccountService {
         return UUID.randomUUID().toString();
     }
 
-
     public String handleMerchantAccountCreationRequested(Event ev) {
-        var user = ev.getArgument(0, DTUPayUser.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var user = ev.getArgument(1, DTUPayUser.class);
         Event event;
         try {
             bankService.getAccount(user.getBankId().getBankAccountId());
             if (doesMerchantExist(user.getBankId().getBankAccountId())){
-                event = new Event("MerchantAccountCreationFailed", new Object[] { new AccountResponse(user,"Duplicate User")});
+                event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId,  new AccountResponse(user,"Duplicate User")});
             } else{
                 addUser(user, "merchant");
-                event = new Event("MerchantAccountCreated", new Object[] { new AccountResponse(user,"Success")});
+                event = new Event("MerchantAccountCreated", new Object[] { correlationId, new AccountResponse(user,"Success")});
             }
         } catch (BankServiceException_Exception e) {
-            event = new Event("MerchantAccountCreationFailed", new Object[] { new AccountResponse(user,"Invalid BankAccountId")});
+            event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Invalid BankAccountId") });
+        } catch (Exception e) {
+            event = new Event("MerchantAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Unknown Error") });
         }
         queue.publish(event);
         return user.getUniqueId();
     }
 
+    // TODO: Correlation ID will be the first field, and the Domain object/s will be from 2 onward
     public String handleCustomerAccountCreationRequested(Event ev) {
-        var user = ev.getArgument(0, DTUPayUser.class);
-        Event event;
+        var correlationId = ev.getArgument(0, String.class);
+        var user = ev.getArgument(1, DTUPayUser.class);
+        Event event = null;
         try {
-            bankService.getAccount(user.getBankId().getBankAccountId());
+            bankService.getAccount(user.bankId.bankAccountId);
             if (doesCustomerExist(user.getBankId().getBankAccountId())){
-                event = new Event("CustomerAccountCreationFailed", new Object[] { new AccountResponse(user, "Duplicate User")});
+                event = new Event("CustomerAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Duplicate User") });
             } else {
                 addUser(user,"customer");
-                event = new Event("CustomerAccountCreated", new Object[] { new AccountResponse(user, "Success")});
+                event = new Event("CustomerAccountCreated", new Object[]{ correlationId, new AccountResponse(user, "Success") });
             }
         } catch (BankServiceException_Exception e) {
-            event = new Event("CustomerAccountCreationFailed", new Object[] { new AccountResponse(user, "Invalid BankAccountId")});
+            event = new Event("CustomerAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Invalid BankAccountId") });
+        } catch (Exception e) {
+            event = new Event("CustomerAccountCreationFailed", new Object[] { correlationId, new AccountResponse(user, "Unknown Error") });
         }
-
         queue.publish(event);
         return user.getUniqueId();
     }
 
     public void handleCustomerAccountDeRegistrationRequested(Event ev) {
-        var uniqueId = ev.getArgument(0, String.class);
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, String.class);
         Event event = null;
-        if(doesCustomerExistUniqueId(uniqueId) && uniqueId != null){
-            removeCustomer(uniqueId);
-            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { true });
+        if(doesCustomerExistUniqueId(s) && s != null){
+            removeCustomer(s);
+            event = new Event("CustomerAccountDeRegistrationCompleted", new Object[] { correlationId, true });
         }
         else {
-            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { false });
+            event = new Event("CustomerAccountDeRegistrationFailed", new Object[] { correlationId, false });
         }
         queue.publish(event);
     }
 
     public void handleMerchantAccountDeRegistrationRequested(Event ev) {
-        var s = ev.getArgument(0, String.class);
-        Event event;
+        var correlationId = ev.getArgument(0, String.class);
+        var s = ev.getArgument(1, String.class);
+        Event event = null;
         if(doesMerchantExistUniqueId(s)){
             removeMerchant(s);
-            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { true });
+            event = new Event("MerchantAccountDeRegistrationCompleted", new Object[] { correlationId, true });
         }
         else {
-            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { false });
+            event = new Event("MerchantAccountDeRegistrationFailed", new Object[] { correlationId, false });
         }
         queue.publish(event);
     }
 
     public void handleTokenValidated(Event ev) {
-        var id = ev.getArgument(0, String.class);
+        var correlationId = ev.getArgument(0, String.class);
         var user = ev.getArgument(1, String.class);
-        Event event = new Event("CustomerInfoProvided", new Object[] { id, getCustomerInfo(user) });
+        Event event = new Event("CustomerInfoProvided", new Object[] { correlationId, getCustomerInfo(user) });
         queue.publish(event);
 
     }
 
     public void handleTransactionRequested(Event ev) {
-        var id = ev.getArgument(0, String.class);
-
+        var correlationId = ev.getArgument(0, String.class);
         var s = ev.getArgument(1, Transaction.class);
-        Event event = new Event("MerchantInfoProvided", new Object[] { id, getMerchantInfo(s.getMerchantId()) });
+        Event event = new Event("MerchantInfoProvided", new Object[] { correlationId, getMerchantInfo(s.getMerchantId()) });
         queue.publish(event);
+    }
+
+    public String generateCorrelationId() {
+        return UUID.randomUUID().toString();
     }
 }

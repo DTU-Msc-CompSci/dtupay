@@ -118,7 +118,7 @@ public class TransactionService {
     public void initiateTransaction(String customer, String merchant, BigDecimal amount, String id)  {
         try {
             bankService.transferMoneyFromTo(customer, merchant, amount, "DTU Pay transaction");
-            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id,"completed" });
+            Event transactionCompletedEvent = new Event("TransactionCompleted", new Object[] { id, "Success" });
             queue.publish(transactionCompletedEvent);
         }catch (BankServiceException_Exception e){
             // TODO: Handle this event in dtupay service
