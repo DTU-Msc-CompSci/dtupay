@@ -35,8 +35,10 @@ public class Payment {
 
     private final Map<Class<? extends Event>, Consumer<Event>> handlers = new HashMap<>();
 
-    public void create(String transactionId, String customerToken, String merchantID, BigDecimal amount) {
-        appliedEvents.add(new TransactionCreated(transactionId, customerToken, customerToken, amount));
+	public void create(String transactionId,String customerToken, String merchantID, BigDecimal amount) {
+
+
+		appliedEvents.add( (PaymentEvent)new TransactionCreated(transactionId, customerToken, merchantID,amount));
 
         applyEvents(appliedEvents.stream());
 

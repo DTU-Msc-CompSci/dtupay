@@ -6,6 +6,8 @@ import messaging.Event;
 import messaging.MessageQueue;
 import org.acme.aggregate.DTUPayUser;
 import org.acme.aggregate.Payment;
+import org.acme.aggregate.ReportManagerResponse;
+import org.acme.aggregate.ReportUserResponse;
 import org.acme.aggregate.Transaction;
 import org.acme.repositories.PaymentRepository;
 import org.acme.repositories.ReadModelRepository;
@@ -38,8 +40,10 @@ public class TransactionService {
 
     public void handleManagerReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
-        var resp = readRepository.getAllPayments();
-        Event event2 = new Event("ManagerReportCreated", new Object[]{id, resp});
+        var reports = readRepository.getAllPayments();
+        ReportManagerResponse resp = new ReportManagerResponse();
+        resp.setReports(reports);
+        Event event2 = new Event("ManagerReportCreated", new Object[]{ id, resp});
         queue.publish(event2);
 
     }
@@ -49,8 +53,10 @@ public class TransactionService {
         var id = event.getArgument(0, String.class);
         var customerId = event.getArgument(1, String.class);
 
-        var resp = readRepository.getCustomerPayment(customerId);
-        Event event2 = new Event("CustomerReportCreated", new Object[]{id, resp});
+        var reports = readRepository.getCustomerPayment(customerId);
+        ReportUserResponse resp = new ReportUserResponse();
+        resp.setReports(reports);
+        Event event2 = new Event("CustomerReportCreated", new Object[]{ id, resp});
         queue.publish(event2);
 
     }
@@ -58,8 +64,10 @@ public class TransactionService {
     public void handleMerchantReportRequested(Event event) {
         var id = event.getArgument(0, String.class);
         var merchantId = event.getArgument(1, String.class);
-        var resp = readRepository.getMerchantPayment(merchantId);
-        Event event2 = new Event("MerchantReportCreated", new Object[]{id, resp});
+        var reports = readRepository.getMerchantPayment(merchantId);
+        ReportUserResponse resp = new ReportUserResponse();
+        resp.setReports(reports);
+        Event event2 = new Event("MerchantReportCreated", new Object[]{ id, resp});
         queue.publish(event2);
 
     }

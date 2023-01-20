@@ -49,9 +49,9 @@ public class PaymentStepsTest {
         customer.setLastName("Test");
         customer.setCprNumber("JeffreyTest");
 
-        merchant.setFirstName("Ellen");
-        merchant.setLastName("Test");
-        merchant.setCprNumber("EllenTest");
+        merchant.setFirstName("Eltglen");
+        merchant.setLastName("Testgt");
+        merchant.setCprNumber("EltglenTest");
     }
 
     @After
