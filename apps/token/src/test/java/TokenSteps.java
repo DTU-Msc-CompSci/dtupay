@@ -51,7 +51,7 @@ public class TokenSteps {
 
     @Then("a TokenRequestFulfilled event is published")
     public void aTokenRequestFulfilledEventIsPublished() {
-        TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID), "success");
+        TokenResponse response = new TokenResponse(service.getAssignedTokens().get(customerID), "Success");
         Event event = new Event("TokenRequestFulfilled", new Object[]{correlationID, response});
         verify(mockQueue).publish(event);
     }

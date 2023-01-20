@@ -44,7 +44,7 @@ public class CustomerResource {
     public Response postToken(TokenRequest tokenRequest) {
         try {
             TokenResponse response = service.getToken(tokenRequest);
-            if (!response.getMessage().equals("success")) {
+            if (!response.getMessage().equals("Success")) {
                 return Response.status(400).entity(response.getMessage()).build();
             }
             return Response.status(201).entity(response.getTokens()).build();

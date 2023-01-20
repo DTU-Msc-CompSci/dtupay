@@ -188,7 +188,7 @@ public class CoreService {
         Event event = new Event("TokenRequested", new Object[]{correlationId, t});
         queue.publish(event);
         pendingTokenRequests.put(correlationId, requestedToken);
-        return requestedToken.get();
+        return requestedToken.join(); // ??????
     }
 
     public void handleRequestedToken(Event e) {

@@ -3,10 +3,7 @@ package org.acme;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
@@ -66,7 +63,7 @@ public class TokenService {
             response.setMessage("More than 5 tokens requested");
         } else {
             error = false;
-            response.setMessage("success");
+            response.setMessage("Success");
             response.setTokens(generateTokens(s));
 
         }
@@ -95,8 +92,11 @@ public class TokenService {
     }
 
     public void removeAllTokenFromCustomer(String customerId) {
-        assignedTokens.remove(customerId);
-        while (tokenToId.values().remove(customerId)) ;
+        if (customerId != null) {
+            assignedTokens.remove(customerId);
+            tokenToId.values().removeAll(Collections.singleton(null));
+            tokenToId.values().removeIf(customerId::equals);
+        }
     }
 
     public Set<Token> generateTokens(TokenRequest tokenRequest) {
