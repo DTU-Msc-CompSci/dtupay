@@ -28,11 +28,11 @@ services:
         condition: service_started
 
 
-  payment-service:
+  transaction-service:
     build:
-      context: apps/payment
+      context: apps/transaction
       dockerfile: ./Dockerfile
-    hostname: payment
+    hostname: transaction
     restart: always
     networks:
       - dtupay-network
