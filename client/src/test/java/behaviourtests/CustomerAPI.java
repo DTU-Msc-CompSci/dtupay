@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.List;
 import java.util.Set;
 
 public class CustomerAPI {
@@ -50,11 +51,15 @@ public class CustomerAPI {
         Response response = baseUrl.path("customer/token")
                 .request()
                 .post(Entity.entity(tokenRequest,MediaType.APPLICATION_JSON));
-        System.out.println(response.getStatus());
         if (response.getStatus() == 200 || response.getStatus() == 201) {
             return response.readEntity(new GenericType<>() {});
         } else {
             throw new Exception(response.readEntity(String.class));
         }
     }
+//    public List<Transaction> getReport(String cid) {
+//        return baseUrl.path("customer/transactions")
+//                .request()
+//                .get(List<Transaction>)
+//    }
 }
