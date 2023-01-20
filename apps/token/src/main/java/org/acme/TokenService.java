@@ -93,9 +93,12 @@ public class TokenService {
 
     public void removeAllTokenFromCustomer(String customerId) {
         if (customerId != null) {
+            Set<Token> tokensRemove = assignedTokens.get(customerId);
+            for(Token t: tokensRemove) {
+                usedTokenPool.add(t.getToken());
+                tokenToId.remove(t.getToken());
+            }
             assignedTokens.remove(customerId);
-            tokenToId.values().removeAll(Collections.singleton(null));
-            tokenToId.values().removeIf(customerId::equals);
         }
     }
 
