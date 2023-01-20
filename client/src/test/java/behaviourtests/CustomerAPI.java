@@ -16,7 +16,7 @@ public class CustomerAPI {
 
     public CustomerAPI() {
         Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8091/");
+        this.baseUrl = client.target("http://localhost:8080/");
     }
 
     public Response deregisterCustomer(DTUPayUser user) throws Exception {

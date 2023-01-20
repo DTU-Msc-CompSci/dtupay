@@ -14,7 +14,7 @@ public class MerchantAPI {
 
     public MerchantAPI() {
         Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8091/");
+        this.baseUrl = client.target("http://localhost:8080/");
 
     }
 
