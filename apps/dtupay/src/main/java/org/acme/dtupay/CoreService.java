@@ -185,7 +185,7 @@ public class CoreService {
         var correlationId = generateCorrelationId();
         CompletableFuture<TokenResponse> requestedToken = new CompletableFuture<>();
         pendingTokenRequests.put(correlationId, requestedToken);
-        //requestedToken.orTimeout(timeoutValue, timeoutUnit);
+        requestedToken.orTimeout(timeoutValue, timeoutUnit);
         Event event = new Event("TokenRequested", new Object[]{correlationId, t});
         queue.publish(event);
         return requestedToken.join(); // ??????
