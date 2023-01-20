@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionManagerView implements Serializable {
-    // Might need to change the number depending on the User being referenced
     private static final long serialVersionUID = 9023222281284906610L;
 
     private String customerToken;

@@ -46,27 +46,27 @@ public class TransactionSteps {
     public void beforeStep() {
         User cost = new User();
 
-        cost.setFirstName("John");
-        cost.setLastName("Doe");
-        cost.setCprNumber("123456-7890");
+        cost.setFirstName("Floyd");
+        cost.setLastName("Woodbury");
+        cost.setCprNumber("040850-2659");
         customer = new DTUPayUser();
         customer.setPerson(new Person(cost.getFirstName(), cost.getLastName(), cost.getCprNumber()));
         customer.setUniqueId("uniquecustomerId");
 
         User cost2 = new User();
 
-        cost2.setFirstName("Bob");
-        cost2.setLastName("Doe");
-        cost2.setCprNumber("547321-7890");
+        cost2.setFirstName("Sherwood");
+        cost2.setLastName("Williams");
+        cost2.setCprNumber("080953-3069");
         customer2 = new DTUPayUser();
         customer2.setPerson(new Person(cost2.getFirstName(), cost2.getLastName(), cost2.getCprNumber()));
         customer2.setUniqueId("uniquecustomerId2");
 
 
         User mer = new User();
-        mer.setFirstName("Joe");
-        mer.setLastName("Wice");
-        mer.setCprNumber("098765-4321");
+        mer.setFirstName("Timothy");
+        mer.setLastName("Knowles");
+        mer.setCprNumber("050243-2435");
         merchant = new DTUPayUser();
         merchant.setPerson(new Person(mer.getFirstName(), mer.getLastName(), mer.getCprNumber()));
         merchant.setUniqueId("uniquemerchantId");

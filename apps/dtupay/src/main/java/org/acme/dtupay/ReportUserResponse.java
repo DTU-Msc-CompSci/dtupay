@@ -11,7 +11,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportUserResponse {
-    // Might need to change the number depending on the User being referenced
     private Set<TransactionUserView> reports;
 
 }

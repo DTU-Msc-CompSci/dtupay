@@ -33,22 +33,21 @@ public class AccountStepsTest {
 
     private DTUPayUser registeredCustomer;
     private DTUPayUser registeredMerchant;
-    private DTUPayUser deRegisteredCustomer;
     ErrorMessageHolder errorMessageHolder = new ErrorMessageHolder();
     private Response response;
 
 
     @Before
     public void init() throws BankServiceException_Exception {
-        customer.setFirstName("adlffffdfv2s4d3ferg64efrdrgbrffdfd1fsfsdx5");
-        customer.setLastName("Tradffvffdfds3dfer46gerfgrt1rsffddd5sosdlta");
-        customer.setCprNumber("mdasfffsdff32dder46gffv1rfrssteCsdPRvalue");
+        customer.setFirstName("William");
+        customer.setLastName("Duncan");
+        customer.setCprNumber("151173-2707");
 
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(1000));
 
-        merchant.setFirstName("Volfdd2sdfd3er364gfvrtd1fvsrfrf5dffsdemor");
-        merchant.setLastName("_sdfd5f2s2dfder64gffrdgb1dfvffdd");
-        merchant.setCprNumber("_sf5fd2sd5fferv64dfvfdgb1fffffsdsd");
+        merchant.setFirstName("Clarissa");
+        merchant.setLastName("Campbell");
+        merchant.setCprNumber("150466-4232");
 
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(1000));
     }
@@ -57,9 +56,11 @@ public class AccountStepsTest {
     public void tearDown() {
         try {
             bankService.retireAccount(customerBankId);
+        } catch (BankServiceException_Exception e) {
+        }
+        try {
             bankService.retireAccount(merchantBankId);
         } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
         }
     }
 

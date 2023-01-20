@@ -149,26 +149,6 @@ public class TransactionService {
         Payment payment = repository.getById(id);
 
         if (payment.complete()) {
-//            String customerID = payment.getCustomerID();
-//            String merchantID = payment.getMerchantID();
-//            BigDecimal amount = payment.getAmount();
-//
-//            System.out.println("CUSTOMER ID");
-//            System.out.println(customerID);
-//            System.out.println("MERCHANT ID");
-//            System.out.println(merchantID);
-//            System.out.println("AMOUNT");
-//            System.out.println(amount);
-//
-//            if(customerID == null || customerID.isEmpty()) {
-//                System.out.println("I AM HERE!!!!");
-//                Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Invalid token"});
-//                queue.publish(transactionFailedEvent);
-//            } else if(merchantID.equals("")) {
-//                Event transactionFailedEvent = new Event("TransactionFailed", new Object[]{id, "Merchant does not exist"});
-//                queue.publish(transactionFailedEvent);
-//            }
-            System.out.println("I SKIPPED IT!!!!!");
             initiateTransaction(payment.getCustomerBankID(), payment.getMerchantBankID(), payment.getAmount(), id);
         }
     }

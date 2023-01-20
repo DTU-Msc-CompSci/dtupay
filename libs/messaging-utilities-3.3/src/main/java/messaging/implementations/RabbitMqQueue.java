@@ -35,7 +35,6 @@ public class RabbitMqQueue implements MessageQueue {
 	@Override
 	public void publish(Event event) {
 		String message = new Gson().toJson(event);
-		System.out.println(System.currentTimeMillis() / 1000 + "    [x] Publish event " + message);
 		try {
 			channel.basicPublish(EXCHANGE_NAME, TOPIC, null, message.getBytes("UTF-8"));
 		} catch (IOException e) {

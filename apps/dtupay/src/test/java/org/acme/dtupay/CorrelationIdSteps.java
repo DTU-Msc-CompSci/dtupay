@@ -21,7 +21,7 @@ public class CorrelationIdSteps {
     public void existingCustomerWithBankID(String bankId) {
         customer = new DTUPayUser();
         customer.setBankId(new BankId(bankId));
-        customer.setPerson(new Person("Alekreos23rf", "tsecfrd23", "1vr323arflex123test"));
+        customer.setPerson(new Person("Emerita", "Martinez", "110998-3000"));
     }
 
     @When("the customer registers for DTU Pay")

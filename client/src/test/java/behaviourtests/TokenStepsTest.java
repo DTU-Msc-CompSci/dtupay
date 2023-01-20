@@ -30,9 +30,9 @@ public class TokenStepsTest {
     @Before
     public void before() {
         User c = new User();
-        c.setFirstName("Alesf1sdf23erg3eedrv33rgfdfvfsf3ffffds65ddxst");
-        c.setLastName("test1faf23sdfaergerve3rdfffd2sd65fssdsdAlex");
-        c.setCprNumber("som1fe3R23sdffaf23ervedfver5f6fdfasdfdasdndomStuff");
+        c.setFirstName("Claudia");
+        c.setLastName("Williams");
+        c.setCprNumber("240361-4605");
         try {
             bankID = bankService.createAccountWithBalance(c, BigDecimal.valueOf(1000));
         } catch (Exception e) {
@@ -55,7 +55,7 @@ public class TokenStepsTest {
     @Given("a customer is registered with DTU Pay")
     public void a_customer_is_registered_with_DTU_Pay() throws Exception {
         customer.setBankId(new BankId(bankID));
-        customer.setPerson(new Person("Alex234234tefest", "testA234234eflex", "somef23424eRandomStuff"));
+        customer.setPerson(new Person("Claudia", "Williams", "240361-4605"));
         customer = customerAPI.postCustomer(customer);
     }
 
@@ -89,7 +89,7 @@ public class TokenStepsTest {
     @Given("a customer that is not registered with DTU Pay")
     public void aCustomerThatIsNotRegisteredWithDTUPay() {
         customer.setBankId(new BankId(bankID));
-        customer.setPerson(new Person("test", "test", "test"));
+        customer.setPerson(new Person("Kimberly", "Fries", "030886-0884"));
         assertNull(customer.getUniqueId());
     }
 }

@@ -45,28 +45,32 @@ public class RegistrationSteps {
     @Before
     public void beforeStep() {
         User cost = new User();
-        cost.setFirstName("Easdxample3");
-        cost.setLastName("Examadsple3");
-        cost.setCprNumber("Examasdple3CPR");
+        cost.setFirstName("Sharon");
+        cost.setLastName("Scheerer");
+        cost.setCprNumber("170801-7066");
 
         User mer = new User();
-        mer.setFirstName("Exampadle4");
-        mer.setLastName("Examasdple4");
-        mer.setCprNumber("Exaasdmple4CPR");
+        mer.setFirstName("Paul");
+        mer.setLastName("Lewis");
+        mer.setCprNumber("141066-0551");
         try {
             customerBankAccountId = bankService.createAccountWithBalance(cost, BigDecimal.valueOf(10));
+        } catch (BankServiceException_Exception e) {
+        }
+        try {
             merchantBankAccountId = bankService.createAccountWithBalance(mer, BigDecimal.valueOf(10));
         } catch (BankServiceException_Exception e) {
-            throw new RuntimeException(e);
         }
     }
     @After
     public void afterStep() {
         try {
             bankService.retireAccount(customerBankAccountId);
-            bankService.retireAccount(merchantBankAccountId);
         } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
+        }
+        try {
+            bankService.retireAccount(merchantBankAccountId);
+        } catch(BankServiceException_Exception e) {
         }
     }
 

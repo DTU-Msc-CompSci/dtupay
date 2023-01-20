@@ -45,13 +45,13 @@ public class PaymentStepsTest {
 
     @Before
     public void init() {
-        customer.setFirstName("Jes2dr23frsdff4vdffe2rfdfffsdfdfffrey");
-        customer.setLastName("Tedd23fffrfd2f34dfvrffdfr5fffs1dffdddsdt");
-        customer.setCprNumber("Je32dsfdf34ff5rvfrefdfvrfff1dsdfffdrasdeyTest");
+        customer.setFirstName("Steven");
+        customer.setLastName("Lawrence");
+        customer.setCprNumber("290180-3601");
 
-        merchant.setFirstName("El22dfsfd345fderffvd1fvrfrffddfddsffdsdlen");
-        merchant.setLastName("Tes23223fdrfsdfrdferf1dfvvdfddfdfsdffdsdst");
-        merchant.setCprNumber("El22f354ffrfderf2fvfv1dfrfdffsfdsdsenTest");
+        merchant.setFirstName("Christopher");
+        merchant.setLastName("Richards");
+        merchant.setCprNumber("110900-7605");
     }
 
     @After
@@ -63,7 +63,6 @@ public class PaymentStepsTest {
         try {
             bankService.retireAccount(merchantBankId);
         } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
         }
     }
 

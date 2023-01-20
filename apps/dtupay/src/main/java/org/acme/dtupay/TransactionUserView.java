@@ -12,8 +12,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionUserView {
-    // Might need to change the number depending on the User being referenced
-
     private String customerToken;
 
     private String merchantId;

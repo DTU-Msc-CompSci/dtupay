@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-//TODO This xml thing
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,7 +47,6 @@ public class TransactionManagerView implements Serializable {
 
     @Override
     public String toString() {
-        // uniqueId could potentially be null
         return String.format("Transaction id: %s", transactionId);
     }
 

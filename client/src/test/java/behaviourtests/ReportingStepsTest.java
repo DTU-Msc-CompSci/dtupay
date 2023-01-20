@@ -51,17 +51,17 @@ public class ReportingStepsTest {
 
     @Before
     public void init() throws Exception {
-        customer.setFirstName("Bobdcdfvd2313sd43ftr34ybtbd5erffvfv4ervr5tgrfgfryrf1");
-        customer.setLastName("Lemorddt3423fsdfv43tb34ddf4erfvfvfvger1tgcrffvdfrfny1");
-        customer.setCprNumber("Lemord35sdff43ervd34f3vdtbtbdffervefc1dfvdfdvfrnOrangy1");
+        customer.setFirstName("Dallas");
+        customer.setLastName("Ellis");
+        customer.setCprNumber("090974-2293");
         customerBankId = bankService.createAccountWithBalance(customer, BigDecimal.valueOf(20000));
         dtuPayCustomer.setBankId(new BankId(customerBankId));
         dtuPayCustomer.setPerson(new Person(customer.getFirstName(),customer.getLastName(),customer.getCprNumber()));
         registeredCustomer = customerAPI.postCustomer(dtuPayCustomer);
 
-        merchant.setFirstName("Alrrt4sdfef34rv4dfvd34tbferfververvffddcd1fvdfvic1y");
-        merchant.setLastName("Peat23g3dsdff34er5vfvtb34rterfv45grferver1vfrddcdfvdfvry");
-        merchant.setCprNumber("Appdsdfervff4d34fvrtb34rbvgerft3145rfervergldcrdedfvfPe1ary");
+        merchant.setFirstName("Devin");
+        merchant.setLastName("Moreau");
+        merchant.setCprNumber("100751-0450");
         merchantBankId = bankService.createAccountWithBalance(merchant, BigDecimal.valueOf(10000));
         dtuPayMerchant.setBankId(new BankId(merchantBankId));
         dtuPayMerchant.setPerson(new Person(merchant.getFirstName(),merchant.getLastName(),merchant.getCprNumber()));
@@ -80,14 +80,15 @@ public class ReportingStepsTest {
     public void tearDown() {
         try {
             bankService.retireAccount(customerBankId);
+        } catch (BankServiceException_Exception e) {
+        }
+        try {
             bankService.retireAccount(merchantBankId);
         } catch (BankServiceException_Exception e) {
-            //throw new RuntimeException(e);
         }
     }
     @Given("a successful transaction")
     public void a_successful_transaction() {
-        // Write code here that turns the phrase above into concrete actions
         assertTrue(success);
     }
 
@@ -98,8 +99,6 @@ public class ReportingStepsTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        // Write code here that turns the phrase above into concrete actions
         managerReport= managerAPI.getReport();
         customerReport= customerAPI.getReport(registeredCustomer.getUniqueId());
 
@@ -110,7 +109,6 @@ public class ReportingStepsTest {
 
     @Then("the transaction is in the report")
     public void the_transaction_is_in_the_report() {
-        // Write code here that turns the phrase above into concrete actions
         assertTrue(1 == managerReport.stream().filter((transactionManagerView -> transactionManagerView.getCustomer() != null
                 && transactionManagerView.getCustomer().equals(registeredCustomer)
                 && transactionManagerView.getMerchant() != null

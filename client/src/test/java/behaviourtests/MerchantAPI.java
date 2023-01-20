@@ -8,17 +8,29 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 public class MerchantAPI {
 
-    private final WebTarget baseUrl;
+    private WebTarget baseUrl;
 
     public MerchantAPI() {
-        Client client = ClientBuilder.newClient();
-        this.baseUrl = client.target("http://localhost:8080/");
+        try (InputStream input = CustomerAPI.class.getClassLoader().getResourceAsStream("application.properties")) {
 
+            Properties prop = new Properties();
+
+            prop.load(input);
+
+            Client client = ClientBuilder.newClient();
+            this.baseUrl = client.target("http://" + prop.getProperty("hostname") + ":" + prop.getProperty("port") + "/");
+
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public Response deregisterMerchant(DTUPayUser user) {

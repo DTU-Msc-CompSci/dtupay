@@ -136,7 +136,6 @@ public class AccountService {
         return user.getUniqueId();
     }
 
-    // TODO: Correlation ID will be the first field, and the Domain object/s will be from 2 onward
     public String handleCustomerAccountCreationRequested(Event ev) {
         var correlationId = ev.getArgument(0, String.class);
         var user = ev.getArgument(1, DTUPayUser.class);
